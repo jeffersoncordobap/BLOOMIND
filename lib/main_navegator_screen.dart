@@ -1,3 +1,4 @@
+import 'package:bloomind/features/routines/presentation/ruotine_screen.dart';
 import 'package:flutter/material.dart';
 import 'features/emotions/presentation/screens/emotion_record_screen.dart';
 import 'features/emotions/presentation/screens/emotion_list_screen.dart';
@@ -14,7 +15,7 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
 
   final List<Widget> _screens = [
     const RegistroEmocionalScreen(),
-    const Center(child: Text("Rutinas")),
+    const RoutineScreen(),
     const Center(child: Text("Recursos")),
     const Center(child: Text("Estadísticas")),
     const Center(child: Text("Configuración")),
@@ -33,24 +34,17 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
     });
   }
 
-  // Helper para construir los iconos personalizados
   Widget _buildIcon(IconData iconData, Color color, int index) {
     bool isSelected = _selectedIndex == index;
-    // Si estamos en el diario (5), resaltamos el icono de inicio (0)
     if (_selectedIndex == 5 && index == 0) isSelected = true;
 
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        // Si está seleccionado, aplicamos un gris suave o sombra circular
         color: isSelected ? Colors.black.withOpacity(0.08) : Colors.transparent,
         shape: BoxShape.circle,
       ),
-      child: Icon(
-        iconData,
-        color: color, // El color siempre es el mismo
-        size: isSelected ? 30 : 26, // Un poco más grande si está seleccionado
-      ),
+      child: Icon(iconData, color: color, size: isSelected ? 30 : 26),
     );
   }
 

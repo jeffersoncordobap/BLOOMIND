@@ -35,4 +35,18 @@ class AssignRoutineRepositoryImpl implements AssignRoutineRepository {
       whereArgs: [idAssign],
     );
   }
+
+  @override
+  Future<AssignRoutine?> getAssignmentByDate(String date) async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      DatabaseConfig.tableAssignRoutine,
+      where: '${DatabaseConfig.colAssignDateTime} LIKE ?',
+      whereArgs: ['$date%'],
+    );
+    if (maps.isNotEmpty) {
+      return AssignRoutine.fromMap(maps.first);
+    }
+    return null;
+  }
 }

@@ -1,3 +1,4 @@
+import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -60,7 +61,11 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            context
+                .findAncestorStateOfType<MainNavigationScreenState>()
+                ?.cambiarIndice(0);
+          },
         ),
       ),
       body: Column(
