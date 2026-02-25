@@ -4,22 +4,15 @@ import '../repository/emotion_repository.dart';
 import '../repository/emotion_repository_impl.dart';
 
 class EmotionController extends ChangeNotifier {
-  // Instanciamos el repositorio
   final EmotionRepository _repository = EmotionRepositoryImpl();
   final TextEditingController notaController = TextEditingController();
 
-  // --- Variables de Estado ---
-
-  // Lista de emociones para el día seleccionado en la UI
   List<Emotion> emotionsForSelectedDay = [];
 
-  // Mapa para los puntos (eventos) del calendario
   Map<DateTime, List<Emotion>> _allEmotionsMap = {};
   Map<DateTime, List<Emotion>> get allEmotionsMap => _allEmotionsMap;
 
   bool isLoading = false;
-
-  // --- Lógica de Negocio ---
 
   int _obtenerNivelDeAnimo(String etiqueta) {
     switch (etiqueta.toLowerCase()) {
@@ -40,17 +33,13 @@ class EmotionController extends ChangeNotifier {
     }
   }
 
-  // --- Métodos de Carga ---
-
-  /// Carga todas las emociones para dibujar los puntos en el calendario
+  /// Carga todas las emociones para el calendario y las organiza por fecha
   Future<void> cargarTodosLosEventos() async {
     try {
       final todas = await _repository.getAllEmotions();
       final Map<DateTime, List<Emotion>> nuevoMapa = {};
 
       for (var emo in todas) {
-        // Parseamos la fecha y la normalizamos (año, mes, día solamente)
-        // para que TableCalendar pueda compararlas correctamente.
         DateTime fecha = DateTime.parse(emo.dateTime);
         DateTime fechaNormalizada = DateTime(
           fecha.year,
@@ -77,7 +66,6 @@ class EmotionController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Formateamos la fecha a 'YYYY-MM-DD' para el repositorio
       String fechaFormateada = fecha.toIso8601String().split('T')[0];
       emotionsForSelectedDay = await _repository.getEmotionsByDate(
         fechaFormateada,
@@ -90,8 +78,6 @@ class EmotionController extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-  // --- Métodos de Escritura ---
 
   /// Guarda una nueva emoción y actualiza el estado global
   Future<bool> guardarEmocion(String? etiqueta) async {
@@ -106,11 +92,8 @@ class EmotionController extends ChangeNotifier {
       );
 
       await _repository.addEmotion(nuevaEmocion);
-
-      // Limpiamos el campo de texto
       notaController.clear();
 
-      // IMPORTANTE: Refrescamos el mapa del calendario para que aparezca el nuevo punto
       await cargarTodosLosEventos();
       return true;
     } catch (e) {

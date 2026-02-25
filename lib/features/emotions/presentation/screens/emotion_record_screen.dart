@@ -1,3 +1,4 @@
+import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controller/emotion_controller.dart';
@@ -26,25 +27,10 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Obtenemos el controlador del provider
     final emotionProvider = context.read<EmotionController>();
 
     return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.pink,
-        unselectedItemColor: Colors.grey,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.local_florist), label: ""),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.self_improvement),
-            label: "",
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: ""),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: ""),
-        ],
-      ),
+      // Se eliminó el bottomNavigationBar de aquí porque ya está en MainNavigationScreen
       body: SafeArea(
         child: Center(
           child: Container(
@@ -114,6 +100,7 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                   );
                 }).toList(),
 
+                // Corrección de la variable: de emocionSbuild a emocionSeleccionada
                 if (emocionSeleccionada != null) ...[
                   const SizedBox(height: 30),
                   const Padding(
@@ -136,8 +123,7 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: TextField(
-                        controller:
-                            emotionProvider.notaController, // <--- CAMBIO AQUÍ
+                        controller: emotionProvider.notaController,
                         maxLines: 4,
                         decoration: const InputDecoration(
                           hintText: "¿Qué pasó hoy? (opcional)",
@@ -150,7 +136,6 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: ElevatedButton(
-                      // 5. IMPLEMENTA LA LÓGICA DE GUARDADO
                       onPressed: () async {
                         bool exito = await emotionProvider.guardarEmocion(
                           emocionSeleccionada,
@@ -191,12 +176,9 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const EmotionListScreen(),
-                        ),
-                      );
+                      context
+                          .findAncestorStateOfType<MainNavigationScreenState>()
+                          ?.irAlDiario();
                     },
                     child: const Text("Ver mi diario"),
                   ),

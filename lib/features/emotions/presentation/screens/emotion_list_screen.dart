@@ -25,7 +25,6 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
     });
   }
 
-  // Helper para mostrar emojis según el label
   String _getEmoji(String label) {
     switch (label.toLowerCase()) {
       case 'feliz':
@@ -146,7 +145,6 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
                     itemCount: controller.emotionsForSelectedDay.length,
                     itemBuilder: (context, index) {
                       final emo = controller.emotionsForSelectedDay[index];
-                      // Extraer hora del ISO String (2026-02-24T09:00:00 -> 09:00)
                       final hora = emo.dateTime.contains('T')
                           ? emo.dateTime.split('T')[1].substring(0, 5)
                           : "00:00";

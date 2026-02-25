@@ -50,7 +50,6 @@ class EmotionRepositoryImpl implements EmotionRepository {
   Future<List<Emotion>> getEmotionsByDate(String date) async {
     final db = await _dbHelper.database;
 
-    // Buscamos todos los registros donde la fecha comience con el string 'date' (YYYY-MM-DD)
     final List<Map<String, dynamic>> maps = await db.query(
       DatabaseConfig.tableEmotion,
       where: '${DatabaseConfig.colEmotionDateTime} LIKE ?',
