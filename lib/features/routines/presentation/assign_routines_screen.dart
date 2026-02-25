@@ -27,120 +27,150 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Asignar Rutina")),
+      backgroundColor: const Color(0xFFF0F4F8),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3142)),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          "Asignar rutinas",
+          style: TextStyle(
+            color: Color(0xFF2D3142),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+      ),
       body: ListenableBuilder(
         listenable: controller,
         builder: (context, _) {
-          if (controller.isLoading)
-            return const Center(child: CircularProgressIndicator());
-
-          return Padding(
-            padding: const EdgeInsets.all(20.0),
+          return SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "1. Selecciona la fecha",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                _buildCalendarTile(),
+                const SizedBox(height: 20),
+
+                // 1. EL CALENDARIO (Cuadro blanco central)
+                _buildCalendarCard(),
 
                 const SizedBox(height: 30),
 
                 const Text(
-                  "2. Selecciona la rutina",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  "Selecciona una rutina",
+                  style: TextStyle(color: Color(0xFF7D8FA9), fontSize: 16),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
+
+                // 2. EL DROPDOWN (Seleccionar)
                 _buildRoutineDropdown(),
 
-                const Spacer(),
+                const SizedBox(height: 40),
 
-                _buildSaveButton(),
+                // 3. EL BOTÓN (Asignar rutina)
+                _buildAssignButton(),
+
+                const SizedBox(height: 20),
               ],
             ),
           );
         },
       ),
+      // Mantenemos tu BottomNavigationBar aquí si la tienes
+      // bottomNavigationBar: CustomBottomNavBar(),
     );
   }
 
-  // Widget para mostrar y cambiar la fecha
-  Widget _buildCalendarTile() {
-    return ListTile(
-      tileColor: Colors.blue.withOpacity(0.1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      leading: const Icon(Icons.calendar_today, color: Colors.blue),
-      title: Text(
-        "${controller.selectedDate.day}/${controller.selectedDate.month}/${controller.selectedDate.year}",
+  Widget _buildCalendarCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(25),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
-      trailing: const Text("Cambiar", style: TextStyle(color: Colors.blue)),
-      onTap: () async {
-        DateTime? picked = await showDatePicker(
-          context: context,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(25),
+        child: CalendarDatePicker(
           initialDate: controller.selectedDate,
-          firstDate: DateTime.now(),
+          firstDate: DateTime(2020),
           lastDate: DateTime(2030),
-        );
-        if (picked != null) controller.updateSelectedDate(picked);
-      },
+          onDateChanged: (DateTime date) {
+            controller.updateSelectedDate(date);
+          },
+        ),
+      ),
     );
   }
 
-  // Dropdown que se llena con las rutinas de la base de datos
   Widget _buildRoutineDropdown() {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.shade400),
-        borderRadius: BorderRadius.circular(10),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: const Color(0xFFB8C8DF)),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<Routine>(
           isExpanded: true,
-          hint: const Text("Elegir rutina"),
           value: controller.selectedRoutine,
-          items: controller.availableRoutines.map((Routine routine) {
+          hint: const Text(
+            "Seleccionar",
+            style: TextStyle(color: Color(0xFF2D3142)),
+          ),
+          icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF2D3142)),
+          items: controller.availableRoutines.map((routine) {
             return DropdownMenuItem<Routine>(
               value: routine,
               child: Text(routine.name),
             );
           }).toList(),
-          onChanged: (Routine? newValue) =>
-              controller.updateSelectedRoutine(newValue),
+          onChanged: (val) => controller.updateSelectedRoutine(val),
         ),
       ),
     );
   }
 
-  Widget _buildSaveButton() {
+  Widget _buildAssignButton() {
     return SizedBox(
       width: double.infinity,
-      height: 55,
+      height: 60,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF4D86C7),
+          backgroundColor: const Color.fromARGB(
+            255,
+            117,
+            177,
+            234,
+          ), // Color azul pastel del diseño
+          elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
+            borderRadius: BorderRadius.circular(30),
           ),
         ),
         onPressed: () async {
-          bool success = await controller.saveAssignment();
-          if (success) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Rutina asignada correctamente")),
-            );
-            Navigator.pop(context);
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Por favor selecciona una rutina")),
-            );
-          }
+          bool ok = await controller.saveAssignment();
+          if (ok)
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(const SnackBar(content: Text("Asignada!")));
         },
         child: const Text(
-          "GUARDAR ASIGNACIÓN",
-          style: TextStyle(color: Colors.white),
+          "Asignar rutina",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
