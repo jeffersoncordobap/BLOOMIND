@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../controller/emotion_controller.dart';
 import '../widgets/emotion_card.dart';
+import 'emotion_list_screen.dart';
 
 class RegistroEmocionalScreen extends StatefulWidget {
   const RegistroEmocionalScreen({super.key});
@@ -13,8 +15,6 @@ class RegistroEmocionalScreen extends StatefulWidget {
 class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
   String? emocionSeleccionada;
 
-  final EmotionController _controller = EmotionController();
-
   final List<Map<String, String>> emociones = [
     {'emoji': '😄', 'texto': 'Feliz'},
     {'emoji': '🥱', 'texto': 'Cansado'},
@@ -25,13 +25,10 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
   ];
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    // Obtenemos el controlador del provider
+    final emotionProvider = context.read<EmotionController>();
+
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: Colors.pink,
@@ -139,7 +136,8 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: TextField(
-                        controller: _controller.notaController,
+                        controller:
+                            emotionProvider.notaController, // <--- CAMBIO AQUÍ
                         maxLines: 4,
                         decoration: const InputDecoration(
                           hintText: "¿Qué pasó hoy? (opcional)",
@@ -154,7 +152,7 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                     child: ElevatedButton(
                       // 5. IMPLEMENTA LA LÓGICA DE GUARDADO
                       onPressed: () async {
-                        bool exito = await _controller.guardarEmocion(
+                        bool exito = await emotionProvider.guardarEmocion(
                           emocionSeleccionada,
                         );
                         if (exito) {
@@ -193,7 +191,12 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                       ),
                     ),
                     onPressed: () {
-                      //navegar a la pantalla del historial
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EmotionListScreen(),
+                        ),
+                      );
                     },
                     child: const Text("Ver mi diario"),
                   ),
