@@ -14,7 +14,7 @@ class EmotionController extends ChangeNotifier {
 
   bool isLoading = false;
 
-  int _obtenerNivelDeAnimo(String etiqueta) {
+  int obtenerNivelDeAnimo(String etiqueta) {
     switch (etiqueta.toLowerCase()) {
       case 'feliz':
         return 5;
@@ -86,7 +86,7 @@ class EmotionController extends ChangeNotifier {
     try {
       final ahora = DateTime.now();
       final nuevaEmocion = Emotion(
-        moodLevel: _obtenerNivelDeAnimo(etiqueta),
+        moodLevel: obtenerNivelDeAnimo(etiqueta),
         label: etiqueta,
         note: notaController.text,
         dateTime: ahora.toIso8601String(),

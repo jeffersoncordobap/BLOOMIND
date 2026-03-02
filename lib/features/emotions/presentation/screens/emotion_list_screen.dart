@@ -33,80 +33,129 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
       text: emo.note,
     );
 
+    // Lista de emociones disponibles para el selector
+    final List<String> opciones = [
+      'Feliz',
+      'Neutral',
+      'Triste',
+      'Enojado',
+      'Cansado',
+      'Desmotivado',
+    ];
+
+    // Variable temporal para la nueva etiqueta (inicia con la actual)
+    String nuevaEtiqueta = emo.label;
+
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Para que el teclado no tape el modal
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
-      builder: (context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(
-            context,
-          ).viewInsets.bottom, // Ajuste para el teclado
-          left: 20,
-          right: 20,
-          top: 20,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              "Editar registro",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 15),
-            ListTile(
-              leading: Text(
-                _getEmoji(emo.label),
-                style: const TextStyle(fontSize: 30),
+      builder: (context) => StatefulBuilder(
+        // Importante: permite actualizar el estado dentro del modal
+        builder: (context, setModalState) => Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+            left: 20,
+            right: 20,
+            top: 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Editar registro de hoy",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              title: Text("Estado: ${emo.label}"),
-              subtitle: const Text(
-                "La emoción se mantiene, puedes editar la nota abajo.",
+              const SizedBox(height: 20),
+
+              // --- SELECTOR DE EMOJIS ---
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: opciones.map((label) {
+                  bool esSeleccionado =
+                      nuevaEtiqueta.toLowerCase() == label.toLowerCase();
+                  return GestureDetector(
+                    onTap: () => setModalState(() => nuevaEtiqueta = label),
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: esSeleccionado
+                            ? const Color(0xFFBDD4EB)
+                            : Colors.transparent,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: esSeleccionado
+                              ? const Color(0xFF4D86C7)
+                              : Colors.transparent,
+                          width: 2,
+                        ),
+                      ),
+                      child: Text(
+                        _getEmoji(label),
+                        style: const TextStyle(fontSize: 30),
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
-            ),
-            TextField(
-              controller: _editNotaController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: "Escribe tu nota aquí...",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(15),
+
+              const SizedBox(height: 10),
+              Text(
+                "Emoción: $nuevaEtiqueta",
+                style: const TextStyle(
+                  fontWeight: FontWeight.w500,
+                  color: Colors.blueGrey,
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4D86C7),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+              const SizedBox(height: 20),
+
+              TextField(
+                controller: _editNotaController,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  hintText: "Edita tu nota...",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
                   ),
                 ),
-                onPressed: () {
-                  // Creamos el objeto actualizado
-                  final updatedEmo = Emotion(
-                    idEmotion: emo.idEmotion, // Mantener el mismo ID
-                    moodLevel: emo.moodLevel,
-                    label: emo.label,
-                    note: _editNotaController.text,
-                    dateTime: emo.dateTime,
-                  );
+              ),
+              const SizedBox(height: 20),
 
-                  controller.actualizarEmocion(updatedEmo);
-                  Navigator.pop(context);
-                },
-                child: const Text(
-                  "Guardar cambios",
-                  style: TextStyle(color: Colors.white),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4D86C7),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
+                  ),
+                  onPressed: () {
+                    // Creamos el objeto con la NUEVA emoción y la NUEVA nota
+                    final updatedEmo = Emotion(
+                      idEmotion: emo.idEmotion,
+                      moodLevel: controller.obtenerNivelDeAnimo(
+                        nuevaEtiqueta,
+                      ), // Usamos el helper del controlador
+                      label: nuevaEtiqueta,
+                      note: _editNotaController.text,
+                      dateTime: emo.dateTime, // Mantiene la hora original
+                    );
+
+                    controller.actualizarEmocion(updatedEmo);
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    "Actualizar Registro",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-          ],
+            ],
+          ),
         ),
       ),
     );
