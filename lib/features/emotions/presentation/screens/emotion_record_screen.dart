@@ -1,12 +1,11 @@
-import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controller/emotion_controller.dart';
 import '../widgets/emotion_card.dart';
-import 'emotion_list_screen.dart';
 
 class RegistroEmocionalScreen extends StatefulWidget {
-  const RegistroEmocionalScreen({super.key});
+  final VoidCallback alPresionarDiario;
+  const RegistroEmocionalScreen({super.key, required this.alPresionarDiario});
 
   @override
   State<RegistroEmocionalScreen> createState() =>
@@ -30,7 +29,7 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
     final emotionProvider = context.read<EmotionController>();
 
     return Scaffold(
-      // Se eliminó el bottomNavigationBar de aquí porque ya está en MainNavigationScreen
+      backgroundColor: const Color(0xFFF5F5F5),
       body: SafeArea(
         child: Center(
           child: Container(
@@ -100,7 +99,6 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                   );
                 }).toList(),
 
-                // Corrección de la variable: de emocionSbuild a emocionSeleccionada
                 if (emocionSeleccionada != null) ...[
                   const SizedBox(height: 30),
                   const Padding(
@@ -175,11 +173,7 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                         borderRadius: BorderRadius.circular(30),
                       ),
                     ),
-                    onPressed: () {
-                      context
-                          .findAncestorStateOfType<MainNavigationScreenState>()
-                          ?.irAlDiario();
-                    },
+                    onPressed: widget.alPresionarDiario,
                     child: const Text("Ver mi diario"),
                   ),
                 ),

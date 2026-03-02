@@ -2,6 +2,7 @@ import 'package:bloomind/features/routines/controller/assing_routine_controller.
 import 'package:bloomind/features/routines/model/routine.dart';
 import 'package:bloomind/features/routines/repository/assign_routine_repository_impl.dart';
 import 'package:bloomind/features/routines/repository/routine_repository_impl.dart';
+import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 
 class AssignRoutineScreen extends StatefulWidget {
@@ -33,7 +34,11 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3142)),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            context
+                .findAncestorStateOfType<MainNavigationScreenState>()
+                ?.cambiarIndice(1);
+          },
         ),
         title: const Text(
           "Asignar rutinas",

@@ -84,17 +84,23 @@ class EmotionController extends ChangeNotifier {
     if (etiqueta == null) return false;
 
     try {
+      final ahora = DateTime.now();
       final nuevaEmocion = Emotion(
         moodLevel: _obtenerNivelDeAnimo(etiqueta),
         label: etiqueta,
         note: notaController.text,
-        dateTime: DateTime.now().toIso8601String(),
+        dateTime: ahora.toIso8601String(),
       );
 
       await _repository.addEmotion(nuevaEmocion);
       notaController.clear();
 
+      // 1. Actualizamos los puntitos del calendario
       await cargarTodosLosEventos();
+
+      // 2. Actualizamos la lista del día de hoy inmediatamente
+      await cargarEmocionesPorFecha(ahora);
+
       return true;
     } catch (e) {
       debugPrint("Error al guardar emoción: $e");

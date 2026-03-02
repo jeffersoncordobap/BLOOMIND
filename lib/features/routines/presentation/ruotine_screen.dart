@@ -1,20 +1,15 @@
-import 'package:bloomind/features/routines/presentation/assign_routines_screen.dart';
-import 'package:bloomind/features/routines/presentation/routines_list_screen.dart';
 import 'package:flutter/material.dart';
 
 class RoutineScreen extends StatelessWidget {
-  const RoutineScreen({super.key});
-
-  void _verRutinaDelDia() {
-    print("Ejecutando: Ver rutina del día");
-  }
-
-  void _asignarRutinas(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AssignRoutineScreen()),
-    );
-  }
+  final VoidCallback alPresionarListaRutinas;
+  final VoidCallback alPresionarAsignarRutinas;
+  final VoidCallback alPresionarVerRutinaDia;
+  const RoutineScreen({
+    super.key,
+    required this.alPresionarListaRutinas,
+    required this.alPresionarAsignarRutinas,
+    required this.alPresionarVerRutinaDia,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,30 +29,21 @@ class RoutineScreen extends StatelessWidget {
 
             _buildPrimaryButton(
               text: 'Ver rutina del día',
-              onTap: _verRutinaDelDia,
+              onTap: alPresionarVerRutinaDia,
             ),
 
             const SizedBox(height: 18),
 
             _buildPrimaryButton(
               text: 'Asignar rutinas',
-              onTap: () {
-                _asignarRutinas(context);
-              },
+              onTap: alPresionarAsignarRutinas,
             ),
 
             const SizedBox(height: 18),
 
             _buildPrimaryButton(
               text: 'Ver mis rutinas',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const RoutineListScreen(),
-                  ),
-                );
-              },
+              onTap: alPresionarListaRutinas,
             ),
           ],
         ),
@@ -80,7 +66,6 @@ class RoutineScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(28),
           ),
         ),
-        // AQUÍ es donde se "conecta" la acción
         onPressed: onTap,
         child: Text(text, style: const TextStyle(fontSize: 16)),
       ),

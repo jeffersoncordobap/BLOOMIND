@@ -1,3 +1,5 @@
+import 'package:bloomind/features/routines/presentation/assign_routines_screen.dart';
+import 'package:bloomind/features/routines/presentation/routines_list_screen.dart';
 import 'package:bloomind/features/routines/presentation/ruotine_screen.dart';
 import 'package:flutter/material.dart';
 import 'features/emotions/presentation/screens/emotion_record_screen.dart';
@@ -12,15 +14,27 @@ class MainNavigationScreen extends StatefulWidget {
 
 class MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
+  late List<Widget> _screens;
 
-  final List<Widget> _screens = [
-    const RegistroEmocionalScreen(),
-    const RoutineScreen(),
-    const Center(child: Text("Recursos")),
-    const Center(child: Text("Estadísticas")),
-    const Center(child: Text("Configuración")),
-    const EmotionListScreen(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _screens = [
+      RegistroEmocionalScreen(alPresionarDiario: irAlDiario),
+      RoutineScreen(
+        alPresionarListaRutinas: irAlistaRutinas,
+        alPresionarAsignarRutinas: irAAsignarRutinas,
+        alPresionarVerRutinaDia: irAverRutinaDelDia,
+      ),
+      const Center(child: Text("Recursos")),
+      const Center(child: Text("Estadísticas")),
+      const Center(child: Text("Configuración")),
+      const EmotionListScreen(),
+      const RoutineListScreen(),
+      const AssignRoutineScreen(),
+      const Center(child: Text("Rutina del día")),
+    ];
+  }
 
   void cambiarIndice(int index) {
     setState(() {
@@ -34,8 +48,27 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
     });
   }
 
+  void irAlistaRutinas() {
+    setState(() {
+      _selectedIndex = 6;
+    });
+  }
+
+  void irAAsignarRutinas() {
+    setState(() {
+      _selectedIndex = 7;
+    });
+  }
+
+  void irAverRutinaDelDia() {
+    setState(() {
+      _selectedIndex = 8;
+    });
+  }
+
   Widget _buildIcon(IconData iconData, Color color, int index) {
     bool isSelected = _selectedIndex == index;
+
     if (_selectedIndex == 5 && index == 0) isSelected = true;
 
     return Container(
