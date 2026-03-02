@@ -113,4 +113,45 @@ class EmotionController extends ChangeNotifier {
     notaController.dispose();
     super.dispose();
   }
+
+  /// Elimina una emoción y refresca los datos
+  Future<void> eliminarEmocion(int? id, DateTime fechaRegistro) async {
+    if (id == null) return;
+
+    try {
+      await _repository.deleteEmotion(id);
+
+      // Refrescamos ambos estados para que la UI se actualice
+      await cargarTodosLosEventos();
+      await cargarEmocionesPorFecha(fechaRegistro);
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error al eliminar emoción: $e");
+    }
+  }
+
+  /// Verifica si una fecha es el día de hoy
+  bool esHoy(DateTime fecha) {
+    final ahora = DateTime.now();
+    return fecha.year == ahora.year &&
+        fecha.month == ahora.month &&
+        fecha.day == ahora.day;
+  }
+
+  Future<void> actualizarEmocion(Emotion emotion) async {
+    if (!esHoy(DateTime.parse(emotion.dateTime))) {
+      debugPrint("Intento de edición no permitido: La fecha no es hoy.");
+      return;
+    }
+
+    try {
+      await _repository.updateEmotion(emotion);
+      await cargarTodosLosEventos();
+      await cargarEmocionesPorFecha(DateTime.parse(emotion.dateTime));
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error al actualizar: $e");
+    }
+  }
 }
