@@ -22,12 +22,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
   bool _isFormVisible = false;
   List<Activity> lista_sugerencias = [];
 
-  // Definición de colores basada en tus imágenes
-  final Color backgroundColor = const Color(
-    0xFFF1F5F9,
-  ); // Gris muy claro de fondo
-  final Color primaryBlue = const Color(0xFF75B1EA); // Azul del botón
-  final Color labelColor = const Color(0xFF64748B); // Color de los títulos
+  final Color backgroundColor = const Color(0xFFF1F5F9);
+  final Color primaryBlue = const Color(0xFF75B1EA);
+  final Color labelColor = const Color(0xFF64748B);
 
   @override
   void initState() {
@@ -107,7 +104,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
             const SizedBox(height: 24),
 
-            // --- SUGERENCIAS ---
             _buildLabel("Sugerencias"),
             const SizedBox(height: 12),
             Wrap(
@@ -128,9 +124,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(
-                            0xFFE0F2FE,
-                          ), // Azul muy suave como en tu imagen
+                          color: const Color(0xFFE0F2FE),
                           borderRadius: BorderRadius.circular(25),
                           border: Border.all(
                             color: primaryBlue.withOpacity(0.2),
@@ -158,7 +152,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
             const SizedBox(height: 24),
 
-            // --- NOMBRE ACTIVIDAD ---
             _buildLabel("Nombre de actividad"),
             const SizedBox(height: 8),
             TextField(
@@ -168,7 +161,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
             const SizedBox(height: 24),
 
-            // --- EMOJI ---
             _buildLabel("Emoji"),
             const SizedBox(height: 8),
             TextField(
@@ -179,7 +171,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
             const SizedBox(height: 24),
 
-            // --- HORA ---
             _buildLabel("Hora"),
             const SizedBox(height: 8),
             TextField(
@@ -203,7 +194,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
             const SizedBox(height: 40),
 
-            // --- BOTÓN GUARDAR ---
             SizedBox(
               width: double.infinity,
               height: 55,
@@ -280,7 +270,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
     );
   }
 
-  // --- LÓGICA REUTILIZADA ---
   Future<void> _guardarTodo() async {
     final controller = context.read<ActivityController>();
     if (_activityNameController.text.isEmpty ||

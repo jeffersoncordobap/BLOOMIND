@@ -21,7 +21,6 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
   void initState() {
     super.initState();
     _selectedDay = _focusedDay;
-    // Cargar emociones de hoy al entrar
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<EmotionController>().cargarEmocionesPorFecha(_selectedDay!);
     });
@@ -32,8 +31,6 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
     final TextEditingController _editNotaController = TextEditingController(
       text: emo.note,
     );
-
-    // Lista de emociones disponibles para el selector
     final List<String> opciones = [
       'Feliz',
       'Neutral',
@@ -42,8 +39,6 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
       'Cansado',
       'Desmotivado',
     ];
-
-    // Variable temporal para la nueva etiqueta (inicia con la actual)
     String nuevaEtiqueta = emo.label;
 
     showModalBottomSheet(
@@ -53,7 +48,6 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
       builder: (context) => StatefulBuilder(
-        // Importante: permite actualizar el estado dentro del modal
         builder: (context, setModalState) => Padding(
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom + 20,
@@ -69,8 +63,6 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-
-              // --- SELECTOR DE EMOJIS ---
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: opciones.map((label) {
@@ -134,15 +126,12 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
                     ),
                   ),
                   onPressed: () {
-                    // Creamos el objeto con la NUEVA emoción y la NUEVA nota
                     final updatedEmo = Emotion(
                       idEmotion: emo.idEmotion,
-                      moodLevel: controller.obtenerNivelDeAnimo(
-                        nuevaEtiqueta,
-                      ), // Usamos el helper del controlador
+                      moodLevel: controller.obtenerNivelDeAnimo(nuevaEtiqueta),
                       label: nuevaEtiqueta,
                       note: _editNotaController.text,
-                      dateTime: emo.dateTime, // Mantiene la hora original
+                      dateTime: emo.dateTime,
                     );
 
                     controller.actualizarEmocion(updatedEmo);
@@ -180,7 +169,6 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
     }
   }
 
-  // DIÁLOGO DE CONFIRMACIÓN PARA ELIMINAR
   void _confirmarEliminacion(
     BuildContext context,
     EmotionController controller,
@@ -236,7 +224,6 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
       ),
       body: Column(
         children: [
-          // CARD DEL CALENDARIO
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             padding: const EdgeInsets.only(bottom: 10),
@@ -287,7 +274,6 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
 
           const SizedBox(height: 10),
 
-          // TÍTULO DE LA FECHA SELECCIONADA
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25),
             child: Align(
@@ -305,7 +291,6 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
 
           const SizedBox(height: 10),
 
-          // LISTADO DE EMOCIONES
           Expanded(
             child: controller.isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -317,7 +302,6 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
                     itemBuilder: (context, index) {
                       final emo = controller.emotionsForSelectedDay[index];
 
-                      // Lógica de validación: ¿Es hoy?
                       final bool sePuedeEditar = controller.esHoy(
                         _selectedDay!,
                       );
@@ -356,7 +340,6 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
                                   ],
                                 ),
 
-                                // BOTONES DE ACCIÓN (SOLO SI ES HOY)
                                 if (sePuedeEditar)
                                   PopupMenuButton<String>(
                                     icon: const Icon(

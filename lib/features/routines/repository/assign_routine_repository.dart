@@ -11,4 +11,7 @@ abstract class AssignRoutineRepository {
 
   // Eliminar una asignación (ej: el usuario canceló la rutina ese día)
   Future<int> removeAssignment(int idAssign);
+
+  // Obtener qué asignación hay para un día específico (YYYY-MM-DD)
+  Future<AssignRoutine?> getAssignmentByDate(String date);
 }

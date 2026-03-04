@@ -14,7 +14,6 @@ class RoutineDetailScreen extends StatefulWidget {
 }
 
 class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
-  // Colores del diseño de las imágenes
   final Color backgroundColor = const Color(0xFFF1F5F9);
   final Color primaryBlue = const Color(0xFF75B1EA);
 

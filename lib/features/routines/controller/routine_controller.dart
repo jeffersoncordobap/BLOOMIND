@@ -10,8 +10,6 @@ class RoutineController extends ChangeNotifier {
   bool isLoading = false;
 
   RoutineController({required this.repository});
-
-  // Cargar rutinas de la DB
   Future<void> fetchRoutines() async {
     isLoading = true;
     notifyListeners();

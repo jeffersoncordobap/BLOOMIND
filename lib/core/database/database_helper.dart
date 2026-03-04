@@ -31,7 +31,7 @@ class DatabaseHelper {
     )
   ''');
 
-    // 2. Tabla ACTIVITY (FRQ-06)
+    // 2. Tabla ACTIVITY
     await db.execute('''
     CREATE TABLE ${DatabaseConfig.tableActivity} (
       ${DatabaseConfig.colActivityId} INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,7 +41,7 @@ class DatabaseHelper {
     )
   ''');
 
-    // 3. Tabla ROUTINE (FRQ-05)
+    // 3. Tabla ROUTINE
     await db.execute('''
     CREATE TABLE ${DatabaseConfig.tableRoutine} (
       ${DatabaseConfig.colRoutineId} INTEGER PRIMARY KEY AUTOINCREMENT,

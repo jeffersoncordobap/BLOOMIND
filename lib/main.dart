@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:bloomind/core/database/database_helper.dart';
-
-// Todos los controladores y repositorios
 import 'package:bloomind/features/emotions/controller/emotion_controller.dart';
 import 'package:bloomind/features/routines/controller/routine_controller.dart';
 import 'package:bloomind/features/routines/controller/assing_routine_controller.dart';
@@ -32,7 +30,6 @@ void main() async {
             assignRepo: AssignRoutineRepositoryImpl(),
           ),
         ),
-        // ¡ESTE ES EL QUE FALTA!
         ChangeNotifierProvider(create: (_) => ActivityController()),
       ],
       child: const BloomindApp(),

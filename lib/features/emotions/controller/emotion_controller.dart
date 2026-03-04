@@ -95,10 +95,8 @@ class EmotionController extends ChangeNotifier {
       await _repository.addEmotion(nuevaEmocion);
       notaController.clear();
 
-      // 1. Actualizamos los puntitos del calendario
       await cargarTodosLosEventos();
 
-      // 2. Actualizamos la lista del día de hoy inmediatamente
       await cargarEmocionesPorFecha(ahora);
 
       return true;
@@ -114,14 +112,11 @@ class EmotionController extends ChangeNotifier {
     super.dispose();
   }
 
-  /// Elimina una emoción y refresca los datos
   Future<void> eliminarEmocion(int? id, DateTime fechaRegistro) async {
     if (id == null) return;
 
     try {
       await _repository.deleteEmotion(id);
-
-      // Refrescamos ambos estados para que la UI se actualice
       await cargarTodosLosEventos();
       await cargarEmocionesPorFecha(fechaRegistro);
 
@@ -131,7 +126,6 @@ class EmotionController extends ChangeNotifier {
     }
   }
 
-  /// Verifica si una fecha es el día de hoy
   bool esHoy(DateTime fecha) {
     final ahora = DateTime.now();
     return fecha.year == ahora.year &&

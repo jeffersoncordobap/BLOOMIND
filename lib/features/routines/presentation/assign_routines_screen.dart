@@ -15,7 +15,6 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
   @override
   void initState() {
     super.initState();
-    // Cargamos las rutinas de la DB cada vez que se inicializa la pantalla
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AssignRoutineController>().loadRoutines();
     });
@@ -23,7 +22,6 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Escuchamos los cambios del controlador
     final controller = context.watch<AssignRoutineController>();
 
     return Scaffold(
@@ -57,7 +55,6 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
                 children: [
                   const SizedBox(height: 20),
 
-                  // 1. EL CALENDARIO
                   _buildCalendarCard(controller),
 
                   const SizedBox(height: 30),
@@ -68,12 +65,10 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  // 2. EL DROPDOWN (Corregido e integrado)
                   _buildRoutineDropdown(controller),
 
                   const SizedBox(height: 40),
 
-                  // 3. EL BOTÓN
                   _buildAssignButton(controller),
 
                   const SizedBox(height: 20),
@@ -121,7 +116,6 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
       child: DropdownButtonHideUnderline(
         child: DropdownButton<Routine>(
           isExpanded: true,
-          // Validación crítica: evita errores si la rutina seleccionada fue eliminada
           value:
               controller.availableRoutines.contains(controller.selectedRoutine)
               ? controller.selectedRoutine

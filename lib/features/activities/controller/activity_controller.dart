@@ -9,8 +9,6 @@ class ActivityController extends ChangeNotifier {
   List<DropdownMenuItem<String>> categoryItems = [];
   List<Activity> currentRoutineActivities = [];
   bool isLoading = false;
-
-  /// Carga las categorías únicas desde la base de datos para el Dropdown
   Future<void> loadCategories() async {
     try {
       final activities = await _repository.getAllActivities();
@@ -29,7 +27,6 @@ class ActivityController extends ChangeNotifier {
     }
   }
 
-  /// Carga las actividades vinculadas a una rutina específica (Usado en la pantalla de detalles)
   Future<void> fetchActivitiesByRoutine(int idRoutine) async {
     isLoading = true;
     notifyListeners();
@@ -47,11 +44,8 @@ class ActivityController extends ChangeNotifier {
     }
   }
 
-  /// Genera sugerencias reales con emojis específicos según la categoría
   Future<List<Activity>> obtener_recomendaciones(String categoria) async {
     final activities = await _repository.getAllActivities();
-
-    // Filtramos para que no sugiera actividades cuyo nombre sea igual a la categoría
     final filtradas = activities
         .where(
           (a) =>
@@ -64,7 +58,6 @@ class ActivityController extends ChangeNotifier {
     return filtradas.take(3).toList();
   }
 
-  /// Inicializa la base de datos con actividades sugeridas de calidad
   Future<void> categoriasIniciales() async {
     final activities = await _repository.getAllActivities();
 
@@ -113,7 +106,6 @@ class ActivityController extends ChangeNotifier {
     await loadCategories();
   }
 
-  /// Agrega una nueva categoría creando una actividad base descriptiva
   Future<void> addCategory(String category) async {
     await _repository.createActivity(
       Activity(
@@ -126,7 +118,6 @@ class ActivityController extends ChangeNotifier {
     await loadCategories();
   }
 
-  /// Elimina una categoría (borra sus actividades asociadas)
   Future<void> removeCategory(String category) async {
     final activities = await _repository.getActivitiesByCategory(category);
     for (var a in activities) {
@@ -137,7 +128,6 @@ class ActivityController extends ChangeNotifier {
     await loadCategories();
   }
 
-  /// Guarda la actividad y la vincula a la rutina mediante la tabla intermedia
   Future<bool> saveActivityToRoutine({
     required int idRoutine,
     required String name,
@@ -155,8 +145,6 @@ class ActivityController extends ChangeNotifier {
 
       final idActivity = await _repository.createActivity(newActivity);
       await _repository.linkActivityToRoutine(idRoutine, idActivity, hour);
-
-      // Refrescamos la lista local para que la pantalla de detalles se actualice
       await fetchActivitiesByRoutine(idRoutine);
 
       return true;

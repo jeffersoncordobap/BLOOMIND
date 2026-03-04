@@ -70,7 +70,6 @@ class _RoutineListScreenState extends State<RoutineListScreen> {
   Widget _buildRoutineCard(dynamic routine, RoutineController controller) {
     return GestureDetector(
       onTap: () {
-        // Navegamos a la pantalla de detalle pasando el objeto routine completo
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -96,7 +95,6 @@ class _RoutineListScreenState extends State<RoutineListScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Expanded para que el nombre ocupe el espacio disponible
             Expanded(
               child: Text(
                 routine.name,
@@ -109,7 +107,6 @@ class _RoutineListScreenState extends State<RoutineListScreen> {
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.redAccent),
               onPressed: () {
-                // Confirmación opcional antes de borrar
                 controller.removeRoutine(routine.idRoutine!, context);
               },
             ),

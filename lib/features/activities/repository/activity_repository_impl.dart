@@ -72,7 +72,6 @@ class ActivityRepositoryImpl implements ActivityRepository {
     return results.map((map) => Activity.fromMap(map)).toList();
   }
 
-  // En ActivityRepository e ActivityRepositoryImpl
   @override
   Future<void> linkActivityToRoutine(
     int idRoutine,

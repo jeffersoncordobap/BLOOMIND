@@ -25,8 +25,6 @@ class AssignRoutineController extends ChangeNotifier {
 
     try {
       availableRoutines = await routineRepo.getAllRoutines();
-
-      // Si la rutina que estaba seleccionada ya no existe, la reseteamos
       if (selectedRoutine != null) {
         bool existe = availableRoutines.any(
           (r) => r.idRoutine == selectedRoutine!.idRoutine,
