@@ -1,4 +1,5 @@
 import 'package:bloomind/features/routines/controller/routine_controller.dart';
+import 'package:bloomind/features/routines/presentation/rutine_detail_screen.dart';
 import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -67,27 +68,53 @@ class _RoutineListScreenState extends State<RoutineListScreen> {
   }
 
   Widget _buildRoutineCard(dynamic routine, RoutineController controller) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.black12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            routine.name,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return GestureDetector(
+      onTap: () {
+        // Navegamos a la pantalla de detalle pasando el objeto routine completo
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => RoutineDetailScreen(routine: routine),
           ),
-          IconButton(
-            icon: const Icon(Icons.delete, color: Colors.redAccent),
-            onPressed: () =>
-                controller.removeRoutine(routine.idRoutine!, context),
-          ),
-        ],
+        );
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          border: Border.all(color: Colors.black12),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            // Expanded para que el nombre ocupe el espacio disponible
+            Expanded(
+              child: Text(
+                routine.name,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete, color: Colors.redAccent),
+              onPressed: () {
+                // Confirmación opcional antes de borrar
+                controller.removeRoutine(routine.idRoutine!, context);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

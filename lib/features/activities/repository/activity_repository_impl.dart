@@ -54,4 +54,36 @@ class ActivityRepositoryImpl implements ActivityRepository {
     );
     return maps.map((map) => Activity.fromMap(map)).toList();
   }
+
+  @override
+  Future<List<Activity>> getActivitiesByRoutine(int idRoutine) async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> results = await db.rawQuery(
+      '''
+      SELECT a.*, ra.hour 
+      FROM ${DatabaseConfig.tableActivity} a
+      INNER JOIN ${DatabaseConfig.tableRoutineActivity} ra 
+      ON a.${DatabaseConfig.colActivityId} = ra.${DatabaseConfig.colActivityId}
+      WHERE ra.${DatabaseConfig.colRoutineId} = ?
+    ''',
+      [idRoutine],
+    );
+
+    return results.map((map) => Activity.fromMap(map)).toList();
+  }
+
+  // En ActivityRepository e ActivityRepositoryImpl
+  @override
+  Future<void> linkActivityToRoutine(
+    int idRoutine,
+    int idActivity,
+    String hour,
+  ) async {
+    final db = await _dbHelper.database;
+    await db.insert(DatabaseConfig.tableRoutineActivity, {
+      DatabaseConfig.colRoutineId: idRoutine,
+      DatabaseConfig.colActivityId: idActivity,
+      DatabaseConfig.colRoutineActivityHour: hour,
+    });
+  }
 }

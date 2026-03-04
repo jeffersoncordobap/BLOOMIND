@@ -15,4 +15,14 @@ abstract class ActivityRepository {
 
   // Buscar actividades por categoría (ej: "Relajación")
   Future<List<Activity>> getActivitiesByCategory(String category);
+
+  // Obtener actividades asociadas a una rutina específica
+  Future<List<Activity>> getActivitiesByRoutine(int idRoutine);
+
+  // Guardar una actividad dentro de una rutina específica (crea la actividad y la asocia a la rutina)
+  Future<void> linkActivityToRoutine(
+    int idRoutine,
+    int idActivity,
+    String hour,
+  );
 }

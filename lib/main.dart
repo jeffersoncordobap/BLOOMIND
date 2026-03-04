@@ -1,3 +1,4 @@
+import 'package:bloomind/features/activities/controller/activity_controller.dart';
 import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +23,6 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => EmotionController()),
-
         ChangeNotifierProvider(
           create: (_) => RoutineController(repository: RoutineRepositoryImpl()),
         ),
@@ -32,6 +32,8 @@ void main() async {
             assignRepo: AssignRoutineRepositoryImpl(),
           ),
         ),
+        // ¡ESTE ES EL QUE FALTA!
+        ChangeNotifierProvider(create: (_) => ActivityController()),
       ],
       child: const BloomindApp(),
     ),
