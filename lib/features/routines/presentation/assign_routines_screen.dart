@@ -1,9 +1,8 @@
 import 'package:bloomind/features/routines/controller/assing_routine_controller.dart';
 import 'package:bloomind/features/routines/model/routine.dart';
-import 'package:bloomind/features/routines/repository/assign_routine_repository_impl.dart';
-import 'package:bloomind/features/routines/repository/routine_repository_impl.dart';
 import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AssignRoutineScreen extends StatefulWidget {
   const AssignRoutineScreen({super.key});
@@ -13,20 +12,20 @@ class AssignRoutineScreen extends StatefulWidget {
 }
 
 class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
-  late AssignRoutineController controller;
-
   @override
   void initState() {
     super.initState();
-    controller = AssignRoutineController(
-      routineRepo: RoutineRepositoryImpl(),
-      assignRepo: AssignRoutineRepositoryImpl(),
-    );
-    controller.loadRoutines();
+    // Cargamos las rutinas de la DB cada vez que se inicializa la pantalla
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AssignRoutineController>().loadRoutines();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    // Escuchamos los cambios del controlador
+    final controller = context.watch<AssignRoutineController>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF0F4F8),
       appBar: AppBar(
@@ -49,47 +48,42 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
         ),
         centerTitle: true,
       ),
-      body: ListenableBuilder(
-        listenable: controller,
-        builder: (context, _) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
+      body: controller.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 20),
 
-                // 1. EL CALENDARIO (Cuadro blanco central)
-                _buildCalendarCard(),
+                  // 1. EL CALENDARIO
+                  _buildCalendarCard(controller),
 
-                const SizedBox(height: 30),
+                  const SizedBox(height: 30),
 
-                const Text(
-                  "Selecciona una rutina",
-                  style: TextStyle(color: Color(0xFF7D8FA9), fontSize: 16),
-                ),
-                const SizedBox(height: 12),
+                  const Text(
+                    "Selecciona una rutina",
+                    style: TextStyle(color: Color(0xFF7D8FA9), fontSize: 16),
+                  ),
+                  const SizedBox(height: 12),
 
-                // 2. EL DROPDOWN (Seleccionar)
-                _buildRoutineDropdown(),
+                  // 2. EL DROPDOWN (Corregido e integrado)
+                  _buildRoutineDropdown(controller),
 
-                const SizedBox(height: 40),
+                  const SizedBox(height: 40),
 
-                // 3. EL BOTÓN (Asignar rutina)
-                _buildAssignButton(),
+                  // 3. EL BOTÓN
+                  _buildAssignButton(controller),
 
-                const SizedBox(height: 20),
-              ],
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
-          );
-        },
-      ),
-      // Mantenemos tu BottomNavigationBar aquí si la tienes
-      // bottomNavigationBar: CustomBottomNavBar(),
     );
   }
 
-  Widget _buildCalendarCard() {
+  Widget _buildCalendarCard(AssignRoutineController controller) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -116,7 +110,7 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
     );
   }
 
-  Widget _buildRoutineDropdown() {
+  Widget _buildRoutineDropdown(AssignRoutineController controller) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
@@ -127,7 +121,11 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
       child: DropdownButtonHideUnderline(
         child: DropdownButton<Routine>(
           isExpanded: true,
-          value: controller.selectedRoutine,
+          // Validación crítica: evita errores si la rutina seleccionada fue eliminada
+          value:
+              controller.availableRoutines.contains(controller.selectedRoutine)
+              ? controller.selectedRoutine
+              : null,
           hint: const Text(
             "Seleccionar",
             style: TextStyle(color: Color(0xFF2D3142)),
@@ -145,29 +143,32 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
     );
   }
 
-  Widget _buildAssignButton() {
+  Widget _buildAssignButton(AssignRoutineController controller) {
     return SizedBox(
       width: double.infinity,
       height: 60,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color.fromARGB(
-            255,
-            117,
-            177,
-            234,
-          ), // Color azul pastel del diseño
+          backgroundColor: const Color(0xFF75B1EA),
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
         ),
         onPressed: () async {
+          if (controller.selectedRoutine == null) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Por favor selecciona una rutina")),
+            );
+            return;
+          }
+
           bool ok = await controller.saveAssignment();
-          if (ok)
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(const SnackBar(content: Text("Asignada!")));
+          if (ok && mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("¡Rutina asignada correctamente!")),
+            );
+          }
         },
         child: const Text(
           "Asignar rutina",

@@ -18,13 +18,29 @@ class AssignRoutineController extends ChangeNotifier {
     required this.assignRepo,
   });
 
-  // Cargar las rutinas reales de la DB para el Dropdown
   Future<void> loadRoutines() async {
+    availableRoutines = [];
     isLoading = true;
     notifyListeners();
-    availableRoutines = await routineRepo.getAllRoutines();
-    isLoading = false;
-    notifyListeners();
+
+    try {
+      availableRoutines = await routineRepo.getAllRoutines();
+
+      // Si la rutina que estaba seleccionada ya no existe, la reseteamos
+      if (selectedRoutine != null) {
+        bool existe = availableRoutines.any(
+          (r) => r.idRoutine == selectedRoutine!.idRoutine,
+        );
+        if (!existe) {
+          selectedRoutine = null;
+        }
+      }
+    } catch (e) {
+      debugPrint("Error cargando rutinas: $e");
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
   }
 
   void updateSelectedRoutine(Routine? routine) {

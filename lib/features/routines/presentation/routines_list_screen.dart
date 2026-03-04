@@ -1,6 +1,7 @@
 import 'package:bloomind/features/routines/controller/routine_controller.dart';
-import 'package:bloomind/features/routines/repository/routine_repository_impl.dart';
+import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class RoutineListScreen extends StatefulWidget {
   const RoutineListScreen({super.key});
@@ -10,18 +11,18 @@ class RoutineListScreen extends StatefulWidget {
 }
 
 class _RoutineListScreenState extends State<RoutineListScreen> {
-  final RoutineController controller = RoutineController(
-    repository: RoutineRepositoryImpl(),
-  );
-
   @override
   void initState() {
     super.initState();
-    controller.fetchRoutines();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<RoutineController>().fetchRoutines();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<RoutineController>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -32,40 +33,40 @@ class _RoutineListScreenState extends State<RoutineListScreen> {
         centerTitle: true,
         backgroundColor: Colors.white,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black87),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3142)),
+          onPressed: () {
+            context
+                .findAncestorStateOfType<MainNavigationScreenState>()
+                ?.cambiarIndice(1);
+          },
+        ),
       ),
       body: Column(
         children: [
           Expanded(
-            child: ListenableBuilder(
-              listenable: controller,
-              builder: (context, _) {
-                if (controller.isLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (controller.routines.isEmpty) {
-                  return const Center(child: Text("No tienes rutinas aún."));
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: controller.routines.length,
-                  itemBuilder: (context, index) {
-                    final routine = controller.routines[index];
-                    return _buildRoutineCard(routine);
-                  },
-                );
-              },
-            ),
+            child: controller.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : controller.routines.isEmpty
+                ? const Center(child: Text("No tienes rutinas aún."))
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: controller.routines.length,
+                    itemBuilder: (context, index) {
+                      return _buildRoutineCard(
+                        controller.routines[index],
+                        controller,
+                      );
+                    },
+                  ),
           ),
-          _buildAddButton(context),
+          _buildAddButton(context, controller),
         ],
       ),
     );
   }
 
-  Widget _buildRoutineCard(dynamic routine) {
+  Widget _buildRoutineCard(dynamic routine, RoutineController controller) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -77,36 +78,28 @@ class _RoutineListScreenState extends State<RoutineListScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                routine.name,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const Text("Actividades", style: TextStyle(color: Colors.grey)),
-            ],
+          Text(
+            routine.name,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           IconButton(
             icon: const Icon(Icons.delete, color: Colors.redAccent),
-            onPressed: () => controller.removeRoutine(routine.idRoutine!),
+            onPressed: () =>
+                controller.removeRoutine(routine.idRoutine!, context),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAddButton(BuildContext context) {
+  Widget _buildAddButton(BuildContext context, RoutineController controller) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: SizedBox(
         width: double.infinity,
         height: 50,
         child: OutlinedButton.icon(
-          onPressed: () => _showAddDialog(context),
+          onPressed: () => _showAddDialog(context, controller),
           icon: const Icon(Icons.add),
           label: const Text("Agregar rutina"),
           style: OutlinedButton.styleFrom(
@@ -119,7 +112,7 @@ class _RoutineListScreenState extends State<RoutineListScreen> {
     );
   }
 
-  void _showAddDialog(BuildContext context) {
+  void _showAddDialog(BuildContext context, RoutineController controller) {
     final textController = TextEditingController();
     showDialog(
       context: context,
@@ -137,7 +130,7 @@ class _RoutineListScreenState extends State<RoutineListScreen> {
           ElevatedButton(
             onPressed: () {
               if (textController.text.isNotEmpty) {
-                controller.addRoutine(textController.text);
+                controller.addRoutine(textController.text, context);
                 Navigator.pop(context);
               }
             },

@@ -10,6 +10,16 @@ class RoutineRepositoryImpl implements RoutineRepository {
   @override
   Future<int> createRoutine(Routine routine) async {
     final db = await _dbHelper.database;
+
+    final List<Map<String, dynamic>> existing = await db.query(
+      DatabaseConfig.tableRoutine,
+      where: 'LOWER(${DatabaseConfig.colRoutineName}) = ?',
+      whereArgs: [routine.name.toLowerCase()],
+    );
+
+    if (existing.isNotEmpty) {
+      return -1;
+    }
     return await db.insert(DatabaseConfig.tableRoutine, routine.toMap());
   }
 
