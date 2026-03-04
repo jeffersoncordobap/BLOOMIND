@@ -53,6 +53,12 @@ class AssignRoutineController extends ChangeNotifier {
 
   Future<bool> saveAssignment() async {
     if (selectedRoutine == null) return false;
+    String dateOnly = selectedDate.toIso8601String().split('T')[0];
+    final existing = await assignRepo.getAssignmentByDate(dateOnly);
+
+    if (existing != null) {
+      await assignRepo.removeAssignment(existing.idAssignRoutine!);
+    }
 
     final assignment = AssignRoutine(
       dateTime: selectedDate.toIso8601String(),

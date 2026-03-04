@@ -1,4 +1,5 @@
 import 'package:bloomind/features/routines/presentation/assign_routines_screen.dart';
+import 'package:bloomind/features/routines/presentation/day_routine_screen.dart';
 import 'package:bloomind/features/routines/presentation/routines_list_screen.dart';
 import 'package:bloomind/features/routines/presentation/ruotine_screen.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
       const EmotionListScreen(),
       const RoutineListScreen(),
       const AssignRoutineScreen(),
-      const Center(child: Text("Rutina del día")),
+      const DayRoutineScreen(),
     ];
   }
 
