@@ -47,7 +47,7 @@ class RoutineRepositoryImpl implements RoutineRepository {
 
     final List<Map<String, dynamic>> res = await db.rawQuery(
       '''
-      SELECT a.*, ra.${DatabaseConfig.colRoutineActivityHour} as hora 
+      SELECT a.*, ra.${DatabaseConfig.colRoutineActivityHour} as hour
       FROM ${DatabaseConfig.tableActivity} a
       INNER JOIN ${DatabaseConfig.tableRoutineActivity} ra 
       ON a.${DatabaseConfig.colActivityId} = ra.${DatabaseConfig.colActivityId}
