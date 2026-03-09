@@ -1,9 +1,13 @@
 ## 📝 Descripción de los cambios
 ## 🛠️ ¿Qué se modificó?
 - [ ] Interfaz (UI)
-- [ ] Lógica / Controlador
+- [ ] Lógica 
 - [ ] Modelos de datos
 - [ ] Dependencias (pubspec.yaml)
+- [ ] Otro
+
+**Descripción corta de los cambios que realizaste:**
+> 
 
 ## ✅ Checklist de Calidad
 *Antes de solicitar la revisión, marca las casillas con una [x]:*
