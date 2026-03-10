@@ -5,7 +5,7 @@ import 'package:bloomind/features/routines/presentation/ruotine_screen.dart';
 import 'package:flutter/material.dart';
 import 'features/emotions/presentation/screens/emotion_record_screen.dart';
 import 'features/emotions/presentation/screens/emotion_list_screen.dart';
-
+import 'package:bloomind/features/estadisticas/presentation/statistics_screen.dart';
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
 
@@ -28,7 +28,7 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
         alPresionarVerRutinaDia: irAverRutinaDelDia,
       ),
       const Center(child: Text("Recursos")),
-      const Center(child: Text("Estadísticas")),
+      const StatisticsScreen(),
       const Center(child: Text("Configuración")),
       const EmotionListScreen(),
       const RoutineListScreen(),
