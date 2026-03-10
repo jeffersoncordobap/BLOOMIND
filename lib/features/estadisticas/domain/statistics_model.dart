@@ -17,11 +17,11 @@ class StatisticsSummary {
 
   factory StatisticsSummary.empty() {
     return StatisticsSummary(
-      averageMood: 0,
+      averageMood: 0.0,
       positiveDays: 0,
       neutralDays: 0,
       negativeDays: 0,
-      dailyAverage: 0,
+      dailyAverage: 0.0,
       chartPoints: [],
     );
   }
