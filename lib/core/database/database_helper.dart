@@ -21,6 +21,7 @@ class DatabaseHelper {
   }
 
   Future _onCreate(Database db, int version) async {
+    // 1. TABLA EMOCIONES
     await db.execute('''
     CREATE TABLE ${DatabaseConfig.tableEmotion} (
       ${DatabaseConfig.colEmotionId} INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,7 +32,7 @@ class DatabaseHelper {
     )
   ''');
 
-    // 2. Tabla ACTIVITY
+    // 2. TABLA ACTIVIDADES
     await db.execute('''
     CREATE TABLE ${DatabaseConfig.tableActivity} (
       ${DatabaseConfig.colActivityId} INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,7 +42,7 @@ class DatabaseHelper {
     )
   ''');
 
-    // 3. Tabla ROUTINE
+    // 3. TABLA RUTINAS
     await db.execute('''
     CREATE TABLE ${DatabaseConfig.tableRoutine} (
       ${DatabaseConfig.colRoutineId} INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -49,7 +50,7 @@ class DatabaseHelper {
     )
   ''');
 
-    // 4. Tabla INTERMEDIA ROUTINE_ACTIVITY (Relación Muchos a Muchos)
+    // 4. TABLA INTERMEDIA ROUTINAS_ACTIVIDADES (Relación Muchos a Muchos)
     await db.execute('''
     CREATE TABLE ${DatabaseConfig.tableRoutineActivity} (
       ${DatabaseConfig.colRoutineId} INTEGER,
@@ -65,7 +66,7 @@ class DatabaseHelper {
     )
   ''');
 
-    // 5. Tabla ASSIGN_ROUTINE (Asignación por fechas)
+    // 5. TABLA ASIGNACIÓN RUTINAS (Asignación por fechas)
     await db.execute('''
     CREATE TABLE ${DatabaseConfig.tableAssignRoutine} (
       ${DatabaseConfig.colAssignId} INTEGER PRIMARY KEY AUTOINCREMENT,
