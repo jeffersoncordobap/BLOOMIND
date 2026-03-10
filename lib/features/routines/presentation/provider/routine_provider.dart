@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:bloomind/features/activities/model/activity.dart';
+import 'package:bloomind/features/routines/model/routine.dart';
 import 'package:bloomind/features/routines/repository/assign_routine_repository.dart';
 import 'package:bloomind/features/routines/repository/routine_repository.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,8 @@ import 'package:flutter/material.dart';
 class RoutineProvider extends ChangeNotifier {
   final RoutineRepository routineRepo;
   final AssignRoutineRepository assignRepo;
+  String _currentRoutineName = "Sin rutina asignada";
+  String get currentRoutineName => _currentRoutineName;
 
   Activity? _nextActivity;
   Activity? get nextActivity => _nextActivity;
@@ -14,7 +17,6 @@ class RoutineProvider extends ChangeNotifier {
   Timer? _timer;
 
   RoutineProvider({required this.routineRepo, required this.assignRepo}) {
-    // Actualizar cada minuto automáticamente
     updateUpcomingActivity();
     _timer = Timer.periodic(const Duration(minutes: 1), (timer) {
       updateUpcomingActivity();
@@ -23,20 +25,26 @@ class RoutineProvider extends ChangeNotifier {
 
   Future<void> updateUpcomingActivity() async {
     final hoy = DateTime.now().toIso8601String().split('T')[0];
-
-    // 1. Obtener asignación de hoy usando tu repositorio
     final asignacion = await assignRepo.getAssignmentByDate(hoy);
 
     if (asignacion != null) {
-      // 2. Obtener actividades vinculadas
-      final actividades = await routineRepo.getActivitiesByRoutine(
-        asignacion.idRoutine,
+      final todasLasRutinas = await routineRepo.getAllRoutines();
+      final rutinaActual = todasLasRutinas.firstWhere(
+        (r) => r.idRoutine == asignacion.idRoutine,
+        orElse: () => Routine(name: "Rutina desconocida"),
       );
 
-      // 3. Lógica de comparación de horas
+      _currentRoutineName = rutinaActual.name;
+
+      final actividades = await routineRepo.getActivitiesByRoutine(
+        asignacion.idRoutine,
+      ); //
       _nextActivity = _findClosestActivity(actividades);
-      notifyListeners();
+    } else {
+      _currentRoutineName = "No hay rutinas hoy";
+      _nextActivity = null;
     }
+    notifyListeners();
   }
 
   Activity? _findClosestActivity(List<Activity> actividades) {
@@ -57,8 +65,8 @@ class RoutineProvider extends ChangeNotifier {
 
         // Separamos la parte numérica de la parte AM/PM
         final partesEspacio = horaRaw.split(' ');
-        final tiempo = partesEspacio[0]; // "4:40"
-        final amPm = partesEspacio.length > 1 ? partesEspacio[1] : ''; // "PM"
+        final tiempo = partesEspacio[0];
+        final amPm = partesEspacio.length > 1 ? partesEspacio[1] : '';
 
         final partesHora = tiempo.split(':');
         int hora = int.parse(partesHora[0]);

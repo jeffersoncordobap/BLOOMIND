@@ -18,7 +18,9 @@ class RoutineScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Escuchamos el provider para obtener la próxima actividad
-    final nextActivity = context.watch<RoutineProvider>().nextActivity;
+    final routineProvider = context.watch<RoutineProvider>(); //
+    final nextActivity = routineProvider.nextActivity; //
+    final routineName = routineProvider.currentRoutineName;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Rutinas'), centerTitle: true),
@@ -26,8 +28,7 @@ class RoutineScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         child: Column(
           children: [
-            // Tarjeta dinámica que se actualiza sola gracias al Provider
-            _buildUpcomingCard(nextActivity),
+            _buildUpcomingCard(nextActivity, routineName),
 
             const SizedBox(height: 23),
 
@@ -56,7 +57,7 @@ class RoutineScreen extends StatelessWidget {
   }
 
   // Widget de la Tarjeta de Próxima Actividad
-  Widget _buildUpcomingCard(Activity? actividad) {
+  Widget _buildUpcomingCard(Activity? actividad, String routineName) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -67,9 +68,9 @@ class RoutineScreen extends StatelessWidget {
       child: Column(
         children: [
           const Text("Rutina de hoy", style: TextStyle(color: Colors.blueGrey)),
-          const Text(
-            "Rutina Actual",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          Text(
+            routineName,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
           ),
           const Divider(height: 30),
           if (actividad != null) ...[
