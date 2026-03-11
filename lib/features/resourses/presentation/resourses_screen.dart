@@ -7,12 +7,16 @@ class RecurseScreen extends StatelessWidget {
   // onTap
   final VoidCallback alPresionarMeditacionRespiracion;
   final VoidCallback alPresionarResoursesScreenFrases;
+  final VoidCallback alPresionarResoursesScreenAudios;
+  final VoidCallback alPresionarResoursesScreenSorpresa;
 
   const RecurseScreen({
     super.key,
     required this.alPresionarMeditacionRespiracion,
-    required this.alPresionarResoursesScreenFrases
-    
+    required this.alPresionarResoursesScreenFrases,
+    required this.alPresionarResoursesScreenAudios,
+    required this.alPresionarResoursesScreenSorpresa
+
   });
 
   @override
@@ -123,6 +127,7 @@ class RecurseScreen extends StatelessWidget {
             ),
             ),
           ),
+        const SizedBox(height: 20),
 
         //Targeta Frases y motivacion
           InkWell(
@@ -162,16 +167,12 @@ class RecurseScreen extends StatelessWidget {
             ),
             ),
           ),
+        const SizedBox(height: 20),
 
         //Targeta Audios Relajantes 
           InkWell(
             borderRadius: BorderRadius.circular(22),
-            onTap: (){
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const widget_meditacion(),),
-                );
-            },
+            onTap: alPresionarResoursesScreenAudios,
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -205,16 +206,12 @@ class RecurseScreen extends StatelessWidget {
             ),
             ),
           ),
+        const SizedBox(height: 20),
 
         //Targeta Actividad sorpresa
           InkWell(
             borderRadius: BorderRadius.circular(22),
-            onTap: (){
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const widget_meditacion(),),
-                );
-            },
+            onTap: alPresionarResoursesScreenSorpresa,
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -248,6 +245,7 @@ class RecurseScreen extends StatelessWidget {
             ),
             ),
           ),
+        const SizedBox(height: 20),
 
         //Targeta Lineas de apoyo
           InkWell(
@@ -291,7 +289,8 @@ class RecurseScreen extends StatelessWidget {
             ),
             ),
           ),
-  
+          const SizedBox(height: 20),
+
           //Favoritos
           InkWell(
             borderRadius: BorderRadius.circular(22),

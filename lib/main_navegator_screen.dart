@@ -1,5 +1,7 @@
+import 'package:bloomind/features/resourses/presentation/resourses_screen_audios.dart';
 import 'package:bloomind/features/resourses/presentation/resourses_screen_frases.dart';
 import 'package:bloomind/features/resourses/presentation/resourses_screen_meditacion.dart';
+import 'package:bloomind/features/resourses/presentation/resourses_screen_sorpresa.dart';
 import 'package:bloomind/features/routines/presentation/assign_routines_screen.dart';
 import 'package:bloomind/features/routines/presentation/day_routine_screen.dart';
 import 'package:bloomind/features/routines/presentation/routines_list_screen.dart';
@@ -7,8 +9,8 @@ import 'package:bloomind/features/routines/presentation/ruotine_screen.dart';
 import 'package:flutter/material.dart';
 import 'features/emotions/presentation/screens/emotion_record_screen.dart';
 import 'features/emotions/presentation/screens/emotion_list_screen.dart';
+import 'package:bloomind/features/estadisticas/presentation/statistics_screen.dart';
 import 'features/resourses/presentation/resourses_screen.dart';
-
 
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
@@ -20,6 +22,9 @@ class MainNavigationScreen extends StatefulWidget {
 class MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
   late List<Widget> _screens;
+
+  final GlobalKey<StatisticsScreenState> _statisticsKey =
+  GlobalKey<StatisticsScreenState>();
 
   @override
   void initState() {
@@ -33,22 +38,23 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
         alPresionarVerRutinaDia: irAverRutinaDelDia,
       ),
 
-///   En la ventana se declaran los botones
       RecurseScreen(
-        alPresionarMeditacionRespiracion : irAverRecursosMeditaciones,
-        alPresionarResoursesScreenFrases : irAVerResoursesScreenFrases
-        
-         ),
+        alPresionarMeditacionRespiracion: irAverRecursosMeditaciones,
+        alPresionarResoursesScreenFrases: irAVerResoursesScreenFrases,
+        alPresionarResoursesScreenAudios: irAVerResoursesScreenAudios,
+        alPresionarResoursesScreenSorpresa: irAVerResoursesScreenSorpresa,
+      ),
 
-      const Center(child: Text("Estadísticas")),
+      StatisticsScreen(key: _statisticsKey),
       const Center(child: Text("Configuración")),
       const EmotionListScreen(),
       const RoutineListScreen(),
       const AssignRoutineScreen(),
       const DayRoutineScreen(),
-      const widget_meditacion(),//9
-      const ResoursesScreenFrases()//10
-
+      const widget_meditacion(), // 9
+      const ResoursesScreenFrases(), // 10
+      const widget_audios(), // 11
+      const ResoursesScreenSorpresa(), // 12
     ];
   }
 
@@ -56,6 +62,9 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
     setState(() {
       _selectedIndex = index;
     });
+    if (index == 3) {
+      _statisticsKey.currentState?.refreshStatistics();
+    }
   }
 
   void irAlDiario() {
@@ -82,18 +91,28 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
     });
   }
 
-  void irAverRecursosMeditaciones(){
+  void irAverRecursosMeditaciones() {
     setState(() {
       _selectedIndex = 9;
     });
-
   }
 
-  void irAVerResoursesScreenFrases(){
+  void irAVerResoursesScreenFrases() {
     setState(() {
-      _selectedIndex = 10; 
+      _selectedIndex = 10;
     });
+  }
 
+  void irAVerResoursesScreenAudios() {
+    setState(() {
+      _selectedIndex = 11;
+    });
+  }
+
+  void irAVerResoursesScreenSorpresa() {
+    setState(() {
+      _selectedIndex = 12;
+    });
   }
 
   Widget _buildIcon(IconData iconData, Color color, int index) {
