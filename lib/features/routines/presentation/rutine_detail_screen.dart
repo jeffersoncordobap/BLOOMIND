@@ -129,11 +129,100 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
                     ],
                   ),
                 ),
+                // MENÚ DE OPCIONES
+                PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert, color: Color(0xFF94A3B8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  onSelected: (value) {
+                    if (value == 'edit') {
+                      _navigateToEdit(activity);
+                    } else if (value == 'delete') {
+                      _confirmDeletion(activity);
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    const PopupMenuItem(
+                      value: 'edit',
+                      child: ListTile(
+                        leading: Icon(Icons.edit_outlined),
+                        title: Text("Editar"),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                    const PopupMenuItem(
+                      value: 'delete',
+                      child: ListTile(
+                        leading: Icon(Icons.delete_outline, color: Colors.red),
+                        title: Text(
+                          "Eliminar",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
         );
       },
+    );
+  }
+
+  // --- LÓGICA DE ACCIONES ---
+
+  void _confirmDeletion(Activity activity) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text("¿Eliminar actividad?"),
+        content: Text(
+          "¿Estás seguro de eliminar '${activity.name}'? Esta acción no se puede deshacer.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancelar"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () {
+              // Llamamos al método removeActivity que agregamos al controlador
+              context.read<ActivityController>().removeActivity(
+                activity.idActivity!,
+                widget.routine.idRoutine!,
+              );
+              Navigator.pop(context);
+            },
+            child: const Text(
+              "Eliminar",
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToEdit(Activity activity) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ActivityScreen(
+          idRoutine: widget.routine.idRoutine!,
+          activityToEdit:
+              activity, // Asegúrate de que tu ActivityScreen acepte este parámetro
+        ),
+      ),
     );
   }
 

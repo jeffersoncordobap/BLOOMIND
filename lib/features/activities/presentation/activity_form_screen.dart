@@ -1,22 +1,30 @@
+import 'package:bloomind/features/routines/controller/day_routine_controller.dart';
+import 'package:bloomind/features/routines/presentation/provider/routine_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:bloomind/features/activities/controller/activity_controller.dart';
 import 'package:bloomind/features/activities/model/activity.dart';
 
 class ActivityScreen extends StatefulWidget {
   final int idRoutine;
-  const ActivityScreen({super.key, required this.idRoutine});
+  final Activity? activityToEdit;
+
+  const ActivityScreen({
+    super.key,
+    required this.idRoutine,
+    this.activityToEdit,
+  });
 
   @override
   State<ActivityScreen> createState() => _ActivityScreenState();
 }
 
 class _ActivityScreenState extends State<ActivityScreen> {
-  final TextEditingController _activityNameController = TextEditingController();
-  final TextEditingController _timeController = TextEditingController();
-  final TextEditingController _categoryController = TextEditingController();
-  final TextEditingController _emojiController = TextEditingController();
+  // Controladores de texto
+  late TextEditingController _activityNameController;
+  late TextEditingController _timeController;
+  late TextEditingController _categoryController;
+  late TextEditingController _emojiController;
 
   String? selectedCategory;
   bool _isFormVisible = false;
@@ -29,15 +37,45 @@ class _ActivityScreenState extends State<ActivityScreen> {
   @override
   void initState() {
     super.initState();
-    _emojiController.text = "✨";
+
+    // Inicialización con datos de edición o valores por defecto
+    _activityNameController = TextEditingController(
+      text: widget.activityToEdit?.name ?? "",
+    );
+    _timeController = TextEditingController(
+      text: widget.activityToEdit?.hour ?? "",
+    );
+    _categoryController = TextEditingController();
+    _emojiController = TextEditingController(
+      text: widget.activityToEdit?.emoji ?? "✨",
+    );
+
+    selectedCategory = widget.activityToEdit?.category;
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ActivityController>().categoriasIniciales();
+      // Si estamos editando y hay categoría, cargar sugerencias
+      if (selectedCategory != null) {
+        _cargarSugerencias(selectedCategory!);
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _activityNameController.dispose();
+    _timeController.dispose();
+    _categoryController.dispose();
+    _emojiController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<ActivityController>();
+    final String title = widget.activityToEdit != null
+        ? "Editar actividad"
+        : "Agregar actividad";
 
     return Scaffold(
       backgroundColor: backgroundColor,
@@ -46,9 +84,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
           icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3142)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          "Agregar actividad",
-          style: TextStyle(
+        title: Text(
+          title,
+          style: const TextStyle(
             color: Color(0xFF2D3142),
             fontWeight: FontWeight.bold,
             fontSize: 22,
@@ -73,7 +111,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 child: DropdownButton<String>(
                   value: selectedCategory,
                   isExpanded: true,
-                  hint: const Text("Estudio"),
+                  hint: const Text("Selecciona una categoría"),
                   items: controller.categoryItems.map((item) {
                     return DropdownMenuItem(
                       value: item.value,
@@ -185,10 +223,13 @@ class _ActivityScreenState extends State<ActivityScreen> {
               onTap: () async {
                 TimeOfDay? picked = await showTimePicker(
                   context: context,
-                  initialTime: TimeOfDay.now(),
+                  initialTime: widget.activityToEdit != null
+                      ? _parseTimeString(_timeController.text)
+                      : TimeOfDay.now(),
                 );
-                if (picked != null)
+                if (picked != null) {
                   setState(() => _timeController.text = picked.format(context));
+                }
               },
             ),
 
@@ -206,9 +247,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   elevation: 0,
                 ),
                 onPressed: _guardarTodo,
-                child: const Text(
-                  "Guardar actividad",
-                  style: TextStyle(
+                child: Text(
+                  widget.activityToEdit != null
+                      ? "Guardar cambios"
+                      : "Guardar actividad",
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
@@ -221,6 +264,76 @@ class _ActivityScreenState extends State<ActivityScreen> {
         ),
       ),
     );
+  }
+
+  // --- MÉTODOS DE APOYO ---
+
+  TimeOfDay _parseTimeString(String time) {
+    try {
+      final format = MediaQuery.of(context).alwaysUse24HourFormat
+          ? "HH:mm"
+          : "h:mm a";
+      // Una aproximación simple para evitar errores si el string está vacío
+      if (time.isEmpty) return TimeOfDay.now();
+      return TimeOfDay.fromDateTime(
+        DateTime.parse(
+          "2024-01-01 ${time.replaceAll('a. m.', 'AM').replaceAll('p. m.', 'PM')}",
+        ),
+      );
+    } catch (e) {
+      return TimeOfDay.now();
+    }
+  }
+
+  Future<void> _guardarTodo() async {
+    final controller = context.read<ActivityController>();
+
+    if (_activityNameController.text.isEmpty ||
+        selectedCategory == null ||
+        _timeController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Completa todos los campos")),
+      );
+      return;
+    }
+
+    bool success = false;
+
+    if (widget.activityToEdit != null) {
+      final String originalHour = widget.activityToEdit!.hour;
+      final updatedActivity = Activity(
+        idActivity: widget.activityToEdit!.idActivity,
+        name: _activityNameController.text,
+        category: selectedCategory!,
+        emoji: _emojiController.text.trim(),
+        hour: _timeController.text,
+      );
+
+      success = await controller.updateExistingActivity(
+        updatedActivity,
+        widget.idRoutine,
+        originalHour,
+      );
+    } else {
+      // MODO CREACIÓN
+      success = await controller.saveActivityToRoutine(
+        idRoutine: widget.idRoutine,
+        name: _activityNameController.text,
+        category: selectedCategory!,
+        emoji: _emojiController.text.trim(),
+        hour: _timeController.text,
+      );
+    }
+
+    if (success && mounted) {
+      context
+          .read<DayRoutineController>()
+          .loadTodayRoutine(); // Actualiza "Rutina del día"
+      context
+          .read<RoutineProvider>()
+          .updateUpcomingActivity(); // Actualiza "Próxima actividad"
+      Navigator.pop(context);
+    }
   }
 
   Widget _buildLabel(String text) {
@@ -248,12 +361,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
     );
   }
 
-  BoxDecoration _containerDecoration() {
-    return BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
-    );
-  }
+  BoxDecoration _containerDecoration() => BoxDecoration(
+    color: Colors.white,
+    borderRadius: BorderRadius.circular(20),
+  );
 
   Widget _buildSmallButton(String text, VoidCallback onPressed) {
     return TextButton(
@@ -270,26 +381,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
     );
   }
 
-  Future<void> _guardarTodo() async {
-    final controller = context.read<ActivityController>();
-    if (_activityNameController.text.isEmpty ||
-        selectedCategory == null ||
-        _timeController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Completa todos los campos")),
-      );
-      return;
-    }
-    bool success = await controller.saveActivityToRoutine(
-      idRoutine: widget.idRoutine,
-      name: _activityNameController.text,
-      category: selectedCategory!,
-      emoji: _emojiController.text.trim(),
-      hour: _timeController.text,
-    );
-    if (success && mounted) Navigator.pop(context);
-  }
-
   Future<void> _cargarSugerencias(String categoria) async {
     final nuevas = await context
         .read<ActivityController>()
@@ -299,6 +390,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
   Widget _buildCategoryForm(ActivityController controller) {
     return Container(
+      margin: const EdgeInsets.only(top: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -326,6 +418,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   _isFormVisible = false;
                   _categoryController.clear();
                 });
+                _cargarSugerencias(nueva);
               }
             },
           ),

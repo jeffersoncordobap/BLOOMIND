@@ -85,4 +85,33 @@ class ActivityRepositoryImpl implements ActivityRepository {
       DatabaseConfig.colRoutineActivityHour: hour,
     });
   }
+
+  Future<void> updateActivityFull(
+    Activity activity,
+    int idRoutine,
+    String oldHour,
+  ) async {
+    final db = await _dbHelper.database;
+
+    // 1. Actualizar datos globales de la actividad (Nombre, Categoria, Emoji)
+    await db.update(
+      DatabaseConfig.tableActivity,
+      {
+        DatabaseConfig.colActivityName: activity.name,
+        DatabaseConfig.colActivityCategory: activity.category,
+        DatabaseConfig.colActivityEmoji: activity.emoji,
+      },
+      where: '${DatabaseConfig.colActivityId} = ?',
+      whereArgs: [activity.idActivity],
+    );
+
+    // 2. Actualizar la HORA en la tabla intermedia
+    await db.update(
+      DatabaseConfig.tableRoutineActivity,
+      {DatabaseConfig.colRoutineActivityHour: activity.hour},
+      where:
+          '${DatabaseConfig.colRoutineId} = ? AND ${DatabaseConfig.colActivityId} = ? AND ${DatabaseConfig.colRoutineActivityHour} = ?',
+      whereArgs: [idRoutine, activity.idActivity, oldHour],
+    );
+  }
 }
