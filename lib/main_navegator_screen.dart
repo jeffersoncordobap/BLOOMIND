@@ -23,6 +23,9 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
   late List<Widget> _screens;
 
+  final GlobalKey<StatisticsScreenState> _statisticsKey =
+  GlobalKey<StatisticsScreenState>();
+
   @override
   void initState() {
     super.initState();
@@ -42,7 +45,7 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
         alPresionarResoursesScreenSorpresa: irAVerResoursesScreenSorpresa,
       ),
 
-      const StatisticsScreen(),
+      StatisticsScreen(key: _statisticsKey),
       const Center(child: Text("Configuración")),
       const EmotionListScreen(),
       const RoutineListScreen(),
@@ -59,6 +62,9 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
     setState(() {
       _selectedIndex = index;
     });
+    if (index == 3) {
+      _statisticsKey.currentState?.refreshStatistics();
+    }
   }
 
   void irAlDiario() {
