@@ -9,6 +9,7 @@ class DayRoutineController extends ChangeNotifier {
 
   List<Activity> dayActivities = [];
   bool isLoading = false;
+  int? currentRoutineId;
 
   DayRoutineController({required this.assignRepo, required this.routineRepo});
 
@@ -17,20 +18,27 @@ class DayRoutineController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Obtenemos solo YYYY-MM-DD para el LIKE de la base de datos
+      // Obtenemos solo YYYY-MM-DD
       final todayStr = DateTime.now().toIso8601String().split('T')[0];
 
+      // 1. Buscamos la asignación de hoy
       final assignment = await assignRepo.getAssignmentByDate(todayStr);
 
       if (assignment != null) {
+        // 2. GUARDAMOS EL ID
+        currentRoutineId = assignment.idRoutine;
+
+        // 3. Cargamos las actividades
         dayActivities = await routineRepo.getActivitiesByRoutine(
           assignment.idRoutine,
         );
       } else {
+        currentRoutineId = null;
         dayActivities = [];
       }
     } catch (e) {
       debugPrint("Error cargando rutina de hoy: $e");
+      currentRoutineId = null;
       dayActivities = [];
     } finally {
       isLoading = false;
