@@ -1,3 +1,5 @@
+import 'package:bloomind/features/routines/controller/day_routine_controller.dart';
+import 'package:bloomind/features/routines/presentation/provider/routine_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bloomind/features/activities/controller/activity_controller.dart';
@@ -324,6 +326,12 @@ class _ActivityScreenState extends State<ActivityScreen> {
     }
 
     if (success && mounted) {
+      context
+          .read<DayRoutineController>()
+          .loadTodayRoutine(); // Actualiza "Rutina del día"
+      context
+          .read<RoutineProvider>()
+          .updateUpcomingActivity(); // Actualiza "Próxima actividad"
       Navigator.pop(context);
     }
   }
