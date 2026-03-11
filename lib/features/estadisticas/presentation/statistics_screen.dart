@@ -1,95 +1,57 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-
-// ✅ Conexión a la capa de datos (BD) y modelo de respuesta
 import 'package:bloomind/features/estadisticas/data/statistics_service.dart';
 import 'package:bloomind/features/estadisticas/domain/statistics_model.dart';
 
-/// Periodo de consulta (define qué rango se consulta en BD)
 enum StatisticsPeriod { weekly, monthly, daily }
-
-/// Tipo de gráfica (por ahora "line" está preparado pero no implementado)
 enum StatisticsChartType { line, bar }
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
 
   @override
-  State<StatisticsScreen> createState() => _StatisticsScreenState();
+  State<StatisticsScreen> createState() => StatisticsScreenState();
 }
 
-class _StatisticsScreenState extends State<StatisticsScreen> {
-  // ===========================================================================
-  // 1) ESTADO DE UI (selecciones del usuario)
-  // ===========================================================================
+class StatisticsScreenState extends State<StatisticsScreen> {
   StatisticsPeriod selectedPeriod = StatisticsPeriod.weekly;
   StatisticsChartType selectedChart = StatisticsChartType.bar;
 
-  /// Texto que se muestra en la tarjeta "Periodo"
   late String selectedPeriodText;
 
-  /// Fechas confirmadas (las que ya se aplicaron)
   DateTime selectedDailyDate = DateTime.now();
   DateTime selectedWeeklyDate = DateTime.now();
   DateTime selectedMonthlyDate = DateTime.now();
 
-  /// Controla si el selector inline (calendario/mes) está visible o no
   bool showInlinePicker = false;
 
-  /// Fechas temporales (solo cambian dentro del selector hasta que el usuario presione "Aplicar")
   late DateTime tempDailyDate;
   late DateTime tempWeeklyDate;
   late int tempMonth;
   late int tempYear;
 
-  // ===========================================================================
-  // 2) CONEXIÓN CON BD (SERVICIO) + ESTADO DE DATOS
-  // ===========================================================================
-  /// ✅ Este servicio es el que realmente consulta la BD (SQLite).
-  /// Dentro de StatisticsService se llama DatabaseHelper/DatabaseConfig
-  /// y se lee la tabla emotion para calcular promedios y agrupaciones.
   final StatisticsService _statisticsService = StatisticsService();
-
-  /// ✅ Respuesta ya procesada para la UI:
-  /// - averageMood
-  /// - positiveDays / neutralDays / negativeDays
-  /// - dailyAverage
-  /// - chartPoints (para la gráfica)
   StatisticsSummary _statisticsSummary = StatisticsSummary.empty();
-
-  /// Loader para mostrar CircularProgressIndicator mientras la BD responde
   bool _isLoadingStatistics = false;
 
-  // ===========================================================================
-  // 3) CICLO DE VIDA
-  // ===========================================================================
   @override
   void initState() {
     super.initState();
 
-    // Inicializa texto del periodo (por defecto semanal)
     selectedPeriodText = _formatWeekRange(selectedWeeklyDate);
 
-    // Inicializa temporales (para picker inline)
     tempDailyDate = selectedDailyDate;
     tempWeeklyDate = selectedWeeklyDate;
     tempMonth = selectedMonthlyDate.month;
     tempYear = selectedMonthlyDate.year;
 
-    // ✅ PRIMERA CARGA: aquí se hace la primera consulta a la BD
     _loadStatistics();
   }
 
-  // ===========================================================================
-  // 4) CONSULTA A BD (PUNTO PRINCIPAL DE CONEXIÓN)
-  // ===========================================================================
-  /// ✅ ESTE ES EL PUNTO CLAVE DE CONEXIÓN CON LA BD.
-  /// Dependiendo del periodo seleccionado llama al servicio:
-  /// - daily -> getDailyStatistics(date)
-  /// - weekly -> getWeeklyStatistics(date)
-  /// - monthly -> getMonthlyStatistics(date)
-  ///
-  /// El servicio devuelve StatisticsSummary con chartPoints para graficar.
+  Future<void> refreshStatistics() async {
+    await _loadStatistics();
+  }
+
   Future<void> _loadStatistics() async {
     setState(() => _isLoadingStatistics = true);
 
@@ -111,9 +73,376 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     });
   }
 
-  // ===========================================================================
-  // 5) UI PRINCIPAL
-  // ===========================================================================
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF2F4F7),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          child: Column(
+            children: [
+              const SizedBox(height: 8),
+              const Text(
+                'Estadísticas',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2F3A56),
+                ),
+              ),
+              const SizedBox(height: 18),
+              _buildSummaryCard(),
+              const SizedBox(height: 18),
+              _buildFilterAndChartCard(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSummaryCard() {
+    String title;
+    switch (selectedPeriod) {
+      case StatisticsPeriod.weekly:
+        title = 'Resumen semanal';
+        break;
+      case StatisticsPeriod.monthly:
+        title = 'Resumen mensual';
+        break;
+      case StatisticsPeriod.daily:
+        title = 'Resumen diario';
+        break;
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEAF1F8),
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1F2B44),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            '😊 Resumen de tu diario emocional',
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFF60708A),
+            ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatItem(
+                  value: _statisticsSummary.averageMood.toStringAsFixed(1),
+                  label: 'Promedio\ngeneral',
+                  color: const Color(0xFF1F2B44),
+                ),
+              ),
+              Expanded(
+                child: _buildStatItem(
+                  value: '${_statisticsSummary.positiveDays}',
+                  label: 'Días positivos',
+                  color: Colors.green,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatItem(
+                  value: '${_statisticsSummary.neutralDays}',
+                  label: 'Días neutros',
+                  color: Colors.orange,
+                ),
+              ),
+              Expanded(
+                child: _buildStatItem(
+                  value: '${_statisticsSummary.negativeDays}',
+                  label: 'Días negativos',
+                  color: Colors.red,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatItem({
+    required String value,
+    required String label,
+    required Color color,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 14,
+            color: Color(0xFF60708A),
+            height: 1.4,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilterAndChartCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: _buildToggleButton(
+                  text: 'Semanal',
+                  selected: selectedPeriod == StatisticsPeriod.weekly,
+                  onTap: () async {
+                    setState(() {
+                      selectedPeriod = StatisticsPeriod.weekly;
+                      selectedPeriodText = _formatWeekRange(selectedWeeklyDate);
+                      showInlinePicker = false;
+                    });
+                    await _loadStatistics();
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildToggleButton(
+                  text: 'Mensual',
+                  selected: selectedPeriod == StatisticsPeriod.monthly,
+                  onTap: () async {
+                    setState(() {
+                      selectedPeriod = StatisticsPeriod.monthly;
+                      selectedPeriodText = _formatMonthYear(selectedMonthlyDate);
+                      showInlinePicker = false;
+                    });
+                    await _loadStatistics();
+                  },
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _buildToggleButton(
+                  text: 'Diario',
+                  selected: selectedPeriod == StatisticsPeriod.daily,
+                  onTap: () async {
+                    setState(() {
+                      selectedPeriod = StatisticsPeriod.daily;
+                      selectedPeriodText = _formatDate(selectedDailyDate);
+                      showInlinePicker = false;
+                    });
+                    await _loadStatistics();
+                  },
+                ),
+              ),
+            ],
+          ),
+          if (selectedPeriod != StatisticsPeriod.daily) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildToggleButton(
+                    text: 'Línea',
+                    selected: selectedChart == StatisticsChartType.line,
+                    onTap: () {
+                      setState(() => selectedChart = StatisticsChartType.line);
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _buildToggleButton(
+                    text: 'Barras',
+                    selected: selectedChart == StatisticsChartType.bar,
+                    onTap: () {
+                      setState(() => selectedChart = StatisticsChartType.bar);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
+          const SizedBox(height: 18),
+          _buildPeriodCard(),
+          if (showInlinePicker) ...[
+            const SizedBox(height: 18),
+            _buildInlinePicker(),
+          ],
+          const SizedBox(height: 18),
+          _buildChartArea(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToggleButton({
+    required String text,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 46,
+        decoration: BoxDecoration(
+          color: selected ? const Color(0xFF6D9ED8) : const Color(0xFFF1F3F6),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: const Color(0xFFD8E0EA)),
+        ),
+        child: Center(
+          child: Text(
+            text,
+            style: TextStyle(
+              color: selected ? Colors.white : const Color(0xFF1F2B44),
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPeriodCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0F4F8),
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Periodo',
+            style: TextStyle(
+              fontSize: 14,
+              color: Color(0xFF60708A),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            selectedPeriodText,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1F2B44),
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () {
+                setState(() {
+                  if (selectedPeriod == StatisticsPeriod.daily) {
+                    _prepareDailyPicker();
+                  } else if (selectedPeriod == StatisticsPeriod.weekly) {
+                    _prepareWeeklyPicker();
+                  } else {
+                    _prepareMonthlyPicker();
+                  }
+                  showInlinePicker = true;
+                });
+              },
+              icon: const Icon(Icons.calendar_today_outlined, size: 18),
+              label: const Text(
+                'Cambiar periodo',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF1F2B44),
+                side: const BorderSide(color: Color(0xFFD2DAE5)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(28),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInlinePicker() {
+    switch (selectedPeriod) {
+      case StatisticsPeriod.weekly:
+        return _buildWeeklyPickerCard();
+      case StatisticsPeriod.monthly:
+        return _buildMonthlyPickerCard();
+      case StatisticsPeriod.daily:
+        return _buildDailyPickerCard();
+    }
+  }
+
+  Widget _buildChartArea() {
+    if (selectedPeriod == StatisticsPeriod.daily) {
+      return _buildDailyAverageCard();
+    }
+
+    if (_isLoadingStatistics) {
+      return const SizedBox(
+        height: 220,
+        child: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_statisticsSummary.chartPoints.isEmpty) {
+      return const SizedBox(
+        height: 220,
+        child: Center(
+          child: Text('No hay datos para este periodo'),
+        ),
+      );
+    }
+
+    if (selectedChart == StatisticsChartType.bar) {
+      return _buildBarChart();
+    }
+
+    return _buildLineChart();
+  }
 
   Widget _buildBarChart() {
     final points = _statisticsSummary.chartPoints;
@@ -145,20 +474,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 show: true,
                 drawVerticalLine: true,
                 horizontalInterval: 1,
-                getDrawingHorizontalLine: (_) {
-                  return FlLine(
-                    color: const Color(0xFFD9E1EA),
-                    strokeWidth: 1,
-                    dashArray: [4, 4],
-                  );
-                },
-                getDrawingVerticalLine: (_) {
-                  return FlLine(
-                    color: const Color(0xFFE5EAF0),
-                    strokeWidth: 1,
-                    dashArray: [4, 4],
-                  );
-                },
+                getDrawingHorizontalLine: (_) => FlLine(
+                  color: const Color(0xFFD9E1EA),
+                  strokeWidth: 1,
+                  dashArray: [4, 4],
+                ),
+                getDrawingVerticalLine: (_) => FlLine(
+                  color: const Color(0xFFE5EAF0),
+                  strokeWidth: 1,
+                  dashArray: [4, 4],
+                ),
               ),
               borderData: FlBorderData(
                 show: true,
@@ -270,405 +595,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F7),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          child: Column(
-            children: [
-              const SizedBox(height: 8),
-              const Text(
-                'Estadísticas',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2F3A56),
-                ),
-              ),
-              const SizedBox(height: 18),
-              _buildSummaryCard(),
-              const SizedBox(height: 18),
-              _buildFilterAndChartCard(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ===========================================================================
-  // 6) TARJETA RESUMEN (usa los datos que vienen de BD: _statisticsSummary)
-  // ===========================================================================
-  Widget _buildSummaryCard() {
-    String title;
-    switch (selectedPeriod) {
-      case StatisticsPeriod.weekly:
-        title = 'Resumen semanal';
-        break;
-      case StatisticsPeriod.monthly:
-        title = 'Resumen mensual';
-        break;
-      case StatisticsPeriod.daily:
-        title = 'Resumen diario';
-        break;
-    }
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-      decoration: BoxDecoration(
-        color: const Color(0xFFEAF1F8),
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2B44),
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            '😊 Resumen de tu diario emocional',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFF60708A),
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // ✅ Estos valores vienen de la BD ya procesados en StatisticsService
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatItem(
-                  value: _statisticsSummary.averageMood.toStringAsFixed(1),
-                  label: 'Promedio\ngeneral',
-                  color: const Color(0xFF1F2B44),
-                ),
-              ),
-              Expanded(
-                child: _buildStatItem(
-                  value: '${_statisticsSummary.positiveDays}',
-                  label: 'Días positivos',
-                  color: Colors.green,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatItem(
-                  value: '${_statisticsSummary.neutralDays}',
-                  label: 'Días neutros',
-                  color: Colors.orange,
-                ),
-              ),
-              Expanded(
-                child: _buildStatItem(
-                  value: '${_statisticsSummary.negativeDays}',
-                  label: 'Días negativos',
-                  color: Colors.red,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatItem({
-    required String value,
-    required String label,
-    required Color color,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-            color: color,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Color(0xFF60708A),
-            height: 1.4,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ===========================================================================
-  // 7) CONTROLES (periodo, tipo de gráfica, selector inline, etc.)
-  // ===========================================================================
-  Widget _buildFilterAndChartCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        children: [
-          // ------------------------
-          // Botones: semanal / mensual / diario
-          // Al presionar:
-          // 1) cambia el periodo,
-          // 2) actualiza el texto,
-          // 3) oculta el picker,
-          // 4) y recarga desde BD (loadStatistics).
-          // ------------------------
-          Row(
-            children: [
-              Expanded(
-                child: _buildToggleButton(
-                  text: 'Semanal',
-                  selected: selectedPeriod == StatisticsPeriod.weekly,
-                  onTap: () async {
-                    setState(() {
-                      selectedPeriod = StatisticsPeriod.weekly;
-                      selectedPeriodText = _formatWeekRange(selectedWeeklyDate);
-                      showInlinePicker = false;
-                    });
-                    await _loadStatistics();
-                  },
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _buildToggleButton(
-                  text: 'Mensual',
-                  selected: selectedPeriod == StatisticsPeriod.monthly,
-                  onTap: () async {
-                    setState(() {
-                      selectedPeriod = StatisticsPeriod.monthly;
-                      selectedPeriodText = _formatMonthYear(selectedMonthlyDate);
-                      showInlinePicker = false;
-                    });
-                    await _loadStatistics();
-                  },
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _buildToggleButton(
-                  text: 'Diario',
-                  selected: selectedPeriod == StatisticsPeriod.daily,
-                  onTap: () async {
-                    setState(() {
-                      selectedPeriod = StatisticsPeriod.daily;
-                      selectedPeriodText = _formatDate(selectedDailyDate);
-                      showInlinePicker = false;
-                    });
-                    await _loadStatistics();
-                  },
-                ),
-              ),
-            ],
-          ),
-
-          // ------------------------
-          // Tipo de gráfica (solo si no es diario)
-          // ------------------------
-          if (selectedPeriod != StatisticsPeriod.daily) ...[
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildToggleButton(
-                    text: 'Línea',
-                    selected: selectedChart == StatisticsChartType.line,
-                    onTap: () {
-                      setState(() => selectedChart = StatisticsChartType.line);
-                    },
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _buildToggleButton(
-                    text: 'Barras',
-                    selected: selectedChart == StatisticsChartType.bar,
-                    onTap: () {
-                      setState(() => selectedChart = StatisticsChartType.bar);
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-
-          const SizedBox(height: 18),
-          _buildPeriodCard(),
-
-          if (showInlinePicker) ...[
-            const SizedBox(height: 18),
-            _buildInlinePicker(),
-          ],
-
-          const SizedBox(height: 18),
-          _buildChartArea(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildToggleButton({
-    required String text,
-    required bool selected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 46,
-        decoration: BoxDecoration(
-          color: selected ? const Color(0xFF6D9ED8) : const Color(0xFFF1F3F6),
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: const Color(0xFFD8E0EA)),
-        ),
-        child: Center(
-          child: Text(
-            text,
-            style: TextStyle(
-              color: selected ? Colors.white : const Color(0xFF1F2B44),
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ===========================================================================
-  // 8) TARJETA "PERIODO" + BOTÓN "CAMBIAR PERIODO"
-  // ===========================================================================
-  Widget _buildPeriodCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF0F4F8),
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Periodo',
-            style: TextStyle(fontSize: 14, color: Color(0xFF60708A)),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            selectedPeriodText,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF1F2B44),
-              height: 1.5,
-            ),
-          ),
-          const SizedBox(height: 14),
-
-          // Al presionar, se muestra el picker inline correspondiente
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () {
-                setState(() {
-                  if (selectedPeriod == StatisticsPeriod.daily) {
-                    _prepareDailyPicker();
-                  } else if (selectedPeriod == StatisticsPeriod.weekly) {
-                    _prepareWeeklyPicker();
-                  } else {
-                    _prepareMonthlyPicker();
-                  }
-                  showInlinePicker = true;
-                });
-              },
-              icon: const Icon(Icons.calendar_today_outlined, size: 18),
-              label: const Text(
-                'Cambiar periodo',
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF1F2B44),
-                side: const BorderSide(color: Color(0xFFD2DAE5)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInlinePicker() {
-    switch (selectedPeriod) {
-      case StatisticsPeriod.weekly:
-        return _buildWeeklyPickerCard();
-      case StatisticsPeriod.monthly:
-        return _buildMonthlyPickerCard();
-      case StatisticsPeriod.daily:
-        return _buildDailyPickerCard();
-    }
-  }
-
-  // ===========================================================================
-  // 9) ÁREA DE GRÁFICAS
-  // ===========================================================================
-  Widget _buildChartArea() {
-    if (selectedPeriod == StatisticsPeriod.daily) {
-      return _buildDailyAverageCard();
-    }
-
-    if (_isLoadingStatistics) {
-      return const SizedBox(
-        height: 220,
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
-    }
-
-    if (_statisticsSummary.chartPoints.isEmpty) {
-      return const SizedBox(
-        height: 220,
-        child: Center(
-          child: Text('No hay datos para este periodo'),
-        ),
-      );
-    }
-
-    if (selectedChart == StatisticsChartType.bar) {
-      return _buildBarChart();
-    }
-
-    return _buildLineChart();
-  }
   Widget _buildLineChart() {
     final points = _statisticsSummary.chartPoints;
     final bool isMonthly = selectedPeriod == StatisticsPeriod.monthly;
@@ -676,7 +602,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     final double chartWidth = isMonthly
         ? (points.length * 30).clamp(320, 1400).toDouble()
         : MediaQuery.of(context).size.width - 70;
-    // contenedor de grafica lineal------------>
+
     return Container(
       width: double.infinity,
       height: 400,
@@ -698,20 +624,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                 show: true,
                 drawVerticalLine: true,
                 horizontalInterval: 1,
-                getDrawingHorizontalLine: (_) {
-                  return FlLine(
-                    color: const Color(0xFFD9E1EA),
-                    strokeWidth: 1,
-                    dashArray: [4, 4],
-                  );
-                },
-                getDrawingVerticalLine: (_) {
-                  return FlLine(
-                    color: const Color(0xFFE5EAF0),
-                    strokeWidth: 1,
-                    dashArray: [4, 4],
-                  );
-                },
+                getDrawingHorizontalLine: (_) => FlLine(
+                  color: const Color(0xFFD9E1EA),
+                  strokeWidth: 1,
+                  dashArray: [4, 4],
+                ),
+                getDrawingVerticalLine: (_) => FlLine(
+                  color: const Color(0xFFE5EAF0),
+                  strokeWidth: 1,
+                  dashArray: [4, 4],
+                ),
               ),
               borderData: FlBorderData(
                 show: true,
@@ -832,15 +754,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       ),
     );
   }
-  /// ✅ Gráfica de barras con:
-  /// - eje izquierdo 0/2/5
-  /// - tooltip al tocar barra: día + promedio
-  /// - scroll horizontal en mensual
-
-
-  // ===========================================================================
-  // 10) TOOLTIP: convierte etiqueta -> fecha real (solo para mostrar)
-  // ===========================================================================
 
   DateTime get _today {
     final now = DateTime.now();
@@ -859,9 +772,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
 
     final nextMonthStart = DateTime(nextMonthDate.year, nextMonthDate.month, 1);
-    final currentMonthStart = DateTime(_today.year, _today.month, 1);
-
-    return !nextMonthStart.isAfter(currentMonthStart);
+    return !nextMonthStart.isAfter(_currentMonthStart);
   }
 
   bool _canMoveToNextDailyMonth() {
@@ -872,9 +783,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
 
     final nextMonthStart = DateTime(nextMonthDate.year, nextMonthDate.month, 1);
-    final currentMonthStart = DateTime(_today.year, _today.month, 1);
-
-    return !nextMonthStart.isAfter(currentMonthStart);
+    return !nextMonthStart.isAfter(_currentMonthStart);
   }
 
   bool _canMoveToNextMonthlyMonth() {
@@ -882,9 +791,12 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
         ? DateTime(tempYear + 1, 1, 1)
         : DateTime(tempYear, tempMonth + 1, 1);
 
-    final currentMonthStart = DateTime(_today.year, _today.month, 1);
+    return !nextMonthStart.isAfter(_currentMonthStart);
+  }
 
-    return !nextMonthStart.isAfter(currentMonthStart);
+  bool _canGoToNextYear() {
+    final nextYearSameMonth = DateTime(tempYear + 1, tempMonth, 1);
+    return !nextYearSameMonth.isAfter(_currentMonthStart);
   }
 
   bool _isFutureWeek(DateTime date) {
@@ -893,8 +805,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   bool _isFutureMonth(int year, int month) {
     final selectedMonth = DateTime(year, month, 1);
-    final currentMonth = DateTime(_today.year, _today.month, 1);
-    return selectedMonth.isAfter(currentMonth);
+    return selectedMonth.isAfter(_currentMonthStart);
   }
 
   bool _isFutureDay(DateTime date) {
@@ -934,17 +845,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     if (value == 0) {
       return 'Sin registros';
     } else if (value < 2.5) {
-      return 'Nivel bajo';
-    } else if (value < 4.0) {
-      return 'Nivel medio';
+      return 'Día Negativo';
+    } else if (value < 3.5) {
+      return 'Día Neutro';
     } else {
-      return 'Nivel alto';
+      return 'Día Positivo';
     }
   }
 
-  // ===========================================================================
-  // 11) TARJETA PROMEDIO DIARIO (usa _statisticsSummary.dailyAverage)
-  // ===========================================================================
   Widget _buildDailyAverageCard() {
     if (_isLoadingStatistics) {
       return Container(
@@ -1007,12 +915,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  // ===========================================================================
-  // 12) PICKERS INLINE (Semanal/Mensual/Diario)
-  // ===========================================================================
-  // NOTA: Aquí se mantienen tus mismos métodos.
-  // Importante: al presionar "Aplicar" se llama _loadStatistics() (consulta BD).
-
   Widget _buildWeeklyPickerCard() {
     final visibleMonth = DateTime(tempWeeklyDate.year, tempWeeklyDate.month, 1);
     final days = _buildCalendarDays(visibleMonth);
@@ -1052,12 +954,11 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                       icon: Icons.chevron_left,
                       onTap: () {
                         setState(() {
-                          if (tempMonth == 1) {
-                            tempMonth = 12;
-                            tempYear--;
-                          } else {
-                            tempMonth--;
-                          }
+                          tempWeeklyDate = DateTime(
+                            tempWeeklyDate.year,
+                            tempWeeklyDate.month - 1,
+                            tempWeeklyDate.day,
+                          );
                         });
                       },
                     ),
@@ -1075,15 +976,14 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     ),
                     _circleNavButton(
                       icon: Icons.chevron_right,
-                      onTap: _canMoveToNextMonthlyMonth()
+                      onTap: _canMoveToNextWeeklyMonth()
                           ? () {
                         setState(() {
-                          if (tempMonth == 12) {
-                            tempMonth = 1;
-                            tempYear++;
-                          } else {
-                            tempMonth++;
-                          }
+                          tempWeeklyDate = DateTime(
+                            tempWeeklyDate.year,
+                            tempWeeklyDate.month + 1,
+                            tempWeeklyDate.day,
+                          );
                         });
                       }
                           : null,
@@ -1122,17 +1022,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     selectedWeekStart.add(const Duration(days: 6));
                     final isInSelectedWeek = !date.isBefore(selectedWeekStart) &&
                         !date.isAfter(selectedWeekEnd);
-
                     final isFutureWeek = _isFutureWeek(date);
 
                     return GestureDetector(
-                        onTap: isFutureWeek
-                            ? null
-                            : () {
-                          setState(() {
-                            tempWeeklyDate = date;
-                          });
-                        },
+                      onTap: isFutureWeek
+                          ? null
+                          : () {
+                        setState(() {
+                          tempWeeklyDate = date;
+                        });
+                      },
                       child: Container(
                         decoration: BoxDecoration(
                           color: isInSelectedWeek
@@ -1146,7 +1045,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: belongsToMonth
+                            color: isFutureWeek
+                                ? const Color(0xFFB8C2D1)
+                                : belongsToMonth
                                 ? const Color(0xFF1F2B44)
                                 : const Color(0xFF8A97AB),
                           ),
@@ -1228,7 +1129,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             ),
           ),
           const SizedBox(height: 18),
-          const Text('Año', style: TextStyle(fontSize: 14, color: Color(0xFF60708A))),
+          const Text(
+            'Año',
+            style: TextStyle(fontSize: 14, color: Color(0xFF60708A)),
+          ),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -1241,19 +1145,35 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               const SizedBox(width: 10),
               _circleNavButton(
                 icon: Icons.chevron_right,
-                onTap: () => setState(() => tempYear++),
+                onTap: _canGoToNextYear()
+                    ? () {
+                  setState(() {
+                    tempYear++;
+                  });
+                }
+                    : null,
               ),
             ],
           ),
           const SizedBox(height: 18),
-          const Text('Mes', style: TextStyle(fontSize: 14, color: Color(0xFF60708A))),
+          const Text(
+            'Mes',
+            style: TextStyle(fontSize: 14, color: Color(0xFF60708A)),
+          ),
           const SizedBox(height: 10),
           Row(
             children: [
               _circleNavButton(
                 icon: Icons.chevron_left,
                 onTap: () {
-                  setState(() => tempMonth = tempMonth == 1 ? 12 : tempMonth - 1);
+                  setState(() {
+                    if (tempMonth == 1) {
+                      tempMonth = 12;
+                      tempYear--;
+                    } else {
+                      tempMonth--;
+                    }
+                  });
                 },
               ),
               const SizedBox(width: 10),
@@ -1261,9 +1181,18 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
               const SizedBox(width: 10),
               _circleNavButton(
                 icon: Icons.chevron_right,
-                onTap: () {
-                  setState(() => tempMonth = tempMonth == 12 ? 1 : tempMonth + 1);
-                },
+                onTap: _canMoveToNextMonthlyMonth()
+                    ? () {
+                  setState(() {
+                    if (tempMonth == 12) {
+                      tempMonth = 1;
+                      tempYear++;
+                    } else {
+                      tempMonth++;
+                    }
+                  });
+                }
+                    : null,
               ),
             ],
           ),
@@ -1377,7 +1306,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     ),
                     _circleNavButton(
                       icon: Icons.chevron_right,
-                      onTap: () {
+                      onTap: _canMoveToNextDailyMonth()
+                          ? () {
                         setState(() {
                           tempDailyDate = DateTime(
                             tempDailyDate.year,
@@ -1385,7 +1315,8 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                             tempDailyDate.day,
                           );
                         });
-                      },
+                      }
+                          : null,
                     ),
                   ],
                 ),
@@ -1417,9 +1348,16 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                     final date = days[index];
                     final belongsToMonth = date.month == visibleMonth.month;
                     final isSelected = _isSameDate(date, tempDailyDate);
+                    final isFutureDay = _isFutureDay(date);
 
                     return GestureDetector(
-                      onTap: () => setState(() => tempDailyDate = date),
+                      onTap: isFutureDay
+                          ? null
+                          : () {
+                        setState(() {
+                          tempDailyDate = date;
+                        });
+                      },
                       child: Container(
                         decoration: BoxDecoration(
                           color: isSelected
@@ -1433,7 +1371,9 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: belongsToMonth
+                            color: isFutureDay
+                                ? const Color(0xFFB8C2D1)
+                                : belongsToMonth
                                 ? const Color(0xFF1F2B44)
                                 : const Color(0xFF8A97AB),
                           ),
@@ -1494,9 +1434,6 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  // ===========================================================================
-  // 13) BOTONES / COMPONENTES REUTILIZABLES
-  // ===========================================================================
   Widget _circleNavButton({
     required IconData icon,
     required VoidCallback? onTap,
@@ -1525,6 +1462,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
       ),
     );
   }
+
   Widget _selectionBox(String text) {
     return Container(
       height: 58,
@@ -1562,7 +1500,10 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             borderRadius: BorderRadius.circular(28),
           ),
         ),
-        child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
+        child: Text(
+          text,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
       )
           : OutlinedButton(
         onPressed: onTap,
@@ -1573,58 +1514,64 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
             borderRadius: BorderRadius.circular(28),
           ),
         ),
-        child: Text(text, style: const TextStyle(fontWeight: FontWeight.bold)),
+        child: Text(
+          text,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
 
-  // ===========================================================================
-  // 14) PREPARAR PICKERS + APLICAR (aquí se "confirma" y recarga la BD)
-  // ===========================================================================
   void _prepareDailyPicker() => tempDailyDate = selectedDailyDate;
+
   void _prepareWeeklyPicker() => tempWeeklyDate = selectedWeeklyDate;
+
   void _prepareMonthlyPicker() {
     tempMonth = selectedMonthlyDate.month;
     tempYear = selectedMonthlyDate.year;
   }
 
-  /// ✅ Al aplicar, se actualiza la fecha "confirmada", se oculta el picker
-  /// y se vuelve a consultar BD (_loadStatistics).
   Future<void> _applyDailySelection() async {
+    if (_isFutureDay(tempDailyDate)) return;
+
     setState(() {
       selectedDailyDate = tempDailyDate;
       selectedPeriodText = _formatDate(selectedDailyDate);
       showInlinePicker = false;
     });
+
     await _loadStatistics();
   }
 
   Future<void> _applyWeeklySelection() async {
+    if (_isFutureWeek(tempWeeklyDate)) return;
+
     setState(() {
       selectedWeeklyDate = tempWeeklyDate;
       selectedPeriodText = _formatWeekRange(selectedWeeklyDate);
       showInlinePicker = false;
     });
+
     await _loadStatistics();
   }
 
   Future<void> _applyMonthlySelection() async {
+    if (_isFutureMonth(tempYear, tempMonth)) return;
+
     setState(() {
       selectedMonthlyDate = DateTime(tempYear, tempMonth, 1);
       selectedPeriodText = _formatMonthYear(selectedMonthlyDate);
       showInlinePicker = false;
     });
+
     await _loadStatistics();
   }
 
   void _cancelInlinePicker() => setState(() => showInlinePicker = false);
 
-  // ===========================================================================
-  // 15) HELPERS DE CALENDARIO / FECHAS
-  // ===========================================================================
   List<DateTime> _buildCalendarDays(DateTime month) {
     final firstDay = DateTime(month.year, month.month, 1);
-    final firstWeekday = firstDay.weekday % 7; // Domingo = 0
+    final firstWeekday = firstDay.weekday % 7;
     final startDate = firstDay.subtract(Duration(days: firstWeekday));
     return List.generate(42, (index) => startDate.add(Duration(days: index)));
   }
@@ -1644,8 +1591,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
   String _formatWeekRange(DateTime date) {
     final start = _startOfWeek(date);
     final end = start.add(const Duration(days: 6));
-    return '${start.day} de ${_monthNameCapitalized(start.month)} - '
-        '${end.day} de ${_monthNameCapitalized(end.month)} ${end.year}';
+    return '${start.day} de ${_monthNameCapitalized(start.month)} - ${end.day} de ${_monthNameCapitalized(end.month)} ${end.year}';
   }
 
   String _formatMonthYear(DateTime date) =>
@@ -1656,16 +1602,36 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
   String _monthNameLower(int month) {
     const months = [
-      'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
-      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+      'enero',
+      'febrero',
+      'marzo',
+      'abril',
+      'mayo',
+      'junio',
+      'julio',
+      'agosto',
+      'septiembre',
+      'octubre',
+      'noviembre',
+      'diciembre',
     ];
     return months[month - 1];
   }
 
   String _monthNameCapitalized(int month) {
     const months = [
-      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+      'Enero',
+      'Febrero',
+      'Marzo',
+      'Abril',
+      'Mayo',
+      'Junio',
+      'Julio',
+      'Agosto',
+      'Septiembre',
+      'Octubre',
+      'Noviembre',
+      'Diciembre',
     ];
     return months[month - 1];
   }
@@ -1673,6 +1639,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
 class _WeekDayLabel extends StatelessWidget {
   final String text;
+
   const _WeekDayLabel(this.text);
 
   @override
