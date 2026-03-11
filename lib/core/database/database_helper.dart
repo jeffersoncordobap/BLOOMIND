@@ -75,5 +75,16 @@ class DatabaseHelper {
         REFERENCES ${DatabaseConfig.tableRoutine} (${DatabaseConfig.colRoutineId})
     )
   ''');
+
+
+  // 6. Tabla asignar favoritos (Asignacion por boleano)
+    await db.execute("""
+    CREATE TABLE ${DatabaseConfig.tableFrasesFavorits}(
+      ${DatabaseConfig.recFrasesId} INTEGER PRIMARY KEY AUTOINCREMENT,
+      ${DatabaseConfig.recFrasesContenido} TEXT,
+      ${DatabaseConfig.recFrasesFavorite} INTEGER
+    )
+    """);
+
   }
 }
