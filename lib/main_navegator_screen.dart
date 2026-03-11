@@ -1,3 +1,5 @@
+import 'package:bloomind/features/resourses/presentation/resourses_screen_frases.dart';
+import 'package:bloomind/features/resourses/presentation/resourses_screen_meditacion.dart';
 import 'package:bloomind/features/routines/presentation/assign_routines_screen.dart';
 import 'package:bloomind/features/routines/presentation/day_routine_screen.dart';
 import 'package:bloomind/features/routines/presentation/routines_list_screen.dart';
@@ -6,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'features/emotions/presentation/screens/emotion_record_screen.dart';
 import 'features/emotions/presentation/screens/emotion_list_screen.dart';
 import 'package:bloomind/features/estadisticas/presentation/statistics_screen.dart';
+import 'features/resourses/presentation/resourses_screen.dart';
+
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
 
@@ -22,18 +26,26 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
     super.initState();
     _screens = [
       RegistroEmocionalScreen(alPresionarDiario: irAlDiario),
+
       RoutineScreen(
         alPresionarListaRutinas: irAlistaRutinas,
         alPresionarAsignarRutinas: irAAsignarRutinas,
         alPresionarVerRutinaDia: irAverRutinaDelDia,
       ),
-      const Center(child: Text("Recursos")),
+
+      RecurseScreen(
+        alPresionarMeditacionRespiracion: irAverRecursosMeditaciones,
+        alPresionarResoursesScreenFrases: irAVerResoursesScreenFrases,
+      ),
+
       const StatisticsScreen(),
       const Center(child: Text("Configuración")),
       const EmotionListScreen(),
       const RoutineListScreen(),
       const AssignRoutineScreen(),
       const DayRoutineScreen(),
+      const widget_meditacion(), // 9
+      const ResoursesScreenFrases(), // 10
     ];
   }
 
@@ -64,6 +76,18 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
   void irAverRutinaDelDia() {
     setState(() {
       _selectedIndex = 8;
+    });
+  }
+
+  void irAverRecursosMeditaciones() {
+    setState(() {
+      _selectedIndex = 9;
+    });
+  }
+
+  void irAVerResoursesScreenFrases() {
+    setState(() {
+      _selectedIndex = 10;
     });
   }
 

@@ -31,4 +31,16 @@ class DatabaseConfig {
   static const String tableAssignRoutine = 'assign_routine';
   static const String colAssignId = 'id_assign_routine';
   static const String colAssignDateTime = 'date_time';
+
+
+
+
+
+
+
+  // TABLA RECURSES_FRASES_FAVORITE
+  static const String tableFrasesFavorits = "Frases_bool_favorite";
+  static const String recFrasesId = "id_frases";
+  static const String recFrasesContenido = "contenido_frases";
+  static const String recFrasesFavorite = "favorita_frase";
 }

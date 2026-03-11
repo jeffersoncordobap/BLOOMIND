@@ -1,5 +1,6 @@
 import 'package:bloomind/features/activities/controller/activity_controller.dart';
 import 'package:bloomind/features/routines/controller/day_routine_controller.dart';
+import 'package:bloomind/features/routines/presentation/provider/routine_provider.dart';
 import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +37,12 @@ void main() async {
           create: (_) => DayRoutineController(
             assignRepo: AssignRoutineRepositoryImpl(),
             routineRepo: RoutineRepositoryImpl(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => RoutineProvider(
+            routineRepo: RoutineRepositoryImpl(),
+            assignRepo: AssignRoutineRepositoryImpl(),
           ),
         ),
       ],
