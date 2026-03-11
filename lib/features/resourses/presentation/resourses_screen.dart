@@ -1,6 +1,6 @@
 //Codigo de la pantalla recursos
 import 'package:flutter/material.dart';
-import './/resourses_screen_frases.dart';
+//import './/resourses_screen_frases.dart';
 import './/resourses_screen_meditacion.dart';
 
 class RecurseScreen extends StatelessWidget {
