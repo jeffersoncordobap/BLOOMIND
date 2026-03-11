@@ -101,7 +101,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --- CATEGORÍA ---
             _buildLabel("Categoria"),
             const SizedBox(height: 8),
             Container(
@@ -265,8 +264,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
       ),
     );
   }
-
-  // --- MÉTODOS DE APOYO ---
 
   TimeOfDay _parseTimeString(String time) {
     try {

@@ -60,10 +60,7 @@ class RoutineProvider extends ChangeNotifier {
       if (actividad.hour.isEmpty) continue;
 
       try {
-        // Limpiamos espacios y pasamos a mayúsculas para comparar (e.g., " 4:40 pm " -> "4:40 PM")
         String horaRaw = actividad.hour.trim().toUpperCase();
-
-        // Separamos la parte numérica de la parte AM/PM
         final partesEspacio = horaRaw.split(' ');
         final tiempo = partesEspacio[0];
         final amPm = partesEspacio.length > 1 ? partesEspacio[1] : '';

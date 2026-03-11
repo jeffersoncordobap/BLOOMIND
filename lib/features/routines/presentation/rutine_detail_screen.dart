@@ -172,12 +172,11 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
     );
   }
 
-  // --- LÓGICA DE ACCIONES ---
-
   void _confirmDeletion(Activity activity) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
+        // Renombramos a dialogContext para no confundirlo
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Text("¿Eliminar actividad?"),
         content: Text(
@@ -185,7 +184,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text("Cancelar"),
           ),
           ElevatedButton(
@@ -196,12 +195,13 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
               ),
             ),
             onPressed: () {
-              // Llamamos al método removeActivity que agregamos al controlador
-              context.read<ActivityController>().removeActivity(
+              final screenContext = context;
+              Navigator.pop(dialogContext);
+              screenContext.read<ActivityController>().removeActivity(
                 activity.idActivity!,
                 widget.routine.idRoutine!,
+                screenContext,
               );
-              Navigator.pop(context);
             },
             child: const Text(
               "Eliminar",
@@ -219,8 +219,7 @@ class _RoutineDetailScreenState extends State<RoutineDetailScreen> {
       MaterialPageRoute(
         builder: (context) => ActivityScreen(
           idRoutine: widget.routine.idRoutine!,
-          activityToEdit:
-              activity, // Asegúrate de que tu ActivityScreen acepte este parámetro
+          activityToEdit: activity,
         ),
       ),
     );

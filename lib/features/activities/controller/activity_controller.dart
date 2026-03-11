@@ -1,7 +1,10 @@
 import 'package:bloomind/features/activities/model/activity.dart';
 import 'package:bloomind/features/activities/repository/activity_repository.dart';
 import 'package:bloomind/features/activities/repository/activity_repository_impl.dart';
+import 'package:bloomind/features/routines/controller/day_routine_controller.dart';
+import 'package:bloomind/features/routines/presentation/provider/routine_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ActivityController extends ChangeNotifier {
   final ActivityRepository _repository = ActivityRepositoryImpl();
@@ -155,10 +158,22 @@ class ActivityController extends ChangeNotifier {
   }
 
   // Eliminar actividad físicamente y refrescar la lista de la rutina
-  Future<void> removeActivity(int idActivity, int idRoutine) async {
+  Future<void> removeActivity(
+    int idActivity,
+    int idRoutine,
+    BuildContext context,
+  ) async {
     try {
       await _repository.deleteActivity(idActivity);
       await fetchActivitiesByRoutine(idRoutine);
+      if (context.mounted) {
+        // Actualiza "Rutina del día"
+        context.read<DayRoutineController>().loadTodayRoutine();
+
+        // Actualiza la tarjeta de la pantalla principal
+        context.read<RoutineProvider>().updateUpcomingActivity();
+      }
+      notifyListeners();
     } catch (e) {
       debugPrint("Error al eliminar actividad: $e");
     }
@@ -171,8 +186,6 @@ class ActivityController extends ChangeNotifier {
   ) async {
     try {
       await _repository.updateActivityFull(activity, idRoutine, oldHour);
-
-      // Refrescar la lista para que el cambio se vea al instante
       await fetchActivitiesByRoutine(idRoutine);
       notifyListeners();
       return true;
