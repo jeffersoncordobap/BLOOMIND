@@ -62,6 +62,8 @@ ________________________________________
 Haz commits claros y frecuentes.
 ```bash
 git add .
+```
+```bash
 git commit -m "feat: agregado controlador de rutinas"
 ```
 Evita commits como:
@@ -94,11 +96,21 @@ Antes de crear un PR asegúrate de revisar si:
 ________________________________________
 ## 🔁 4. Actualizar tu rama con develop
 Si alguien hizo cambios en develop, debes actualizar tu rama antes de continuar.
+```bash
 git checkout develop
+```
+```bash
 git pull origin develop
+```
+```bash
 git checkout feature/tu-rama
+```
+```bash
 git merge develop
+```
+```bash
 Esto evita conflictos al final.
+```
 ________________________________________
 ## ⚠️ 5. Si aparece un conflicto
 Un conflicto ocurre cuando dos personas modifican el mismo código.
@@ -110,6 +122,8 @@ Pasos:
 Luego:
 ```bash
 git add .
+```
+```bash
 git commit -m "fix: resolver conflicto de merge"
 ```
 ________________________________________
