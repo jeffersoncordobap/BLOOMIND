@@ -1,3 +1,4 @@
+import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import "../repository/resourse_repository.dart";
 import '../repository/resourse_repository_impl.dart';
@@ -88,6 +89,16 @@ Widget build(BuildContext context) {
       title: const Text('Frases Motivacionales'),
       centerTitle: true,
       backgroundColor: const Color(0xFF4D86C7),
+      //Importante: puedes usar esta funcion, para cambiar entre ventanas 
+      leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3142)),
+          onPressed: () {
+            context
+                .findAncestorStateOfType<MainNavigationScreenState>()
+                ?.cambiarIndice(2);
+          },
+        ),
+
     ),
     body: frasesDB.isEmpty
         ? const Center(child: CircularProgressIndicator()) // espera a que cargue
@@ -151,7 +162,9 @@ Widget build(BuildContext context) {
                     ),
                     child: const Text(
                       "Cambiar frase",
-                      style: TextStyle(fontSize: 16),
+                      style: TextStyle(fontSize: 16,
+                      color: Colors.white
+                      ),
                     ),
                   ),
                 )

@@ -1,5 +1,7 @@
+import 'package:bloomind/features/resourses/presentation/resourses_screen_audios.dart';
 import 'package:bloomind/features/resourses/presentation/resourses_screen_frases.dart';
 import 'package:bloomind/features/resourses/presentation/resourses_screen_meditacion.dart';
+import 'package:bloomind/features/resourses/presentation/resourses_screen_sorpresa.dart';
 import 'package:bloomind/features/routines/presentation/assign_routines_screen.dart';
 import 'package:bloomind/features/routines/presentation/day_routine_screen.dart';
 import 'package:bloomind/features/routines/presentation/routines_list_screen.dart';
@@ -39,6 +41,8 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
       RecurseScreen(
         alPresionarMeditacionRespiracion: irAverRecursosMeditaciones,
         alPresionarResoursesScreenFrases: irAVerResoursesScreenFrases,
+        alPresionarResoursesScreenAudios: irAVerResoursesScreenAudios,
+        alPresionarResoursesScreenSorpresa: irAVerResoursesScreenSorpresa,
       ),
 
       StatisticsScreen(key: _statisticsKey),
@@ -49,6 +53,8 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
       const DayRoutineScreen(),
       const widget_meditacion(), // 9
       const ResoursesScreenFrases(), // 10
+      const widget_audios(), // 11
+      const ResoursesScreenSorpresa(), // 12
     ];
   }
 
@@ -94,6 +100,18 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
   void irAVerResoursesScreenFrases() {
     setState(() {
       _selectedIndex = 10;
+    });
+  }
+
+  void irAVerResoursesScreenAudios() {
+    setState(() {
+      _selectedIndex = 11;
+    });
+  }
+
+  void irAVerResoursesScreenSorpresa() {
+    setState(() {
+      _selectedIndex = 12;
     });
   }
 
