@@ -285,6 +285,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
   Future<void> _guardarTodo() async {
     final controller = context.read<ActivityController>();
+
     if (_activityNameController.text.isEmpty ||
         selectedCategory == null ||
         _timeController.text.isEmpty) {
@@ -294,9 +295,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
       return;
     }
 
-    bool success;
+    bool success = false;
+
     if (widget.activityToEdit != null) {
-      // MODO EDICIÓN
+      final String originalHour = widget.activityToEdit!.hour;
       final updatedActivity = Activity(
         idActivity: widget.activityToEdit!.idActivity,
         name: _activityNameController.text,
@@ -304,9 +306,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
         emoji: _emojiController.text.trim(),
         hour: _timeController.text,
       );
+
       success = await controller.updateExistingActivity(
         updatedActivity,
         widget.idRoutine,
+        originalHour,
       );
     } else {
       // MODO CREACIÓN
@@ -319,7 +323,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
       );
     }
 
-    if (success && mounted) Navigator.pop(context);
+    if (success && mounted) {
+      Navigator.pop(context);
+    }
   }
 
   Widget _buildLabel(String text) {

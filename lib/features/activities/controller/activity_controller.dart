@@ -164,11 +164,17 @@ class ActivityController extends ChangeNotifier {
     }
   }
 
-  // Actualizar actividad y refrescar
-  Future<bool> updateExistingActivity(Activity activity, int idRoutine) async {
+  Future<bool> updateExistingActivity(
+    Activity activity,
+    int idRoutine,
+    String oldHour,
+  ) async {
     try {
-      await _repository.updateActivity(activity);
+      await _repository.updateActivityFull(activity, idRoutine, oldHour);
+
+      // Refrescar la lista para que el cambio se vea al instante
       await fetchActivitiesByRoutine(idRoutine);
+      notifyListeners();
       return true;
     } catch (e) {
       return false;
