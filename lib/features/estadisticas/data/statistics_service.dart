@@ -143,7 +143,7 @@ class StatisticsService {
         totalAverageSum += dayAverage;
         countedDays++;
 
-        if (dayAverage >= 4.0) {
+        if (dayAverage >= 3.5) {
           positiveDays++;
         } else if (dayAverage >= 2.5) {
           neutralDays++;
