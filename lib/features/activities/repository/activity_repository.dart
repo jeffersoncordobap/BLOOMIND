@@ -25,4 +25,11 @@ abstract class ActivityRepository {
     int idActivity,
     String hour,
   );
+
+  // Actualizar una actividad dentro de una rutina (puede cambiar nombre, hora, emoji...)
+  Future<void> updateActivityFull(
+    Activity activity,
+    int idRoutine,
+    String oldHour,
+  ) async {}
 }

@@ -153,4 +153,31 @@ class ActivityController extends ChangeNotifier {
       return false;
     }
   }
+
+  // Eliminar actividad físicamente y refrescar la lista de la rutina
+  Future<void> removeActivity(int idActivity, int idRoutine) async {
+    try {
+      await _repository.deleteActivity(idActivity);
+      await fetchActivitiesByRoutine(idRoutine);
+    } catch (e) {
+      debugPrint("Error al eliminar actividad: $e");
+    }
+  }
+
+  Future<bool> updateExistingActivity(
+    Activity activity,
+    int idRoutine,
+    String oldHour,
+  ) async {
+    try {
+      await _repository.updateActivityFull(activity, idRoutine, oldHour);
+
+      // Refrescar la lista para que el cambio se vea al instante
+      await fetchActivitiesByRoutine(idRoutine);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
 }
