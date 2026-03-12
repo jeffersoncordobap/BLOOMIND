@@ -157,11 +157,14 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
             return;
           }
 
-          bool ok = await controller.saveAssignment();
+          bool ok = await controller.saveAssignment(context);
           if (ok && mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("¡Rutina asignada correctamente!")),
             );
+            context
+                .findAncestorStateOfType<MainNavigationScreenState>()
+                ?.cambiarIndice(1);
           }
         },
         child: const Text(
