@@ -43,4 +43,18 @@ class DatabaseConfig {
   static const String recFrasesId = "id_frases";
   static const String recFrasesContenido = "contenido_frases";
   static const String recFrasesFavorite = "favorita_frase";
+
+
+  // =============================
+// RELAXING AUDIOS TABLE
+// =============================
+  static const String tableRelaxingAudios = 'relaxing_audios';
+  static const String recRelaxingAudioId = 'id';
+  static const String recRelaxingAudioTitle = 'title';
+  static const String recRelaxingAudioDurationSeconds = 'duration_seconds';
+  static const String recRelaxingAudioFilePath = 'file_path';
+  static const String recRelaxingAudioFileName = 'file_name';
+  static const String recRelaxingAudioFileSize = 'file_size';
+  static const String recRelaxingAudioIsFavorite = 'is_favorite';
+  static const String recRelaxingAudioCreatedAt = 'created_at';
 }

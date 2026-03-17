@@ -87,5 +87,18 @@ class DatabaseHelper {
     )
     """);
 
+    await db.execute('''
+  CREATE TABLE ${DatabaseConfig.tableRelaxingAudios} (
+    ${DatabaseConfig.recRelaxingAudioId} INTEGER PRIMARY KEY AUTOINCREMENT,
+    ${DatabaseConfig.recRelaxingAudioTitle} TEXT NOT NULL,
+    ${DatabaseConfig.recRelaxingAudioDurationSeconds} INTEGER,
+    ${DatabaseConfig.recRelaxingAudioFilePath} TEXT NOT NULL,
+    ${DatabaseConfig.recRelaxingAudioFileName} TEXT,
+    ${DatabaseConfig.recRelaxingAudioFileSize} INTEGER,
+    ${DatabaseConfig.recRelaxingAudioIsFavorite} INTEGER NOT NULL DEFAULT 0,
+    ${DatabaseConfig.recRelaxingAudioCreatedAt} TEXT DEFAULT CURRENT_TIMESTAMP
+  )
+  ''');
+
   }
 }

@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 //import './/resourses_screen_frases.dart';
 import './/resourses_screen_meditacion.dart';
 
+import 'package:provider/provider.dart';
+
+import '../../../core/database/database_helper.dart';
+import '../../relaxing_audio/controller/relaxing_audio_controller.dart';
+import '../../relaxing_audio/presentation/relaxing_audio_screen.dart';
+import '../../relaxing_audio/repository/relaxing_audio_repository_impl.dart';
 class RecurseScreen extends StatelessWidget {
   // onTap
   final VoidCallback alPresionarMeditacionRespiracion;
@@ -172,7 +178,19 @@ class RecurseScreen extends StatelessWidget {
         //Targeta Audios Relajantes 
           InkWell(
             borderRadius: BorderRadius.circular(22),
-            onTap: alPresionarResoursesScreenAudios,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ChangeNotifierProvider(
+                    create: (_) => RelaxingAudioController(
+                      RelaxingAudioRepositoryImpl(DatabaseHelper()),
+                    )..loadAudios(),
+                    child: const RelaxingAudioScreen(),
+                  ),
+                ),
+              );
+            },
             child: Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
