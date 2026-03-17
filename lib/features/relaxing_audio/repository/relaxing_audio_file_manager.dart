@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -9,12 +10,14 @@ class ImportedRelaxingAudioData {
   final String filePath;
   final String fileName;
   final int? fileSize;
+  final int? durationSeconds;
 
   const ImportedRelaxingAudioData({
     required this.title,
     required this.filePath,
     required this.fileName,
     this.fileSize,
+    this.durationSeconds,
   });
 }
 
@@ -60,12 +63,14 @@ class RelaxingAudioFileManager {
 
     final title = _buildTitleFromFileName(originalName);
     final fileSize = await copiedFile.length();
+    final durationSeconds = await _getAudioDurationInSeconds(copiedFile.path);
 
     return ImportedRelaxingAudioData(
       title: title,
       filePath: copiedFile.path,
       fileName: originalName,
       fileSize: fileSize,
+      durationSeconds: durationSeconds,
     );
   }
 
@@ -80,6 +85,23 @@ class RelaxingAudioFileManager {
       return true;
     } catch (_) {
       return false;
+    }
+  }
+
+  Future<int?> _getAudioDurationInSeconds(String filePath) async {
+    final player = AudioPlayer();
+
+    try {
+      await player.setFilePath(filePath);
+      final duration = player.duration;
+
+      if (duration == null) return null;
+
+      return duration.inSeconds;
+    } catch (_) {
+      return null;
+    } finally {
+      await player.dispose();
     }
   }
 
