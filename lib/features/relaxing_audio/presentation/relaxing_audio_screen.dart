@@ -80,6 +80,7 @@ class _AudioCard extends StatelessWidget {
     final controller = context.watch<RelaxingAudioController>();
 
     final bool isCurrentAudio = controller.currentPlayingAudioId == audio.id;
+
     final bool isPlayingCurrent = isCurrentAudio && controller.isPlaying;
 
     final Duration currentPosition =
@@ -89,8 +90,17 @@ class _AudioCard extends StatelessWidget {
         ? controller.totalDuration
         : Duration(seconds: audio.durationSeconds ?? 0);
 
+    final Duration displayedPosition = isCurrentAudio
+        ? Duration(
+      milliseconds: ((controller.dragProgress ?? controller.progressValue) *
+          totalDuration.inMilliseconds)
+          .round(),
+    )
+        : Duration.zero;
     final double progress = isCurrentAudio ? controller.progressValue : 0.0;
-
+    final double sliderValue = isCurrentAudio
+        ? (controller.dragProgress ?? controller.progressValue).clamp(0.0, 1.0)
+        : 0.0;
     String _formatDurationFromDuration(Duration duration) {
       final minutes = duration.inMinutes;
       final seconds = duration.inSeconds % 60;
@@ -177,10 +187,19 @@ class _AudioCard extends StatelessWidget {
                   overlayShape: const RoundSliderOverlayShape(overlayRadius: 12),
                 ),
                 child: Slider(
-                  value: progress.clamp(0.0, 1.0),
-                  onChanged: null, // por ahora solo visual, sin arrastrar
+                  value: sliderValue,
                   min: 0,
                   max: 1,
+                  onChanged: isCurrentAudio
+                      ? (value) {
+                    controller.updateDragProgress(value);
+                  }
+                      : null,
+                  onChangeEnd: isCurrentAudio
+                      ? (value) async {
+                    await controller.commitSeek(value);
+                  }
+                      : null,
                 ),
               ),
               Padding(
@@ -189,7 +208,7 @@ class _AudioCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      _formatDurationFromDuration(currentPosition),
+                      _formatDurationFromDuration(displayedPosition),
                       style: const TextStyle(
                         fontSize: 12,
                         color: Color(0xFF6B7A90),

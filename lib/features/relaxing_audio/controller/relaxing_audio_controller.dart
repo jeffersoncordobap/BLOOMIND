@@ -51,7 +51,8 @@ class RelaxingAudioController extends ChangeNotifier {
 
   Duration get currentPosition => _currentPosition;
   Duration get totalDuration => _totalDuration;
-
+  double? _dragProgress;
+  double? get dragProgress => _dragProgress;
   double get progressValue {
     if (_totalDuration.inMilliseconds == 0) return 0;
     return _currentPosition.inMilliseconds / _totalDuration.inMilliseconds;
@@ -64,8 +65,32 @@ class RelaxingAudioController extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
+  Future<void> seekToRelativePosition(double value) async {
+    if (_totalDuration.inMilliseconds <= 0) return;
 
+    final newPosition = Duration(
+      milliseconds: (_totalDuration.inMilliseconds * value).round(),
+    );
 
+    await _playerService.seek(newPosition);
+  }
+  void updateDragProgress(double value) {
+    _dragProgress = value;
+    notifyListeners();
+  }
+
+  Future<void> commitSeek(double value) async {
+    _dragProgress = null;
+
+    if (_totalDuration.inMilliseconds <= 0) return;
+
+    final newPosition = Duration(
+      milliseconds: (_totalDuration.inMilliseconds * value).round(),
+    );
+
+    await _playerService.seek(newPosition);
+    notifyListeners();
+  }
   Future<void> loadAudios() async {
     _setLoading(true);
     _clearError();

@@ -25,4 +25,7 @@ class RelaxingAudioPlayerService {
   Future<void> dispose() async {
     await _player.dispose();
   }
+  Future<void> seek(Duration position) async {
+    await _player.seek(position);
+  }
 }
