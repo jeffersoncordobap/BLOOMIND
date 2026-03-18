@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 class DatabaseConfig {
   // Configuración general
   static const String dbName = 'bloomind.db';
@@ -53,4 +55,43 @@ class DatabaseConfig {
   static const String colContactPhone = "contact_phone";
   static const String colContactDescription = "contact_description";
   static const String colIsFavoriteContact = "is_favorite_contact";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  //Tabla de meditacion 
+  static const String tableAudiosMeditacion = "Meditation"; 
+  static const String recMeditationId = "id_meditacion";
+  static const String recMeditationTitle = "title_meditation";
+  static const String recMeditationDescrip = "descripcion_meditation";
+  static const String recMeditationDurat = "duration_meditation";
+  static const String recMeditationFilepath = "filepath_meditation"; 
+  static const String recMeditationFavorite = "favorite_meditation";
+
 }

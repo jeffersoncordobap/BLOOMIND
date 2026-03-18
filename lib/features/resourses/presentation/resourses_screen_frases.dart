@@ -3,6 +3,7 @@ import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import "../repository/resourse_repository.dart";
 import '../repository/resourse_repository_impl.dart';
+import '../contenido/frases_data.dart';
 //import '../controller/resourse_controller.dart';
 
 class ResoursesScreenFrases extends StatefulWidget {
@@ -27,12 +28,7 @@ class _ResoursesScreenFrasesState extends State<ResoursesScreenFrases> {
   Future<void> _cargarFrases() async {
     // Primero insertamos las frases iniciales si no existen
     print("Cargando frases en DB...");
-    List<String> frasesIniciales = [
-      "Cada día es una nueva oportunidad para crecer.",
-      "No dejes para mañana lo que puedes hacer hoy.",
-      "El éxito es la suma de pequeños esfuerzos repetidos.",
-      "La motivación te impulsa, el hábito te sostiene.",
-    ];
+    final frasesIniciales = frasesMotivacionales;
 
     final frasesExistentes = await _repository.getAllFrases();
 

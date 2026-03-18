@@ -3,10 +3,11 @@ import 'package:bloomind/features/resourses/presentation/resourses_screen_favori
 import 'package:bloomind/features/resourses/presentation/support_lines_screen.dart';
 import 'package:flutter/material.dart';
 //import './/resourses_screen_frases.dart';
-import './/resourses_screen_meditacion.dart';
+//import './/resourses_screen_meditacion.dart';
 
 class RecurseScreen extends StatelessWidget {
   // onTap
+  
   final VoidCallback alPresionarMeditacionRespiracion;
   final VoidCallback alPresionarResoursesScreenFrases;
   final VoidCallback alPresionarResoursesScreenAudios;
@@ -83,14 +84,7 @@ class RecurseScreen extends StatelessWidget {
               //Card Meditacion
               InkWell(
                 borderRadius: BorderRadius.circular(22),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const widget_meditacion(),
-                    ),
-                  );
-                },
+                onTap: alPresionarMeditacionRespiracion,
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
