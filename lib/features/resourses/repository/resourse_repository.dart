@@ -1,4 +1,4 @@
-import '../model/resourse.dart';
+import 'package:bloomind/features/resourses/model/phrase.dart';
 
 abstract class ResourseRepository {
   // Crear una nueva frase
@@ -15,5 +15,4 @@ abstract class ResourseRepository {
 
   // Obtener frases de acuerdo al (id_frases)
   Future<List<ResourseFrases>> getFrasesById(int id_frases);
-
 }

@@ -1,4 +1,6 @@
 import 'package:bloomind/features/activities/controller/activity_controller.dart';
+import 'package:bloomind/features/resourses/controller/support_line_controller.dart';
+import 'package:bloomind/features/resourses/repository/support_lines_repository_impl.dart';
 import 'package:bloomind/features/routines/controller/day_routine_controller.dart';
 import 'package:bloomind/features/routines/presentation/provider/routine_provider.dart';
 import 'package:bloomind/main_navegator_screen.dart';
@@ -26,12 +28,14 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => RoutineController(repository: RoutineRepositoryImpl()),
         ),
+
         ChangeNotifierProvider(
           create: (_) => AssignRoutineController(
             routineRepo: RoutineRepositoryImpl(),
             assignRepo: AssignRoutineRepositoryImpl(),
           ),
         ),
+
         ChangeNotifierProvider(create: (_) => ActivityController()),
         ChangeNotifierProvider(
           create: (_) => DayRoutineController(
@@ -39,11 +43,17 @@ void main() async {
             routineRepo: RoutineRepositoryImpl(),
           ),
         ),
+
         ChangeNotifierProvider(
           create: (_) => RoutineProvider(
             routineRepo: RoutineRepositoryImpl(),
             assignRepo: AssignRoutineRepositoryImpl(),
           ),
+        ),
+
+        ChangeNotifierProvider(
+          create: (context) =>
+              SupportLineController(SupportLineRepositoryImpl()),
         ),
       ],
       child: const BloomindApp(),
