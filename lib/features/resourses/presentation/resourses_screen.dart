@@ -1,4 +1,5 @@
 //Codigo de la pantalla recursos
+import 'package:bloomind/features/resourses/presentation/resourses_screen_favorito.dart';
 import 'package:bloomind/features/resourses/presentation/support_lines_screen.dart';
 import 'package:flutter/material.dart';
 //import './/resourses_screen_frases.dart';
@@ -277,7 +278,14 @@ class RecurseScreen extends StatelessWidget {
               //Favoritos
               InkWell(
                 borderRadius: BorderRadius.circular(22),
-                onTap: null,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const FavoritosScreen(),
+                    ),
+                  );
+                },
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
