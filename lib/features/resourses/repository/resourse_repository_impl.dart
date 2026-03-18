@@ -1,6 +1,7 @@
+import 'package:bloomind/features/resourses/model/phrase.dart';
+
 import '../../../core/database/database_config.dart';
 import '../../../core/database/database_helper.dart';
-import '../model/resourse.dart';
 import 'resourse_repository.dart';
 
 class ResourseRepositoryImpl implements ResourseRepository {
@@ -9,7 +10,10 @@ class ResourseRepositoryImpl implements ResourseRepository {
   @override
   Future<int> createFrases(ResourseFrases resourse_frases) async {
     final db = await _dbHelper.database;
-    return await db.insert(DatabaseConfig.tableFrasesFavorits, resourse_frases.toMap());
+    return await db.insert(
+      DatabaseConfig.tableFrasesFavorits,
+      resourse_frases.toMap(),
+    );
   }
 
   @override
@@ -46,7 +50,6 @@ class ResourseRepositoryImpl implements ResourseRepository {
 
   @override
   Future<List<ResourseFrases>> getFrasesById(int id_frases) async {
-
     final db = await _dbHelper.database;
 
     final List<Map<String, dynamic>> maps = await db.query(
@@ -57,5 +60,4 @@ class ResourseRepositoryImpl implements ResourseRepository {
 
     return maps.map((map) => ResourseFrases.fromMap(map)).toList();
   }
-
 }

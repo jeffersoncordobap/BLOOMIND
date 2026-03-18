@@ -32,15 +32,25 @@ class DatabaseConfig {
   static const String colAssignId = 'id_assign_routine';
   static const String colAssignDateTime = 'date_time';
 
-
-
-
-
-
-
-  // TABLA RECURSES_FRASES_FAVORITE
+  // TABLA RECURSES__PHRASES
   static const String tableFrasesFavorits = "Frases_bool_favorite";
   static const String recFrasesId = "id_frases";
   static const String recFrasesContenido = "contenido_frases";
   static const String recFrasesFavorite = "favorita_frase";
+
+  //TABLA RECURSES__SUPRISE_ACTIVITIES
+  static const String tableSurpriseActivities = "Surprise_Activities";
+  static const String colSurpriseActivityId = "id_surprise_activity";
+  static const String colSurpriseActivityDescription =
+      "description_surprise_activity";
+  static const String colSurpriseActivityFavorite =
+      "favorite_surprise_activity";
+
+  //TABLA SUPPORT_LINES
+  static const String tableSupportLines = "Support_Lines";
+  static const String colContactId = "id_contact";
+  static const String colContactName = "contact_name";
+  static const String colContactPhone = "contact_phone";
+  static const String colContactDescription = "contact_description";
+  static const String colIsFavoriteContact = "is_favorite_contact";
 }

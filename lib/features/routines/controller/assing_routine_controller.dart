@@ -1,8 +1,11 @@
+import 'package:bloomind/features/routines/controller/day_routine_controller.dart';
 import 'package:bloomind/features/routines/model/assing_routine.dart';
 import 'package:bloomind/features/routines/model/routine.dart';
+import 'package:bloomind/features/routines/presentation/provider/routine_provider.dart';
 import 'package:bloomind/features/routines/repository/assign_routine_repository_impl.dart';
 import 'package:bloomind/features/routines/repository/routine_repository_impl.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AssignRoutineController extends ChangeNotifier {
   final RoutineRepositoryImpl routineRepo;
@@ -51,8 +54,9 @@ class AssignRoutineController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> saveAssignment() async {
+  Future<bool> saveAssignment(BuildContext context) async {
     if (selectedRoutine == null) return false;
+
     String dateOnly = selectedDate.toIso8601String().split('T')[0];
     final existing = await assignRepo.getAssignmentByDate(dateOnly);
 
@@ -66,6 +70,17 @@ class AssignRoutineController extends ChangeNotifier {
     );
 
     final result = await assignRepo.assignRoutineToDate(assignment);
-    return result > 0;
+
+    if (result > 0) {
+      final todayStr = DateTime.now().toIso8601String().split('T')[0];
+      if (dateOnly == todayStr) {
+        if (context.mounted) {
+          await context.read<DayRoutineController>().loadTodayRoutine();
+          context.read<RoutineProvider>().updateUpcomingActivity();
+        }
+      }
+      return true;
+    }
+    return false;
   }
 }

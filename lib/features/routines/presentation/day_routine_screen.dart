@@ -1,3 +1,4 @@
+import 'package:bloomind/features/activities/presentation/activity_form_screen.dart';
 import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -138,7 +139,26 @@ class _DayRoutineScreenState extends State<DayRoutineScreen> {
         height: 55,
         child: ElevatedButton.icon(
           onPressed: () {
-            debugPrint("Navegar a agregar actividad");
+            final routineId = context
+                .read<DayRoutineController>()
+                .currentRoutineId;
+            if (routineId != null) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ActivityScreen(idRoutine: routineId),
+                ),
+              );
+            } else {
+              // navegar a la pantalla de "Asignar Rutina" aquí
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    "Asigna una rutina a este día para agregar actividades",
+                  ),
+                ),
+              );
+            }
           },
           icon: const Icon(Icons.add, color: Colors.white),
           label: const Text(
