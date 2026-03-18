@@ -106,17 +106,29 @@ class _AudioCard extends StatelessWidget {
       final seconds = duration.inSeconds % 60;
       return '$minutes:${seconds.toString().padLeft(2, '0')}';
     }
-    return Container(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: isCurrentAudio
+            ? const Color(0xFFEAF2FF)
+            : Colors.white,
         borderRadius: BorderRadius.circular(22),
-        boxShadow: const [
+        border: Border.all(
+          color: isCurrentAudio
+              ? const Color(0xFF8FA9D6)
+              : Colors.transparent,
+          width: 1.5,
+        ),
+        boxShadow: [
           BoxShadow(
-            color: Colors.black12,
-            blurRadius: 8,
-            offset: Offset(0, 3),
+            color: isCurrentAudio
+                ? const Color(0xFF8FA9D6).withOpacity(0.25)
+                : Colors.black12,
+            blurRadius: isCurrentAudio ? 14 : 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -142,10 +154,12 @@ class _AudioCard extends StatelessWidget {
                         audio.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 21,
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF24314A),
+                          color: isCurrentAudio
+                              ? const Color(0xFF1E4E8C)
+                              : const Color(0xFF24314A),
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -158,6 +172,21 @@ class _AudioCard extends StatelessWidget {
                           color: Color(0xFF6B7A90),
                         ),
                       ),
+
+
+                      if (isCurrentAudio) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          isPlayingCurrent ? 'Reproduciendo' : 'En pausa',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: isPlayingCurrent
+                                ? const Color(0xFF2F6FD1)
+                                : const Color(0xFF7C8AA0),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -234,13 +263,15 @@ class _AudioCard extends StatelessWidget {
   String _buildSubtitle(RelaxingAudioModel audio) {
     final duration = _formatDuration(audio.durationSeconds);
 
-    if (audio.fileName != null && audio.fileName!.trim().isNotEmpty) {
+    if (audio.isAsset) {
+      return duration == '--:--'
+          ? 'Audio predeterminado'
+          : 'Audio predeterminado · $duration';
+    } else {
       return duration == '--:--'
           ? 'Audio local'
           : 'Audio local · $duration';
     }
-
-    return duration == '--:--' ? 'Audio relajante' : 'Audio relajante · $duration';
   }
 
   String _formatDuration(int? totalSeconds) {
