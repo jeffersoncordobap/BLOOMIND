@@ -105,5 +105,40 @@ class DatabaseHelper {
       ${DatabaseConfig.colIsFavoriteContact} INTEGER DEFAULT 0
     )
     """);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //9. Tabla de meditacion 
+    await db.execute("""
+    CREATE TABLE ${DatabaseConfig.tableAudiosMeditacion}(
+      ${DatabaseConfig.recMeditationId} INTEGER PRIMARY KEY AUTOINCREMENT,
+      ${DatabaseConfig.recMeditationTitle} TEXT,
+      ${DatabaseConfig.recMeditationDescrip} TEXT, 
+      ${DatabaseConfig.recMeditationDurat} TEXT, 
+      ${DatabaseConfig.recMeditationFilepath} TEXT, 
+      ${DatabaseConfig.recMeditationFavorite} INTEGER DEFAULT 0
+    )
+      """);
+
+
+
+
   }
 }
