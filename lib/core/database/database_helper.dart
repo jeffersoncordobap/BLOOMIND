@@ -77,8 +77,7 @@ class DatabaseHelper {
     )
   ''');
 
-
-  // 6. Tabla asignar favoritos (Asignacion por boleano)
+    // 6. TABLA FRASES
     await db.execute("""
     CREATE TABLE ${DatabaseConfig.tableFrasesFavorits}(
       ${DatabaseConfig.recFrasesId} INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -87,5 +86,24 @@ class DatabaseHelper {
     )
     """);
 
+    // 7. TABLA SURPRISE ACTIVITIES
+    await db.execute("""
+    CREATE TABLE ${DatabaseConfig.tableSurpriseActivities}(
+      ${DatabaseConfig.colSurpriseActivityId} INTEGER PRIMARY KEY AUTOINCREMENT,
+      ${DatabaseConfig.colSurpriseActivityDescription} TEXT,
+      ${DatabaseConfig.colSurpriseActivityFavorite} INTEGER DEFAULT 0
+    )
+    """);
+
+    //8.TABLA LINEAS DE APOYO
+    await db.execute("""
+    CREATE TABLE ${DatabaseConfig.tableSupportLines}(
+      ${DatabaseConfig.colContactId} INTEGER PRIMARY KEY AUTOINCREMENT,
+      ${DatabaseConfig.colContactName} TEXT,
+      ${DatabaseConfig.colContactPhone} TEXT,
+      ${DatabaseConfig.colContactDescription} TEXT,
+      ${DatabaseConfig.colIsFavoriteContact} INTEGER DEFAULT 0
+    )
+    """);
   }
 }
