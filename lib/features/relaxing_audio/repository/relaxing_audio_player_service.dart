@@ -28,4 +28,8 @@ class RelaxingAudioPlayerService {
   Future<void> seek(Duration position) async {
     await _player.seek(position);
   }
+  Future<void> playAsset(String assetPath) async {
+    await _player.setAsset(assetPath);
+    _player.play();
+  }
 }

@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 import '../../../core/database/database_helper.dart';
 import '../../relaxing_audio/controller/relaxing_audio_controller.dart';
 import '../../relaxing_audio/presentation/relaxing_audio_screen.dart';
+import '../../relaxing_audio/presentation/favorite_audio_screen.dart';
+
 import '../../relaxing_audio/repository/relaxing_audio_repository_impl.dart';
 class RecurseScreen extends StatelessWidget {
   // onTap
@@ -185,7 +187,7 @@ class RecurseScreen extends StatelessWidget {
                   builder: (_) => ChangeNotifierProvider(
                     create: (_) => RelaxingAudioController(
                       RelaxingAudioRepositoryImpl(DatabaseHelper()),
-                    )..loadAudios(),
+                    )..initializeAudios(),
                     child: const RelaxingAudioScreen(),
                   ),
                 ),
@@ -310,45 +312,54 @@ class RecurseScreen extends StatelessWidget {
           const SizedBox(height: 20),
 
           //Favoritos
-          InkWell(
-            borderRadius: BorderRadius.circular(22),
-            onTap: 
-              null 
-            ,
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(22),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 8,
-                    offset: Offset(0, 3),
-                  )
-                ],
-              ),
-            child: const Row(
-              children: [
-                Text(
-                  "⭐",
-                  style: TextStyle(fontSize: 30),
-                ),
-                SizedBox(width: 20),
-                Expanded(
-                  child: Text(
-                    "Favoritos",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
+            InkWell(
+              borderRadius: BorderRadius.circular(22),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ChangeNotifierProvider(
+                      create: (_) => RelaxingAudioController(
+                        RelaxingAudioRepositoryImpl(DatabaseHelper()),
+                      )..loadFavoriteAudios(),
+                      child: const FavoriteAudioScreen(),
                     ),
                   ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(22),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 8,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
                 ),
-              ],
+                child: const Row(
+                  children: [
+                    Text(
+                      "⭐",
+                      style: TextStyle(fontSize: 30),
+                    ),
+                    SizedBox(width: 20),
+                    Expanded(
+                      child: Text(
+                        "Favoritos",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            ),
-          ),
-
           ],
 
 

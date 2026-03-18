@@ -9,6 +9,7 @@ class RelaxingAudioModel {
   final int? fileSize;
   final bool isFavorite;
   final String? createdAt;
+  final bool isAsset;
 
   const RelaxingAudioModel({
     this.id,
@@ -19,6 +20,7 @@ class RelaxingAudioModel {
     this.fileSize,
     this.isFavorite = false,
     this.createdAt,
+    this.isAsset = false,
   });
 
   RelaxingAudioModel copyWith({
@@ -30,6 +32,7 @@ class RelaxingAudioModel {
     int? fileSize,
     bool? isFavorite,
     String? createdAt,
+    bool? isAsset,
   }) {
     return RelaxingAudioModel(
       id: id ?? this.id,
@@ -40,6 +43,7 @@ class RelaxingAudioModel {
       fileSize: fileSize ?? this.fileSize,
       isFavorite: isFavorite ?? this.isFavorite,
       createdAt: createdAt ?? this.createdAt,
+      isAsset: isAsset ?? this.isAsset,
     );
   }
 
@@ -53,6 +57,7 @@ class RelaxingAudioModel {
       DatabaseConfig.recRelaxingAudioFileSize: fileSize,
       DatabaseConfig.recRelaxingAudioIsFavorite: isFavorite ? 1 : 0,
       DatabaseConfig.recRelaxingAudioCreatedAt: createdAt,
+      'is_asset': isAsset ? 1 : 0,
     };
   }
 
@@ -67,6 +72,7 @@ class RelaxingAudioModel {
       fileSize: map[DatabaseConfig.recRelaxingAudioFileSize] as int?,
       isFavorite: (map[DatabaseConfig.recRelaxingAudioIsFavorite] ?? 0) == 1,
       createdAt: map[DatabaseConfig.recRelaxingAudioCreatedAt] as String?,
+      isAsset: (map['is_asset'] ?? 0) == 1,
     );
   }
 

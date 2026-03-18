@@ -88,7 +88,7 @@ class DatabaseHelper {
     """);
 
     await db.execute('''
-  CREATE TABLE ${DatabaseConfig.tableRelaxingAudios} (
+    CREATE TABLE ${DatabaseConfig.tableRelaxingAudios} (
     ${DatabaseConfig.recRelaxingAudioId} INTEGER PRIMARY KEY AUTOINCREMENT,
     ${DatabaseConfig.recRelaxingAudioTitle} TEXT NOT NULL,
     ${DatabaseConfig.recRelaxingAudioDurationSeconds} INTEGER,
@@ -96,6 +96,7 @@ class DatabaseHelper {
     ${DatabaseConfig.recRelaxingAudioFileName} TEXT,
     ${DatabaseConfig.recRelaxingAudioFileSize} INTEGER,
     ${DatabaseConfig.recRelaxingAudioIsFavorite} INTEGER NOT NULL DEFAULT 0,
+    ${DatabaseConfig.recRelaxingAudioIsAsset} INTEGER NOT NULL DEFAULT 0,
     ${DatabaseConfig.recRelaxingAudioCreatedAt} TEXT DEFAULT CURRENT_TIMESTAMP
   )
   ''');

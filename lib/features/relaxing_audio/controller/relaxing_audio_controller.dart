@@ -180,7 +180,11 @@ class RelaxingAudioController extends ChangeNotifier {
         _totalDuration = Duration.zero;
         notifyListeners();
 
-        await _playerService.playFile(audio.filePath);
+        if (audio.isAsset) {
+          await _playerService.playAsset(audio.filePath);
+        } else {
+          await _playerService.playFile(audio.filePath);
+        }
       }
     } catch (e) {
       _errorMessage = 'No se pudo reproducir el audio.';
@@ -207,6 +211,10 @@ class RelaxingAudioController extends ChangeNotifier {
       notifyListeners();
     }
   }
+  Future<void> initializeAudios() async {
+    await insertDefaultAudiosIfNeeded();
+    await loadAudios();
+  }
 
   Future<void> deleteAudio(RelaxingAudioModel audio) async {
     if (audio.id == null) return;
@@ -222,6 +230,50 @@ class RelaxingAudioController extends ChangeNotifier {
       _errorMessage = 'No se pudo eliminar el audio.';
       _setLoading(false);
       notifyListeners();
+    }
+  }
+  Future<void> insertDefaultAudiosIfNeeded() async {
+    final audios = await _repository.getAllAudios();
+
+    if (audios.any((audio) => audio.isAsset)) return;
+
+    final defaultAudios = [
+      RelaxingAudioModel(
+        title: 'Lluvia suave',
+        filePath: 'assets/audios/lluvia.mp3',
+        fileName: 'lluvia.mp3',
+        durationSeconds: null,
+        isFavorite: false,
+        isAsset: true,
+      ),
+      RelaxingAudioModel(
+        title: 'Bosque tranquilo',
+        filePath: 'assets/audios/Naturaleza1.mp3',
+        fileName: 'Naturaleza1.mp3',
+        durationSeconds: null,
+        isFavorite: false,
+        isAsset: true,
+      ),
+      RelaxingAudioModel(
+        title: 'Naturaleza relajante',
+        filePath: 'assets/audios/Naturaleza2.mp3',
+        fileName: 'Naturaleza2.mp3',
+        durationSeconds: null,
+        isFavorite: false,
+        isAsset: true,
+      ),
+      RelaxingAudioModel(
+        title: 'Relajacion',
+        filePath: 'assets/audios/Relajacion.mp3',
+        fileName: 'Relajacion.mp3',
+        durationSeconds: null,
+        isFavorite: false,
+        isAsset: true,
+      ),
+    ];
+
+    for (final audio in defaultAudios) {
+      await _repository.insertAudio(audio);
     }
   }
 

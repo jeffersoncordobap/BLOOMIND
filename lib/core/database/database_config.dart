@@ -57,4 +57,5 @@ class DatabaseConfig {
   static const String recRelaxingAudioFileSize = 'file_size';
   static const String recRelaxingAudioIsFavorite = 'is_favorite';
   static const String recRelaxingAudioCreatedAt = 'created_at';
+  static const String recRelaxingAudioIsAsset = 'is_asset';
 }
