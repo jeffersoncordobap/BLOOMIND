@@ -6,6 +6,7 @@ class SupportLineController extends ChangeNotifier {
   final SupportLineRepository repository;
 
   List<SupportLine> _lines = [];
+  List<SupportLine> _favoriteLines = []; // Lista separada para favoritos
   bool _isLoading = false;
 
   SupportLineController(this.repository) {
@@ -13,6 +14,7 @@ class SupportLineController extends ChangeNotifier {
   }
 
   List<SupportLine> get lines => _lines;
+  List<SupportLine> get favoriteLines => _favoriteLines;
   bool get isLoading => _isLoading;
 
   Future<void> loadSupportLines() async {
@@ -22,6 +24,18 @@ class SupportLineController extends ChangeNotifier {
       _lines = await repository.getAllSupportLines();
     } catch (e) {
       debugPrint("Error al cargar líneas de apoyo: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // Carga específicamente la lista de favoritos en la variable de estado
+  Future<void> loadFavorites() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      _favoriteLines = await getFavoriteSupportLines();
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -45,6 +59,7 @@ class SupportLineController extends ChangeNotifier {
     notifyListeners();
     try {
       await repository.updateFavoriteStatus(line.idContact!, newStatus);
+      await loadFavorites(); // Actualizamos también la lista de favoritos
     } catch (e) {
       debugPrint("Error al actualizar favorito: $e");
       await loadSupportLines();
@@ -55,6 +70,7 @@ class SupportLineController extends ChangeNotifier {
     final result = await repository.insertSupportLine(line);
     if (result > 0) {
       await loadSupportLines();
+      await loadFavorites(); // Actualizamos favoritos
       return true;
     }
     return false;
@@ -67,6 +83,7 @@ class SupportLineController extends ChangeNotifier {
       final rowsAffected = await repository.updateSupportLine(line);
       if (rowsAffected > 0) {
         await loadSupportLines(); // Recarga la lista para reflejar cambios
+        await loadFavorites(); // Actualizamos favoritos
         return true;
       }
     } catch (e) {
@@ -81,6 +98,7 @@ class SupportLineController extends ChangeNotifier {
       if (rowsAffected > 0) {
         // Optimización: Eliminar localmente antes de recargar si quieres que sea instantáneo
         _lines.removeWhere((l) => l.idContact == id);
+        await loadFavorites(); // Actualizamos favoritos por si eliminamos uno desde allí
         notifyListeners();
         return true;
       }
@@ -88,5 +106,14 @@ class SupportLineController extends ChangeNotifier {
       debugPrint("Error al eliminar línea de apoyo: $e");
     }
     return false;
+  }
+
+  Future<List<SupportLine>> getFavoriteSupportLines() async {
+    try {
+      return await repository.getFavoriteSupportLines();
+    } catch (e) {
+      debugPrint("Error al obtener líneas favoritas: $e");
+      return [];
+    }
   }
 }

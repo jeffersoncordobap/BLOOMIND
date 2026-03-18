@@ -15,4 +15,7 @@ abstract class SupportLineRepository {
 
   /// Actualiza un contacto existente
   Future<int> updateSupportLine(SupportLine line);
+
+  /// Obtiene solo los contactos marcados como favoritos
+  Future<List<SupportLine>> getFavoriteSupportLines();
 }

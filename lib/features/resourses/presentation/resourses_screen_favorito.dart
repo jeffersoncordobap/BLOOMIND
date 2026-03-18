@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../controller/support_line_controller.dart';
 import '../repository/resourse_repository.dart';
 import '../repository/resourse_repository_impl.dart';
+import 'only_favorites_support_lines_screen.dart';
 
 class FavoritosScreen extends StatefulWidget {
   const FavoritosScreen({super.key});
@@ -17,6 +20,10 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
   void initState() {
     super.initState();
     _cargarContadores();
+    // Cargar la lista de favoritos desde la base de datos al iniciar la pantalla
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<SupportLineController>().loadFavorites();
+    });
   }
 
   Future<void> _cargarContadores() async {
@@ -30,6 +37,9 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Escuchamos al controlador: cuando cambie la lista de favoritos, se redibuja este widget
+    final supportController = context.watch<SupportLineController>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF2F4F7), // Fondo que ya tenías
       appBar: AppBar(
@@ -98,10 +108,15 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
             _CardFavorito(
               emoji: '❤️',
               nombre: 'Líneas de apoyo',
-              count: 0,
+              count: supportController.favoriteLines.length,
               onTap: () {
-                // COMPAÑERO E: Conecta aquí tu pantalla
-                print("Navegando a Líneas de Apoyo...");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        const OnlyFavoritesSupportLinesScreen(),
+                  ),
+                );
               },
             ),
           ],

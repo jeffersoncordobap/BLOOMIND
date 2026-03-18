@@ -57,4 +57,15 @@ class SupportLineRepositoryImpl implements SupportLineRepository {
       whereArgs: [line.idContact],
     );
   }
+
+  @override
+  Future<List<SupportLine>> getFavoriteSupportLines() async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      DatabaseConfig.tableSupportLines,
+      where: '${DatabaseConfig.colIsFavoriteContact} = ?',
+      whereArgs: [1],
+    );
+    return List.generate(maps.length, (i) => SupportLine.fromMap(maps[i]));
+  }
 }
