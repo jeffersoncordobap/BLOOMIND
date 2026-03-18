@@ -59,4 +59,34 @@ class SupportLineController extends ChangeNotifier {
     }
     return false;
   }
+
+  Future<bool> updateSupportLine(SupportLine line) async {
+    if (line.idContact == null) return false;
+
+    try {
+      final rowsAffected = await repository.updateSupportLine(line);
+      if (rowsAffected > 0) {
+        await loadSupportLines(); // Recarga la lista para reflejar cambios
+        return true;
+      }
+    } catch (e) {
+      debugPrint("Error al editar línea de apoyo: $e");
+    }
+    return false;
+  }
+
+  Future<bool> deleteSupportLine(int id) async {
+    try {
+      final rowsAffected = await repository.deleteSupportLine(id);
+      if (rowsAffected > 0) {
+        // Optimización: Eliminar localmente antes de recargar si quieres que sea instantáneo
+        _lines.removeWhere((l) => l.idContact == id);
+        notifyListeners();
+        return true;
+      }
+    } catch (e) {
+      debugPrint("Error al eliminar línea de apoyo: $e");
+    }
+    return false;
+  }
 }

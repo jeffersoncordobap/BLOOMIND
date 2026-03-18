@@ -46,4 +46,15 @@ class SupportLineRepositoryImpl implements SupportLineRepository {
       whereArgs: [id],
     );
   }
+
+  @override
+  Future<int> updateSupportLine(SupportLine line) async {
+    final db = await _dbHelper.database;
+    return await db.update(
+      DatabaseConfig.tableSupportLines,
+      line.toMap(),
+      where: '${DatabaseConfig.colContactId} = ?',
+      whereArgs: [line.idContact],
+    );
+  }
 }

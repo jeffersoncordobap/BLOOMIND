@@ -12,4 +12,7 @@ abstract class SupportLineRepository {
 
   /// Elimina un contacto por su ID
   Future<int> deleteSupportLine(int id);
+
+  /// Actualiza un contacto existente
+  Future<int> updateSupportLine(SupportLine line);
 }

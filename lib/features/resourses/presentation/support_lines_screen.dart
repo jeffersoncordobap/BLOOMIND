@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart'; // Asegúrate de tenerlo en pubspec.yaml
 import 'package:bloomind/features/resourses/model/support_line.dart';
 import '../controller/support_line_controller.dart';
 
@@ -24,7 +25,6 @@ class _SupportLinesScreenState extends State<SupportLinesScreen> {
     });
   }
 
-  // 2. Limpieza de controladores al destruir el widget
   @override
   void dispose() {
     _nameController.dispose();
@@ -33,106 +33,204 @@ class _SupportLinesScreenState extends State<SupportLinesScreen> {
     super.dispose();
   }
 
-  // 3. Método para mostrar el diálogo de agregar
-  void _showAddLineDialog() {
+  // --- MÉTODOS DE COMUNICACIÓN ---
+
+  Future<void> _makeCall(String phoneNumber) async {
+    final Uri url = Uri.parse('tel:$phoneNumber');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url);
+    }
+  }
+
+  Future<void> _openWhatsApp(String phoneNumber) async {
+    String cleanPhone = phoneNumber.replaceAll(RegExp(r'[^\d]'), '');
+
+    if (cleanPhone.length == 10) {
+      cleanPhone = '57$cleanPhone';
+    }
+
+    final Uri url = Uri.parse('https://wa.me/$cleanPhone');
+
+    try {
+      bool launched = await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
+      );
+
+      if (!launched) {
+        debugPrint("No se pudo abrir WhatsApp");
+      }
+    } catch (e) {
+      debugPrint("Error al abrir WhatsApp: $e");
+    }
+  }
+
+  // Diálogo de Opciones (Llamar, WA, Editar, Eliminar)
+  void _showOptionsDialog(SupportLine line) {
     showDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
-          title: const Text(
-            "Nueva línea de apoyo",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDialogTextField(_nameController, "Ej: Mamá"),
-              const SizedBox(height: 15),
-              _buildDialogTextField(
-                _phoneController,
-                "Ej: +57 3000000000",
-                keyboardType: TextInputType.phone,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.call, color: Colors.black87),
+              title: const Text("Llamar"),
+              onTap: () {
+                Navigator.pop(context);
+                _makeCall(line.phone);
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.chat_bubble_outline,
+                color: Colors.black87,
               ),
-              const SizedBox(height: 15),
-              _buildDialogTextField(
-                _descController,
-                "Ej: Disponible para hablar",
+              title: const Text("WhatsApp"),
+              onTap: () {
+                Navigator.pop(context);
+                _openWhatsApp(line.phone);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.edit_outlined, color: Colors.black87),
+              title: const Text("Editar"),
+              onTap: () {
+                Navigator.pop(context);
+                _showAddOrEditDialog(line: line);
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.delete_outline,
+                color: Colors.redAccent,
               ),
-            ],
-          ),
-          actionsPadding: const EdgeInsets.only(
-            bottom: 20,
-            left: 20,
-            right: 20,
-          ),
-          actions: [
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      if (_nameController.text.isNotEmpty &&
-                          _phoneController.text.isNotEmpty) {
-                        final newLine = SupportLine(
-                          name: _nameController.text,
-                          phone: _phoneController.text,
-                          description: _descController.text,
-                          isFavorite: false,
-                        );
-
-                        final success = await context
-                            .read<SupportLineController>()
-                            .addSupportLine(newLine);
-
-                        if (success) {
-                          _nameController.clear();
-                          _phoneController.clear();
-                          _descController.clear();
-                          if (mounted) Navigator.pop(context);
-                        }
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6A94C9),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                    child: const Text(
-                      "Agregar",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Color(0xFFE0E0E0)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                    child: const Text(
-                      "Cancelar",
-                      style: TextStyle(color: Colors.black54),
-                    ),
-                  ),
-                ),
-              ],
+              title: const Text(
+                "Eliminar",
+                style: TextStyle(color: Colors.redAccent),
+              ),
+              onTap: () async {
+                Navigator.pop(context);
+                await context.read<SupportLineController>().deleteSupportLine(
+                  line.idContact!,
+                );
+              },
             ),
           ],
-        );
-      },
+        ),
+      ),
     );
   }
 
-  // 4. Widget auxiliar para los inputs del diálogo
+  // Diálogo Unificado para Agregar o Editar
+  void _showAddOrEditDialog({SupportLine? line}) {
+    final isEditing = line != null;
+
+    if (isEditing) {
+      _nameController.text = line.name;
+      _phoneController.text = line.phone;
+      _descController.text = line.description ?? "";
+    } else {
+      _nameController.clear();
+      _phoneController.clear();
+      _descController.clear();
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
+        title: Text(
+          isEditing ? "Editar línea de apoyo" : "Nueva línea de apoyo",
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildDialogTextField(_nameController, "Ej: Mamá"),
+            const SizedBox(height: 15),
+            _buildDialogTextField(
+              _phoneController,
+              "Ej: +57 3000000000",
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 15),
+            _buildDialogTextField(
+              _descController,
+              "Ej: Disponible para hablar",
+            ),
+          ],
+        ),
+        actionsPadding: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
+        actions: [
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    if (_nameController.text.isNotEmpty &&
+                        _phoneController.text.isNotEmpty) {
+                      final updatedLine = SupportLine(
+                        idContact: line?.idContact,
+                        name: _nameController.text,
+                        phone: _phoneController.text,
+                        description: _descController.text,
+                        isFavorite: line?.isFavorite ?? false,
+                      );
+
+                      bool success;
+                      if (isEditing) {
+                        success = await context
+                            .read<SupportLineController>()
+                            .updateSupportLine(updatedLine);
+                      } else {
+                        success = await context
+                            .read<SupportLineController>()
+                            .addSupportLine(updatedLine);
+                      }
+
+                      if (success && mounted) Navigator.pop(context);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6A94C9),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                  child: Text(
+                    isEditing ? "Guardar" : "Agregar",
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFFE0E0E0)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                  child: const Text(
+                    "Cancelar",
+                    style: TextStyle(color: Colors.black54),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Input auxiliar
   Widget _buildDialogTextField(
     TextEditingController controller,
     String hint, {
@@ -193,16 +291,17 @@ class _SupportLinesScreenState extends State<SupportLinesScreen> {
                     itemCount: controller.lines.length,
                     itemBuilder: (context, index) {
                       final line = controller.lines[index];
-                      return _SupportLineCard(line: line);
+                      return GestureDetector(
+                        onLongPress: () => _showOptionsDialog(line),
+                        child: _SupportLineCard(line: line),
+                      );
                     },
                   ),
           ),
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: ElevatedButton.icon(
-              onPressed: () {
-                _showAddLineDialog(); // Llamada al diálogo unida con éxito
-              },
+              onPressed: () => _showAddOrEditDialog(),
               icon: const Icon(Icons.add, color: Colors.white),
               label: const Text(
                 "Agregar línea de apoyo",
@@ -225,7 +324,6 @@ class _SupportLinesScreenState extends State<SupportLinesScreen> {
 
 class _SupportLineCard extends StatelessWidget {
   final SupportLine line;
-
   const _SupportLineCard({required this.line});
 
   @override
