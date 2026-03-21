@@ -4,7 +4,7 @@ class CategoriaCard extends StatelessWidget {
   final String emoji;
   final String nombre;
   final int count;
-  final VoidCallback onTap; // La función que tus compañeros llenarán
+  final VoidCallback onTap;
 
   const CategoriaCard({
     super.key,

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart'; // Asegúrate de tenerlo en pubspec.yaml
+import 'package:url_launcher/url_launcher.dart';
 import 'package:bloomind/features/resourses/model/support_line.dart';
 import '../controller/support_line_controller.dart';
 
@@ -14,7 +14,6 @@ class OnlyFavoritesSupportLinesScreen extends StatefulWidget {
 
 class _OnlyFavoritesSupportLinesScreenState
     extends State<OnlyFavoritesSupportLinesScreen> {
-  // 1. Controladores para los campos del diálogo
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _descController = TextEditingController();
@@ -23,7 +22,6 @@ class _OnlyFavoritesSupportLinesScreenState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Cargamos solo los favoritos
       context.read<SupportLineController>().loadFavorites();
     });
   }
@@ -35,8 +33,6 @@ class _OnlyFavoritesSupportLinesScreenState
     _descController.dispose();
     super.dispose();
   }
-
-  // --- MÉTODOS DE COMUNICACIÓN ---
 
   Future<void> _makeCall(String phoneNumber) async {
     final Uri url = Uri.parse('tel:$phoneNumber');
@@ -68,7 +64,6 @@ class _OnlyFavoritesSupportLinesScreenState
     }
   }
 
-  // Diálogo de Opciones (Llamar, WA, Editar, Eliminar)
   void _showOptionsDialog(SupportLine line) {
     showDialog(
       context: context,
@@ -127,7 +122,6 @@ class _OnlyFavoritesSupportLinesScreenState
     );
   }
 
-  // Diálogo Unificado para Agregar o Editar
   void _showAddOrEditDialog({SupportLine? line}) {
     final isEditing = line != null;
 

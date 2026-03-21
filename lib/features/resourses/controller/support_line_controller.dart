@@ -6,7 +6,7 @@ class SupportLineController extends ChangeNotifier {
   final SupportLineRepository repository;
 
   List<SupportLine> _lines = [];
-  List<SupportLine> _favoriteLines = []; // Lista separada para favoritos
+  List<SupportLine> _favoriteLines = [];
   bool _isLoading = false;
 
   SupportLineController(this.repository) {
@@ -30,7 +30,6 @@ class SupportLineController extends ChangeNotifier {
     }
   }
 
-  // Carga específicamente la lista de favoritos en la variable de estado
   Future<void> loadFavorites() async {
     _isLoading = true;
     notifyListeners();
@@ -59,7 +58,7 @@ class SupportLineController extends ChangeNotifier {
     notifyListeners();
     try {
       await repository.updateFavoriteStatus(line.idContact!, newStatus);
-      await loadFavorites(); // Actualizamos también la lista de favoritos
+      await loadFavorites();
     } catch (e) {
       debugPrint("Error al actualizar favorito: $e");
       await loadSupportLines();
@@ -70,7 +69,7 @@ class SupportLineController extends ChangeNotifier {
     final result = await repository.insertSupportLine(line);
     if (result > 0) {
       await loadSupportLines();
-      await loadFavorites(); // Actualizamos favoritos
+      await loadFavorites();
       return true;
     }
     return false;
@@ -82,8 +81,8 @@ class SupportLineController extends ChangeNotifier {
     try {
       final rowsAffected = await repository.updateSupportLine(line);
       if (rowsAffected > 0) {
-        await loadSupportLines(); // Recarga la lista para reflejar cambios
-        await loadFavorites(); // Actualizamos favoritos
+        await loadSupportLines();
+        await loadFavorites();
         return true;
       }
     } catch (e) {
@@ -96,9 +95,8 @@ class SupportLineController extends ChangeNotifier {
     try {
       final rowsAffected = await repository.deleteSupportLine(id);
       if (rowsAffected > 0) {
-        // Optimización: Eliminar localmente antes de recargar si quieres que sea instantáneo
         _lines.removeWhere((l) => l.idContact == id);
-        await loadFavorites(); // Actualizamos favoritos por si eliminamos uno desde allí
+        await loadFavorites();
         notifyListeners();
         return true;
       }
