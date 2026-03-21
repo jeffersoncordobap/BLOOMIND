@@ -26,7 +26,7 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
 
   Future<void> _cargarFavoritas() async {
     try {
-      // 1️⃣ Inserta frases iniciales si no existen
+      //  Inserta frases iniciales si no existen
       final frasesExistentes = await _repository.getAllFrases();
       for (String frase in frasesMotivacionales) {
         bool existe = frasesExistentes.any((f) => f.contenido_frases == frase);
@@ -37,7 +37,7 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
         }
       }
 
-      // 2️⃣ Carga todas las frases y filtra solo las favoritas
+      //  Carga todas las frases y filtra solo las favoritas
       final todas = await _repository.getAllFrases();
       setState(() {
         _favoritas = todas.where((f) => f.favorita_frase).toList();
@@ -95,18 +95,6 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          TextButton.icon(
-            onPressed: () => Navigator.pop(context),
-            icon: const Icon(Icons.chevron_left, size: 18, color: Color(0xFF5A6080)),
-            label: const Text(
-              'Volver a categorías',
-              style: TextStyle(
-                color: Color(0xFF5A6080),
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
-              ),
-            ),
-          ),
           Expanded(child: _buildBody()),
         ],
       ),

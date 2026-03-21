@@ -10,10 +10,10 @@ class ResoursesScreenFrases extends StatefulWidget {
   const ResoursesScreenFrases({super.key});
 
   @override
-  State<ResoursesScreenFrases> createState() => _ResoursesScreenFrasesState();
+  State<ResoursesScreenFrases> createState() => ResoursesScreenFrasesState();
 }
 
-class _ResoursesScreenFrasesState extends State<ResoursesScreenFrases> {
+class ResoursesScreenFrasesState extends State<ResoursesScreenFrases> {
   final ResourseRepository _repository = ResourseRepositoryImpl();
 
   List<ResourseFrases> frasesDB = []; // Lista cargada desde la DB
@@ -23,6 +23,11 @@ class _ResoursesScreenFrasesState extends State<ResoursesScreenFrases> {
   void initState() {
     super.initState();
     _cargarFrases(); // Cargar y mostrar frases
+  }
+
+  void refreshFrases() async {
+    frasesDB = await _repository.getAllFrases(); // recarga de DB
+    setState(() {});
   }
 
   Future<void> _cargarFrases() async {
