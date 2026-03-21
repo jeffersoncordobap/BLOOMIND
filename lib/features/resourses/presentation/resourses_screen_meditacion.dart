@@ -10,14 +10,16 @@ class widget_meditacion extends StatefulWidget {
   const widget_meditacion({super.key});
 
   @override
-  State<widget_meditacion> createState() => _widget_meditacionState();
+  State<widget_meditacion> createState() => widget_meditacionState();
 }
 
-class _widget_meditacionState extends State<widget_meditacion> {
+class widget_meditacionState extends State<widget_meditacion> {
+  final resourseMeditationRepo = ResourseMeditationRepositoryImpl();
   final AudioPlayer _player = AudioPlayer();
   int? currentIndex;
 
   List<ResourseMeditation> audios = []; // ← lista vacía inicial
+  //bool _loading = false;
 
   @override
   void initState() {
@@ -25,9 +27,14 @@ class _widget_meditacionState extends State<widget_meditacion> {
     _initializeData();
   }
 
+  void meditationRefresh() async {
+    audios = await resourseMeditationRepo.getAllMeditations(); // recarga de DB
+    setState(() {});
+  }
+
   Future<void> _loadAudios() async {
     try {
-      final resourseMeditationRepo = ResourseMeditationRepositoryImpl();
+
       final audiosFromDB = await resourseMeditationRepo.getAllMeditations();
 
       setState(() {

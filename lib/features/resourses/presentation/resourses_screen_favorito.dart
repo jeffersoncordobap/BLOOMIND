@@ -1,9 +1,12 @@
+import 'package:bloomind/features/resourses/favorite_interfaz/meditation_favorite_interfaz.dart';
+import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controller/support_line_controller.dart';
 import '../repository/resourse_repository.dart';
 import '../repository/resourse_repository_impl.dart';
 import 'only_favorites_support_lines_screen.dart';
+import '../favorite_interfaz/frases_favorite_interfaz.dart';
 
 class FavoritosScreen extends StatefulWidget {
   const FavoritosScreen({super.key});
@@ -20,7 +23,6 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
   void initState() {
     super.initState();
     _cargarContadores();
-    // Cargar la lista de favoritos desde la base de datos al iniciar la pantalla
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SupportLineController>().loadFavorites();
     });
@@ -37,11 +39,10 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Escuchamos al controlador: cuando cambie la lista de favoritos, se redibuja este widget
     final supportController = context.watch<SupportLineController>();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F7), // Fondo que ya tenías
+      backgroundColor: const Color(0xFFF2F4F7),
       appBar: AppBar(
         title: const Text(
           'Favoritos',
@@ -54,16 +55,24 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: ListView(
-          // Cambiamos a ListView para tarjetas individuales y controladas
           children: [
             // 1. MEDITACIÓN
             _CardFavorito(
               emoji: '🧘',
               nombre: 'Meditación y respiración',
               count: 0,
-              onTap: () {
-                // COMPAÑERO A: Conecta aquí tu pantalla
-                print("Navegando a Meditación...");
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const WidgetMeditacionFavorite(),
+                  ),
+                );
+
+                final mainNavStateMed = context
+                    .findAncestorStateOfType<MainNavigationScreenState>();
+                mainNavStateMed?.meditacionKey.currentState
+                    ?.meditationRefresh();
               },
             ),
             const SizedBox(height: 12),
@@ -73,9 +82,17 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
               emoji: '☁️',
               nombre: 'Frases y motivación',
               count: 0,
-              onTap: () {
-                // COMPAÑERO B: Conecta aquí tu pantalla
-                print("Navegando a Frases...");
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const FavoritasFrasesScreen(),
+                  ),
+                );
+
+                final mainNavState = context
+                    .findAncestorStateOfType<MainNavigationScreenState>();
+                mainNavState?.frasesKey.currentState?.refreshFrases();
               },
             ),
             const SizedBox(height: 12),
@@ -126,7 +143,6 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
   }
 }
 
-// Widget privado para mantener el estilo visual y la funcionalidad táctil
 class _CardFavorito extends StatelessWidget {
   final String emoji;
   final String nombre;
@@ -151,7 +167,6 @@ class _CardFavorito extends StatelessWidget {
         ],
       ),
       child: Material(
-        // Material e InkWell para el efecto visual al tocar
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
