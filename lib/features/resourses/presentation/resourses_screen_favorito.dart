@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import '../repository/resourse_repository.dart';
 import '../repository/resourse_repository_impl.dart';
+import 'package:provider/provider.dart';
+
+import '../../../core/database/database_helper.dart';
+import '../../relaxing_audio/controller/relaxing_audio_controller.dart';
+import '../../relaxing_audio/presentation/favorite_audio_screen.dart';
+import '../../relaxing_audio/repository/relaxing_audio_repository_impl.dart';
 
 class FavoritosScreen extends StatefulWidget {
   const FavoritosScreen({super.key});
@@ -30,88 +36,105 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F7), // Fondo que ya tenías
-      appBar: AppBar(
-        title: const Text(
-          'Favoritos',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: ListView(
-          // Cambiamos a ListView para tarjetas individuales y controladas
-          children: [
-            // 1. MEDITACIÓN
-            _CardFavorito(
-              emoji: '🧘',
-              nombre: 'Meditación y respiración',
-              count: 0,
-              onTap: () {
-                // COMPAÑERO A: Conecta aquí tu pantalla
-                print("Navegando a Meditación...");
-              },
+    return ChangeNotifierProvider(
+      create: (_) => RelaxingAudioController(
+        RelaxingAudioRepositoryImpl(DatabaseHelper()),
+      )..loadFavoriteAudios(),
+      child: Builder(
+        builder: (context) {
+          return Scaffold(
+            backgroundColor: const Color(0xFFF2F4F7),
+            appBar: AppBar(
+              title: const Text(
+                'Favoritos',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              centerTitle: true,
+              elevation: 0,
+              backgroundColor: Colors.white,
             ),
-            const SizedBox(height: 12),
+            body: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: ListView(
+                children: [
+                  _CardFavorito(
+                    emoji: '🧘',
+                    nombre: 'Meditación y respiración',
+                    count: 0,
+                    onTap: () {
+                      print("Navegando a Meditación...");
+                    },
+                  ),
+                  const SizedBox(height: 12),
 
-            // 2. FRASES
-            _CardFavorito(
-              emoji: '☁️',
-              nombre: 'Frases y motivación',
-              count: 0,
-              onTap: () {
-                // COMPAÑERO B: Conecta aquí tu pantalla
-                print("Navegando a Frases...");
-              },
-            ),
-            const SizedBox(height: 12),
+                  _CardFavorito(
+                    emoji: '☁️',
+                    nombre: 'Frases y motivación',
+                    count: _frasesFavoritas,
+                    onTap: () {
+                      print("Navegando a Frases...");
+                    },
+                  ),
+                  const SizedBox(height: 12),
 
-            // 3. AUDIOS
-            _CardFavorito(
-              emoji: '🎧',
-              nombre: 'Audios relajantes',
-              count: 0,
-              onTap: () {
-                // COMPAÑERO C: Conecta aquí tu pantalla
-                print("Navegando a Audios...");
-              },
-            ),
-            const SizedBox(height: 12),
+                  Consumer<RelaxingAudioController>(
+                    builder: (context, controller, child) {
+                      return _CardFavorito(
+                        emoji: '🎧',
+                        nombre: 'Audios relajantes',
+                        count: controller.favoriteAudios.length,
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ChangeNotifierProvider.value(
+                                value: controller,
+                                child: const FavoriteAudioScreen(),
+                              ),
+                            ),
+                          );
 
-            // 4. Actividades sorpresa
-            _CardFavorito(
-              emoji: '🎁',
-              nombre: 'Actividades sorpresa',
-              count: 0,
-              onTap: () {
-                // COMPAÑERO D: Conecta aquí tu pantalla
-                print("Navegando a Actividades sorpresa...");
-              },
-            ),
-            const SizedBox(height: 12),
+                          if (!mounted) return;
+                          await context
+                              .read<RelaxingAudioController>()
+                              .loadFavoriteAudios();
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
 
-            // 5. LÍNEAS DE APOYO
-            _CardFavorito(
-              emoji: '❤️',
-              nombre: 'Líneas de apoyo',
-              count: 0,
-              onTap: () {
-                // COMPAÑERO E: Conecta aquí tu pantalla
-                print("Navegando a Líneas de Apoyo...");
-              },
+                  _CardFavorito(
+                    emoji: '🎁',
+                    nombre: 'Actividades sorpresa',
+                    count: 0,
+                    onTap: () {
+                      print("Navegando a Actividades sorpresa...");
+                    },
+                  ),
+                  const SizedBox(height: 12),
+
+                  _CardFavorito(
+                    emoji: '❤️',
+                    nombre: 'Líneas de apoyo',
+                    count: 0,
+                    onTap: () {
+                      print("Navegando a Líneas de Apoyo...");
+                    },
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 }
 
-// Widget privado para mantener el estilo visual y la funcionalidad táctil
 class _CardFavorito extends StatelessWidget {
   final String emoji;
   final String nombre;
@@ -132,11 +155,14 @@ class _CardFavorito extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 6,
+            offset: Offset(0, 3),
+          ),
         ],
       ),
       child: Material(
-        // Material e InkWell para el efecto visual al tocar
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(20),

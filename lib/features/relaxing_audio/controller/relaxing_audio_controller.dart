@@ -62,6 +62,8 @@ class RelaxingAudioController extends ChangeNotifier {
   List<RelaxingAudioModel> get favoriteAudios =>
       List.unmodifiable(_favoriteAudios);
 
+  int get favoriteAudiosCount => _favoriteAudios.length;
+
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 

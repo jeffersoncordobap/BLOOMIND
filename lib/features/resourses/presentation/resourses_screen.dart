@@ -3,8 +3,14 @@ import 'package:bloomind/features/resourses/presentation/resourses_screen_favori
 import 'package:bloomind/features/resourses/presentation/support_lines_screen.dart';
 import 'package:flutter/material.dart';
 
-//import './/resourses_screen_frases.dart';
-//import './/resourses_screen_meditacion.dart';
+
+
+import 'package:provider/provider.dart';
+
+import '../../../core/database/database_helper.dart';
+import '../../relaxing_audio/controller/relaxing_audio_controller.dart';
+import '../../relaxing_audio/presentation/relaxing_audio_screen.dart';
+import '../../relaxing_audio/repository/relaxing_audio_repository_impl.dart';
 
 class RecurseScreen extends StatelessWidget {
   final VoidCallback alPresionarMeditacionRespiracion;
@@ -148,9 +154,23 @@ class RecurseScreen extends StatelessWidget {
               const SizedBox(height: 20),
 
               // Tarjeta Audios Relajantes
+              // Tarjeta Audios Relajantes
+
               InkWell(
                 borderRadius: BorderRadius.circular(22),
-                onTap: alPresionarResoursesScreenAudios,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ChangeNotifierProvider(
+                        create: (_) => RelaxingAudioController(
+                          RelaxingAudioRepositoryImpl(DatabaseHelper()),
+                        )..initializeAudios(),
+                        child: const RelaxingAudioScreen(),
+                      ),
+                    ),
+                  );
+                },
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -161,12 +181,15 @@ class RecurseScreen extends StatelessWidget {
                         color: Colors.black12,
                         blurRadius: 8,
                         offset: Offset(0, 3),
-                      ),
+                      )
                     ],
                   ),
                   child: const Row(
                     children: [
-                      Text("🎧", style: TextStyle(fontSize: 30)),
+                      Text(
+                        "🎧",
+                        style: TextStyle(fontSize: 30),
+                      ),
                       SizedBox(width: 20),
                       Expanded(
                         child: Text(
