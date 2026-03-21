@@ -1,7 +1,9 @@
+import 'package:bloomind/features/resourses/favorite_interfaz/meditation_favorite_interfaz.dart';
+import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import '../repository/resourse_repository.dart';
 import '../repository/resourse_repository_impl.dart';
-
+import '../favorite_interfaz/frases_favorite_interfaz.dart';
 class FavoritosScreen extends StatefulWidget {
   const FavoritosScreen({super.key});
 
@@ -51,10 +53,20 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
               emoji: '🧘',
               nombre: 'Meditación y respiración',
               count: 0,
-              onTap: () {
-                // COMPAÑERO A: Conecta aquí tu pantalla
-                print("Navegando a Meditación...");
-              },
+                onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WidgetMeditacionFavorite()
+                ),
+              );
+
+              final mainNavStateMed = 
+              context.findAncestorStateOfType<MainNavigationScreenState>();
+              mainNavStateMed?.meditacionKey.currentState?.meditationRefresh();
+
+                },
+
             ),
             const SizedBox(height: 12),
 
@@ -63,9 +75,19 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
               emoji: '☁️',
               nombre: 'Frases y motivación',
               count: 0,
-              onTap: () {
-                // COMPAÑERO B: Conecta aquí tu pantalla
-                print("Navegando a Frases...");
+              onTap: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const FavoritasFrasesScreen(),
+                  ),
+                );
+
+                // Esto se ejecuta cuando regresas
+                // Fuerza refresco de la pantalla de frases
+                final mainNavState =
+                    context.findAncestorStateOfType<MainNavigationScreenState>();
+                mainNavState?.frasesKey.currentState?.refreshFrases();
               },
             ),
             const SizedBox(height: 12),
