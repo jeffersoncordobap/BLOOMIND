@@ -1,6 +1,8 @@
 import 'package:bloomind/core/database/database_config.dart';
+import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'dart:convert';
 
 class DatabaseHelper {
   static final DatabaseHelper _instance = DatabaseHelper._internal();
@@ -17,7 +19,30 @@ class DatabaseHelper {
 
   Future<Database> _initDB() async {
     String path = join(await getDatabasesPath(), 'bloomind.db');
-    return await openDatabase(path, version: 1, onCreate: _onCreate);
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _onCreate,
+      onOpen: _onOpen,
+    );
+  }
+
+  Future _onOpen(Database db) async {
+    final count = Sqflite.firstIntValue(
+      await db.rawQuery('SELECT COUNT(*) FROM ${DatabaseConfig.tableSurpriseActivities}'),
+    ) ?? 0;
+    if (count == 0) {
+      final jsonStr = await rootBundle.loadString('assets/actividades/actividades.json');
+      final List<dynamic> frases = json.decode(jsonStr);
+      final batch = db.batch();
+      for (final frase in frases) {
+        batch.insert(DatabaseConfig.tableSurpriseActivities, {
+          DatabaseConfig.colSurpriseActivityDescription: frase as String,
+          DatabaseConfig.colSurpriseActivityFavorite: 0,
+        });
+      }
+      await batch.commit(noResult: true);
+    }
   }
 
   Future _onCreate(Database db, int version) async {

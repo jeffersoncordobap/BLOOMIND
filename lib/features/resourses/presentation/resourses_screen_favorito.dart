@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../repository/resourse_repository.dart';
 import '../repository/resourse_repository_impl.dart';
+import 'package:bloomind/features/resourses/repository/surprise_activity_repository_impl.dart';
+import 'package:bloomind/features/resourses/presentation/favoritos_sorpresa_screen.dart';
 
 class FavoritosScreen extends StatefulWidget {
   const FavoritosScreen({super.key});
@@ -11,7 +13,9 @@ class FavoritosScreen extends StatefulWidget {
 
 class _FavoritosScreenState extends State<FavoritosScreen> {
   final ResourseRepository _repository = ResourseRepositoryImpl();
+  final _surpriseRepo = SurpriseActivityRepositoryImpl();
   int _frasesFavoritas = 0;
+  int _actividadesFavoritas = 0;
 
   @override
   void initState() {
@@ -21,9 +25,11 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
 
   Future<void> _cargarContadores() async {
     final frases = await _repository.getAllFrases();
+    final actividades = await _surpriseRepo.countFavoritos();
     if (mounted) {
       setState(() {
         _frasesFavoritas = frases.where((f) => f.favorita_frase).length;
+        _actividadesFavoritas = actividades;
       });
     }
   }
@@ -86,10 +92,14 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
             _CardFavorito(
               emoji: '🎁',
               nombre: 'Actividades sorpresa',
-              count: 0,
+              count: _actividadesFavoritas,
               onTap: () {
-                // COMPAÑERO D: Conecta aquí tu pantalla
-                print("Navegando a Actividades sorpresa...");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const FavoritosSorpresaScreen(),
+                  ),
+                ).then((_) => _cargarContadores());
               },
             ),
             const SizedBox(height: 12),
