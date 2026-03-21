@@ -47,6 +47,7 @@ class DatabaseConfig {
       "description_surprise_activity";
   static const String colSurpriseActivityFavorite =
       "favorite_surprise_activity";
+  static const String colSurpriseActivityDeletedAt = "deleted_at_surprise_activity";
 
   //TABLA SUPPORT_LINES
   static const String tableSupportLines = "Support_Lines";

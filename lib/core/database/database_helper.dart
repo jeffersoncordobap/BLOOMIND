@@ -21,10 +21,23 @@ class DatabaseHelper {
     String path = join(await getDatabasesPath(), 'bloomind.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
       onOpen: _onOpen,
     );
+  }
+
+  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      final cols = await db.rawQuery('PRAGMA table_info(${DatabaseConfig.tableSurpriseActivities})');
+      final existe = cols.any((c) => c['name'] == DatabaseConfig.colSurpriseActivityDeletedAt);
+      if (!existe) {
+        await db.execute(
+          'ALTER TABLE ${DatabaseConfig.tableSurpriseActivities} ADD COLUMN ${DatabaseConfig.colSurpriseActivityDeletedAt} TEXT NULL',
+        );
+      }
+    }
   }
 
   Future _onOpen(Database db) async {
@@ -116,7 +129,8 @@ class DatabaseHelper {
     CREATE TABLE ${DatabaseConfig.tableSurpriseActivities}(
       ${DatabaseConfig.colSurpriseActivityId} INTEGER PRIMARY KEY AUTOINCREMENT,
       ${DatabaseConfig.colSurpriseActivityDescription} TEXT,
-      ${DatabaseConfig.colSurpriseActivityFavorite} INTEGER DEFAULT 0
+      ${DatabaseConfig.colSurpriseActivityFavorite} INTEGER DEFAULT 0,
+      ${DatabaseConfig.colSurpriseActivityDeletedAt} TEXT NULL
     )
     """);
 

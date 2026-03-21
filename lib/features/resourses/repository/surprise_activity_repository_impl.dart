@@ -9,7 +9,10 @@ class SurpriseActivityRepositoryImpl implements SurpriseActivityRepository {
   @override
   Future<List<SurpriseActivity>> getAll() async {
     final db = await _db.database;
-    final rows = await db.query(DatabaseConfig.tableSurpriseActivities);
+    final rows = await db.query(
+      DatabaseConfig.tableSurpriseActivities,
+      where: '${DatabaseConfig.colSurpriseActivityDeletedAt} IS NULL',
+    );
     return rows.map((r) => SurpriseActivity.fromMap(r)).toList();
   }
 
@@ -23,7 +26,7 @@ class SurpriseActivityRepositoryImpl implements SurpriseActivityRepository {
   Future<int> count() async {
     final db = await _db.database;
     final result = await db.rawQuery(
-        'SELECT COUNT(*) as c FROM ${DatabaseConfig.tableSurpriseActivities}');
+        'SELECT COUNT(*) as c FROM ${DatabaseConfig.tableSurpriseActivities} WHERE ${DatabaseConfig.colSurpriseActivityDeletedAt} IS NULL');
     return result.first['c'] as int;
   }
 
@@ -43,7 +46,8 @@ class SurpriseActivityRepositoryImpl implements SurpriseActivityRepository {
     final db = await _db.database;
     final rows = await db.query(
       DatabaseConfig.tableSurpriseActivities,
-      where: '${DatabaseConfig.colSurpriseActivityFavorite} = 1',
+      where:
+          '${DatabaseConfig.colSurpriseActivityFavorite} = 1 AND ${DatabaseConfig.colSurpriseActivityDeletedAt} IS NULL',
     );
     return rows.map((r) => SurpriseActivity.fromMap(r)).toList();
   }
@@ -52,7 +56,74 @@ class SurpriseActivityRepositoryImpl implements SurpriseActivityRepository {
   Future<int> countFavoritos() async {
     final db = await _db.database;
     final result = await db.rawQuery(
-        'SELECT COUNT(*) as c FROM ${DatabaseConfig.tableSurpriseActivities} WHERE ${DatabaseConfig.colSurpriseActivityFavorite} = 1');
+        'SELECT COUNT(*) as c FROM ${DatabaseConfig.tableSurpriseActivities} WHERE ${DatabaseConfig.colSurpriseActivityFavorite} = 1 AND ${DatabaseConfig.colSurpriseActivityDeletedAt} IS NULL');
     return result.first['c'] as int;
+  }
+
+  @override
+  Future<void> moverAPapelera(int id) async {
+    final db = await _db.database;
+    await db.update(
+      DatabaseConfig.tableSurpriseActivities,
+      {
+        DatabaseConfig.colSurpriseActivityFavorite: 0,
+        DatabaseConfig.colSurpriseActivityDeletedAt: DateTime.now().toIso8601String(),
+      },
+      where: '${DatabaseConfig.colSurpriseActivityId} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  @override
+  Future<List<SurpriseActivity>> getPapelera() async {
+    final db = await _db.database;
+    final rows = await db.query(
+      DatabaseConfig.tableSurpriseActivities,
+      where: '${DatabaseConfig.colSurpriseActivityDeletedAt} IS NOT NULL',
+    );
+    return rows.map((r) => SurpriseActivity.fromMap(r)).toList();
+  }
+
+  @override
+  Future<void> restaurarDePapelera(int id) async {
+    final db = await _db.database;
+    await db.update(
+      DatabaseConfig.tableSurpriseActivities,
+      {
+        DatabaseConfig.colSurpriseActivityFavorite: 1,
+        DatabaseConfig.colSurpriseActivityDeletedAt: null,
+      },
+      where: '${DatabaseConfig.colSurpriseActivityId} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  @override
+  Future<void> eliminarPermanentemente(int id) async {
+    final db = await _db.database;
+    await db.update(
+      DatabaseConfig.tableSurpriseActivities,
+      {
+        DatabaseConfig.colSurpriseActivityFavorite: 0,
+        DatabaseConfig.colSurpriseActivityDeletedAt: null,
+      },
+      where: '${DatabaseConfig.colSurpriseActivityId} = ?',
+      whereArgs: [id],
+    );
+  }
+
+  @override
+  Future<void> limpiarPapeleraExpirada() async {
+    final db = await _db.database;
+    final limite = DateTime.now().subtract(const Duration(days: 7)).toIso8601String();
+    await db.update(
+      DatabaseConfig.tableSurpriseActivities,
+      {
+        DatabaseConfig.colSurpriseActivityFavorite: 0,
+        DatabaseConfig.colSurpriseActivityDeletedAt: null,
+      },
+      where: '${DatabaseConfig.colSurpriseActivityDeletedAt} IS NOT NULL AND ${DatabaseConfig.colSurpriseActivityDeletedAt} < ?',
+      whereArgs: [limite],
+    );
   }
 }
