@@ -1,12 +1,18 @@
+import 'package:bloomind/features/resourses/favorite_interfaz/meditation_favorite_interfaz.dart';
+import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
-import '../repository/resourse_repository.dart';
-import '../repository/resourse_repository_impl.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/database/database_helper.dart';
 import '../../relaxing_audio/controller/relaxing_audio_controller.dart';
 import '../../relaxing_audio/presentation/favorite_audio_screen.dart';
 import '../../relaxing_audio/repository/relaxing_audio_repository_impl.dart';
+
+import '../controller/support_line_controller.dart';
+import '../favorite_interfaz/frases_favorite_interfaz.dart';
+import '../repository/resourse_repository.dart';
+import '../repository/resourse_repository_impl.dart';
+import 'only_favorites_support_lines_screen.dart';
 
 class FavoritosScreen extends StatefulWidget {
   const FavoritosScreen({super.key});
@@ -23,113 +29,144 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
   void initState() {
     super.initState();
     _cargarContadores();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<SupportLineController>().loadFavorites();
+    });
   }
 
   Future<void> _cargarContadores() async {
     final frases = await _repository.getAllFrases();
-    if (mounted) {
-      setState(() {
-        _frasesFavoritas = frases.where((f) => f.favorita_frase).length;
-      });
-    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _frasesFavoritas = frases.where((f) => f.favorita_frase).length;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final supportController = context.watch<SupportLineController>();
+
     return ChangeNotifierProvider(
       create: (_) => RelaxingAudioController(
         RelaxingAudioRepositoryImpl(DatabaseHelper()),
       )..loadFavoriteAudios(),
-      child: Builder(
-        builder: (context) {
-          return Scaffold(
-            backgroundColor: const Color(0xFFF2F4F7),
-            appBar: AppBar(
-              title: const Text(
-                'Favoritos',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              centerTitle: true,
-              elevation: 0,
-              backgroundColor: Colors.white,
+      child: Scaffold(
+        backgroundColor: const Color(0xFFF2F4F7),
+        appBar: AppBar(
+          title: const Text(
+            'Favoritos',
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
             ),
-            body: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: ListView(
-                children: [
-                  _CardFavorito(
-                    emoji: '🧘',
-                    nombre: 'Meditación y respiración',
-                    count: 0,
-                    onTap: () {
-                      print("Navegando a Meditación...");
-                    },
-                  ),
-                  const SizedBox(height: 12),
+          ),
+          centerTitle: true,
+          elevation: 0,
+          backgroundColor: Colors.white,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: ListView(
+            children: [
+              // 1. MEDITACIÓN
+              _CardFavorito(
+                emoji: '🧘',
+                nombre: 'Meditación y respiración',
+                count: 0,
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const WidgetMeditacionFavorite(),
+                    ),
+                  );
 
-                  _CardFavorito(
-                    emoji: '☁️',
-                    nombre: 'Frases y motivación',
-                    count: _frasesFavoritas,
-                    onTap: () {
-                      print("Navegando a Frases...");
-                    },
-                  ),
-                  const SizedBox(height: 12),
+                  if (!mounted) return;
 
-                  Consumer<RelaxingAudioController>(
-                    builder: (context, controller, child) {
-                      return _CardFavorito(
-                        emoji: '🎧',
-                        nombre: 'Audios relajantes',
-                        count: controller.favoriteAudios.length,
-                        onTap: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ChangeNotifierProvider.value(
-                                value: controller,
-                                child: const FavoriteAudioScreen(),
-                              ),
-                            ),
-                          );
+                  final mainNavState = context
+                      .findAncestorStateOfType<MainNavigationScreenState>();
+                  mainNavState?.meditacionKey.currentState?.meditationRefresh();
+                },
+              ),
+              const SizedBox(height: 12),
 
-                          if (!mounted) return;
-                          await context
-                              .read<RelaxingAudioController>()
-                              .loadFavoriteAudios();
-                        },
+              // 2. FRASES
+              _CardFavorito(
+                emoji: '☁️',
+                nombre: 'Frases y motivación',
+                count: _frasesFavoritas,
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const FavoritasFrasesScreen(),
+                    ),
+                  );
+
+                  if (!mounted) return;
+
+                  await _cargarContadores();
+
+                  final mainNavState = context
+                      .findAncestorStateOfType<MainNavigationScreenState>();
+                  mainNavState?.frasesKey.currentState?.refreshFrases();
+                },
+              ),
+              const SizedBox(height: 12),
+
+              // 3. AUDIOS RELAJANTES
+              Consumer<RelaxingAudioController>(
+                builder: (context, controller, child) {
+                  return _CardFavorito(
+                    emoji: '🎧',
+                    nombre: 'Audios relajantes',
+                    count: controller.favoriteAudios.length,
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChangeNotifierProvider.value(
+                            value: controller,
+                            child: const FavoriteAudioScreen(),
+                          ),
+                        ),
                       );
-                    },
-                  ),
-                  const SizedBox(height: 12),
 
-                  _CardFavorito(
-                    emoji: '🎁',
-                    nombre: 'Actividades sorpresa',
-                    count: 0,
-                    onTap: () {
-                      print("Navegando a Actividades sorpresa...");
+                      if (!mounted) return;
+                      await context
+                          .read<RelaxingAudioController>()
+                          .loadFavoriteAudios();
                     },
-                  ),
-                  const SizedBox(height: 12),
-
-                  _CardFavorito(
-                    emoji: '❤️',
-                    nombre: 'Líneas de apoyo',
-                    count: 0,
-                    onTap: () {
-                      print("Navegando a Líneas de Apoyo...");
-                    },
-                  ),
-                ],
+                  );
+                },
               ),
-            ),
-          );
-        },
+              const SizedBox(height: 12),
+
+              // 4. LÍNEAS DE APOYO
+              _CardFavorito(
+                emoji: '❤️',
+                nombre: 'Líneas de apoyo',
+                count: supportController.favoriteLines.length,
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                      const OnlyFavoritesSupportLinesScreen(),
+                    ),
+                  );
+
+                  if (!mounted) return;
+                  await context.read<SupportLineController>().loadFavorites();
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -171,7 +208,10 @@ class _CardFavorito extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
               children: [
-                Text(emoji, style: const TextStyle(fontSize: 30)),
+                Text(
+                  emoji,
+                  style: const TextStyle(fontSize: 30),
+                ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -208,6 +248,3 @@ class _CardFavorito extends StatelessWidget {
     );
   }
 }
-
-
-
