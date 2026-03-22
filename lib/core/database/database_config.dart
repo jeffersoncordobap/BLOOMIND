@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 class DatabaseConfig {
   // Configuración general
   static const String dbName = 'bloomind.db';
@@ -35,63 +33,45 @@ class DatabaseConfig {
   static const String colAssignDateTime = 'date_time';
 
   // TABLA RECURSES__PHRASES
-  static const String tableFrasesFavorits = "Frases_bool_favorite";
-  static const String recFrasesId = "id_frases";
-  static const String recFrasesContenido = "contenido_frases";
-  static const String recFrasesFavorite = "favorita_frase";
+  static const String tableFrasesFavorits = 'Frases_bool_favorite';
+  static const String recFrasesId = 'id_frases';
+  static const String recFrasesContenido = 'contenido_frases';
+  static const String recFrasesFavorite = 'favorita_frase';
 
-  //TABLA RECURSES__SUPRISE_ACTIVITIES
-  static const String tableSurpriseActivities = "Surprise_Activities";
-  static const String colSurpriseActivityId = "id_surprise_activity";
+  // TABLA RELAXING AUDIOS
+  static const String tableRelaxingAudios = 'relaxing_audios';
+  static const String recRelaxingAudioId = 'id';
+  static const String recRelaxingAudioTitle = 'title';
+  static const String recRelaxingAudioDurationSeconds = 'duration_seconds';
+  static const String recRelaxingAudioFilePath = 'file_path';
+  static const String recRelaxingAudioFileName = 'file_name';
+  static const String recRelaxingAudioFileSize = 'file_size';
+  static const String recRelaxingAudioIsFavorite = 'is_favorite';
+  static const String recRelaxingAudioCreatedAt = 'created_at';
+  static const String recRelaxingAudioIsAsset = 'is_asset';
+
+  // TABLA RECURSES__SUPRISE_ACTIVITIES
+  static const String tableSurpriseActivities = 'Surprise_Activities';
+  static const String colSurpriseActivityId = 'id_surprise_activity';
   static const String colSurpriseActivityDescription =
-      "description_surprise_activity";
+      'description_surprise_activity';
   static const String colSurpriseActivityFavorite =
-      "favorite_surprise_activity";
+      'favorite_surprise_activity';
 
-  //TABLA SUPPORT_LINES
-  static const String tableSupportLines = "Support_Lines";
-  static const String colContactId = "id_contact";
-  static const String colContactName = "contact_name";
-  static const String colContactPhone = "contact_phone";
-  static const String colContactDescription = "contact_description";
-  static const String colIsFavoriteContact = "is_favorite_contact";
+  // TABLA SUPPORT_LINES
+  static const String tableSupportLines = 'Support_Lines';
+  static const String colContactId = 'id_contact';
+  static const String colContactName = 'contact_name';
+  static const String colContactPhone = 'contact_phone';
+  static const String colContactDescription = 'contact_description';
+  static const String colIsFavoriteContact = 'is_favorite_contact';
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  //Tabla de meditacion 
-  static const String tableAudiosMeditacion = "Meditation"; 
-  static const String recMeditationId = "id_meditacion";
-  static const String recMeditationTitle = "title_meditation";
-  static const String recMeditationDescrip = "descripcion_meditation";
-  static const String recMeditationDurat = "duration_meditation";
-  static const String recMeditationFilepath = "filepath_meditation"; 
-  static const String recMeditationFavorite = "favorite_meditation";
-
+  // TABLA DE MEDITACION
+  static const String tableAudiosMeditacion = 'Meditation';
+  static const String recMeditationId = 'id_meditacion';
+  static const String recMeditationTitle = 'title_meditation';
+  static const String recMeditationDescrip = 'descripcion_meditation';
+  static const String recMeditationDurat = 'duration_meditation';
+  static const String recMeditationFilepath = 'filepath_meditation';
+  static const String recMeditationFavorite = 'favorite_meditation';
 }
