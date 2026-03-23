@@ -3,7 +3,12 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
-
+import 'package:android_intent_plus/android_intent.dart';
+import 'package:android_intent_plus/flag.dart';
+import 'package:flutter/foundation.dart';
+import 'package:bloomind/features/activities/model/activity.dart';
+import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
 class NotificationService {
   NotificationService._();
 
@@ -11,6 +16,176 @@ class NotificationService {
 
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
+
+  TimeOfDay parseHour(String hourString) {
+    try {
+      final cleaned = hourString.trim().toUpperCase();
+
+      final regex = RegExp(r'^(\d{1,2}):(\d{2})\s?(AM|PM)$');
+      final match = regex.firstMatch(cleaned);
+
+      if (match == null) {
+        throw FormatException('Formato no válido: $hourString');
+      }
+
+      int hour = int.parse(match.group(1)!);
+      final minute = int.parse(match.group(2)!);
+      final period = match.group(3)!;
+
+      if (period == 'PM' && hour != 12) {
+        hour += 12;
+      } else if (period == 'AM' && hour == 12) {
+        hour = 0;
+      }
+
+      return TimeOfDay(hour: hour, minute: minute);
+    } catch (e) {
+      print('Error parseando hora: $hourString');
+      return const TimeOfDay(hour: 8, minute: 0);
+    }
+  }
+
+  Future<void> scheduleActivitiesNotifications({
+    required List<Activity> activities,
+    required int minutesBefore,
+  }) async {
+    int notificationId = 200;
+
+    for (final activity in activities) {
+      if (activity.hour.isEmpty) continue;
+
+      final time = parseHour(activity.hour);
+
+      final now = tz.TZDateTime.now(tz.local);
+
+      tz.TZDateTime activityDate = tz.TZDateTime(
+        tz.local,
+        now.year,
+        now.month,
+        now.day,
+        time.hour,
+        time.minute,
+      );
+
+      // restar minutos antes
+      final scheduledDate =
+      activityDate.subtract(Duration(minutes: minutesBefore));
+
+      if (scheduledDate.isBefore(now)) continue;
+
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        notificationId++,
+        'Actividad próxima',
+        '${activity.emoji} ${activity.name} en $minutesBefore minutos',
+        scheduledDate,
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+            'activity_channel',
+            'Actividades del día',
+            importance: Importance.max,
+            priority: Priority.high,
+          ),
+        ),
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+        UILocalNotificationDateInterpretation.absoluteTime,
+      );
+
+      print("✅ Notificación programada: ${activity.name} → $scheduledDate");
+    }
+  }
+
+  Future<void> cancelActivityNotifications() async {
+    for (int i = 200; i < 300; i++) {
+      await flutterLocalNotificationsPlugin.cancel(i);
+    }
+  }
+
+  Future<void> scheduleExactTestNotification({
+    required int minutesFromNow,
+  }) async {
+    const androidDetails = AndroidNotificationDetails(
+      'test_channel',
+      'Pruebas de notificación',
+      channelDescription: 'Canal para pruebas exactas',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+    );
+
+    const details = NotificationDetails(
+      android: androidDetails,
+    );
+
+    final scheduledDate =
+    tz.TZDateTime.now(tz.local).add(Duration(minutes: minutesFromNow));
+
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      999,
+      'Bloomind',
+      'Prueba exacta programada',
+      scheduledDate,
+      details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+      UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+
+  Future<void> scheduleDebugNotificationInOneMinute() async {
+    const androidDetails = AndroidNotificationDetails(
+      'debug_channel',
+      'Debug notifications',
+      channelDescription: 'Canal de prueba para aislar errores',
+      importance: Importance.max,
+      priority: Priority.high,
+      playSound: true,
+    );
+
+    const details = NotificationDetails(
+      android: androidDetails,
+    );
+
+    final now = tz.TZDateTime.now(tz.local);
+    final scheduledDate = now.add(const Duration(minutes: 1));
+
+    debugPrint('🕒 NOW: $now');
+    debugPrint('⏰ SCHEDULED: $scheduledDate');
+
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      777,
+      'Bloomind Debug',
+      'Esta notificación debe aparecer en 1 minuto',
+      scheduledDate,
+      details,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+      UILocalNotificationDateInterpretation.absoluteTime,
+    );
+
+    final pending = await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+    debugPrint('📌 Pendientes después de programar: ${pending.length}');
+    for (final item in pending) {
+      debugPrint('➡ ID: ${item.id}, title: ${item.title}, body: ${item.body}');
+    }
+  }
+
+  Future<void> cancelDebugNotification() async {
+    await flutterLocalNotificationsPlugin.cancel(777);
+  }
+
+  Future<void> openExactAlarmSettings() async {
+    const intent = AndroidIntent(
+      action: 'android.settings.REQUEST_SCHEDULE_EXACT_ALARM',
+      flags: <int>[Flag.FLAG_ACTIVITY_NEW_TASK],
+    );
+
+    await intent.launch();
+  }
+
+  Future<void> cancelExactTestNotification() async {
+    await flutterLocalNotificationsPlugin.cancel(999);
+  }
 
   Future<void> initNotifications() async {
     const androidSettings =
@@ -21,6 +196,83 @@ class NotificationService {
     );
 
     await flutterLocalNotificationsPlugin.initialize(settings);
+  }
+
+
+
+  Future<List<PendingNotificationRequest>> getPendingNotifications() async {
+    return await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+  }
+
+
+  Future<void> testScheduleIn1Minute() async {
+    final scheduledDate =
+    tz.TZDateTime.now(tz.local).add(const Duration(minutes: 1));
+
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      500,
+      'Test',
+      'Debe llegar en 1 minuto',
+      scheduledDate,
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'test',
+          'test',
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+      ),
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+      UILocalNotificationDateInterpretation.absoluteTime,
+    );
+  }
+
+  Future<void> scheduleDailyNotification({
+    required int hour,
+    required int minute,
+  }) async {
+    const androidDetails = AndroidNotificationDetails(
+      'daily_channel',
+      'Recordatorio diario',
+      channelDescription: 'Recordatorio para registrar emociones',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+
+    const details = NotificationDetails(android: androidDetails);
+
+    final now = tz.TZDateTime.now(tz.local);
+
+    tz.TZDateTime scheduledDate = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      hour,
+      minute,
+    );
+
+    // Si la hora ya pasó hoy → programar para mañana
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    }
+
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+      100, // ID único
+      'Bloomind',
+      'No olvides registrar tu emoción de hoy 💙',
+      scheduledDate,
+      details,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      uiLocalNotificationDateInterpretation:
+      UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time, // 🔥 clave para que sea diaria
+    );
+  }
+
+  Future<void> cancelDailyNotification() async {
+    await flutterLocalNotificationsPlugin.cancel(100);
   }
 
   Future<void> initTimezone() async {

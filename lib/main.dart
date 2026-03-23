@@ -20,7 +20,6 @@ void main() async {
   await NotificationService.instance.initNotifications();
   final dbHelper = DatabaseHelper();
   await dbHelper.database;
-  await NotificationService.instance.initNotifications();
   await NotificationService.instance.initTimezone();
 
   runApp(

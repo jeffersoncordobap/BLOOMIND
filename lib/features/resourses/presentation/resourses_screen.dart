@@ -11,7 +11,6 @@ import '../../../core/database/database_helper.dart';
 import '../../relaxing_audio/controller/relaxing_audio_controller.dart';
 import '../../relaxing_audio/presentation/relaxing_audio_screen.dart';
 import '../../relaxing_audio/repository/relaxing_audio_repository_impl.dart';
-import '../../notification/presentation/notification_test_screen.dart';
 
 class RecurseScreen extends StatelessWidget {
   final VoidCallback alPresionarMeditacionRespiracion;
@@ -163,7 +162,12 @@ class RecurseScreen extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => const NotificationTestScreen(),
+                      builder: (_) => ChangeNotifierProvider(
+                        create: (_) => RelaxingAudioController(
+                          RelaxingAudioRepositoryImpl(DatabaseHelper()),
+                        )..initializeAudios(),
+                        child: const RelaxingAudioScreen(),
+                      ),
                     ),
                   );
                 },

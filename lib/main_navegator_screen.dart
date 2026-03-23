@@ -12,7 +12,7 @@ import 'features/emotions/presentation/screens/emotion_record_screen.dart';
 import 'features/emotions/presentation/screens/emotion_list_screen.dart';
 import 'package:bloomind/features/estadisticas/presentation/statistics_screen.dart';
 import 'features/resourses/presentation/resourses_screen.dart';
-
+import 'features/settings/presentation/settings_screen.dart';
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
 
@@ -47,7 +47,7 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
       ),
 
       StatisticsScreen(key: _statisticsKey),
-      const Center(child: Text("Configuración")),
+      const SettingsScreen(),
       const EmotionListScreen(),
       const RoutineListScreen(),
       const AssignRoutineScreen(),

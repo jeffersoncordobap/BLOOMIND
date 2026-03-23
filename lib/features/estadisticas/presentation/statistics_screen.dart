@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:bloomind/features/estadisticas/data/statistics_service.dart';
 import 'package:bloomind/features/estadisticas/domain/statistics_model.dart';
-
+import 'statistics_info_screen.dart';
 enum StatisticsPeriod { weekly, monthly, daily }
 enum StatisticsChartType { line, bar }
 
@@ -306,6 +306,43 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           ],
           const SizedBox(height: 18),
           _buildChartArea(),
+          const SizedBox(height: 18),
+
+          Material(
+            color: const Color(0xFFDDEAF8),
+            borderRadius: BorderRadius.circular(18),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(18),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const StatisticsInfoScreen(),
+                  ),
+                );
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: const Color(0xFFC8D8EB)),
+                ),
+                child: Row(
+                  children: const [
+                    Icon(Icons.info_outline_rounded, size: 22),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        '¿Cómo se calculan las estadísticas?',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
