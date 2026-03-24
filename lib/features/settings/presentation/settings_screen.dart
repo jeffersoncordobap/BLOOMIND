@@ -1,5 +1,7 @@
+import 'package:bloomind/features/settings/presentation/bin_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:bloomind/features/notifications/presentation/notification_settings_screen.dart';
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -13,7 +15,10 @@ class SettingsScreen extends StatelessWidget {
             _buildHeader(),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 18,
+                ),
                 child: Column(
                   children: [
                     _buildWelcomeCard(),
@@ -52,6 +57,21 @@ class SettingsScreen extends StatelessWidget {
                         );
                       },
                     ),
+                    const SizedBox(height: 18),
+                    _buildOptionCard(
+                      context,
+                      icon: Icons.delete,
+                      iconColor: const Color.fromARGB(255, 141, 181, 227),
+                      title: 'Papelera',
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PapeleraScreen(),
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -59,7 +79,6 @@ class SettingsScreen extends StatelessWidget {
           ],
         ),
       ),
-
     );
   }
 
@@ -114,18 +133,12 @@ class SettingsScreen extends StatelessWidget {
         children: [
           Text(
             'Bienvenido/a',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFF6B7A90),
-            ),
+            style: TextStyle(fontSize: 14, color: Color(0xFF6B7A90)),
           ),
           SizedBox(height: 10),
           Row(
             children: [
-              Text(
-                '😊',
-                style: TextStyle(fontSize: 24),
-              ),
+              Text('😊', style: TextStyle(fontSize: 24)),
               SizedBox(width: 10),
               Expanded(
                 child: Text(
@@ -142,10 +155,7 @@ class SettingsScreen extends StatelessWidget {
           SizedBox(height: 10),
           Text(
             'Género: Prefiero no decir',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFF58708E),
-            ),
+            style: TextStyle(fontSize: 14, color: Color(0xFF58708E)),
           ),
           SizedBox(height: 10),
           Text(
@@ -162,12 +172,12 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _buildOptionCard(
-      BuildContext context, {
-        required IconData icon,
-        required Color iconColor,
-        required String title,
-        required VoidCallback onTap,
-      }) {
+    BuildContext context, {
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required VoidCallback onTap,
+  }) {
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(20),
@@ -181,11 +191,7 @@ class SettingsScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
           child: Row(
             children: [
-              Icon(
-                icon,
-                color: iconColor,
-                size: 30,
-              ),
+              Icon(icon, color: iconColor, size: 30),
               const SizedBox(width: 18),
               Expanded(
                 child: Text(
@@ -208,18 +214,13 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
   }
-
-
 }
 
 class _BottomIcon extends StatelessWidget {
   final String icon;
   final bool isSelected;
 
-  const _BottomIcon({
-    required this.icon,
-    required this.isSelected,
-  });
+  const _BottomIcon({required this.icon, required this.isSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -231,10 +232,7 @@ class _BottomIcon extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
       ),
       alignment: Alignment.center,
-      child: Text(
-        icon,
-        style: const TextStyle(fontSize: 28),
-      ),
+      child: Text(icon, style: const TextStyle(fontSize: 28)),
     );
   }
 }
