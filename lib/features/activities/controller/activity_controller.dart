@@ -5,7 +5,8 @@ import 'package:bloomind/features/routines/controller/day_routine_controller.dar
 import 'package:bloomind/features/routines/presentation/provider/routine_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
+import 'package:bloomind/core/services/notification_service.dart';
+import 'package:bloomind/features/notifications/data/notification_preferences.dart';
 class ActivityController extends ChangeNotifier {
   final ActivityRepository _repository = ActivityRepositoryImpl();
 
@@ -28,6 +29,40 @@ class ActivityController extends ChangeNotifier {
     } catch (e) {
       debugPrint("Error al cargar categorías: $e");
     }
+  }
+
+  Future<void> _refreshActivityNotifications(
+      BuildContext context,
+      int idRoutine,
+      ) async {
+    final prefs = NotificationPreferences();
+    final settings = await prefs.loadSettings();
+
+    final activityReminder = settings['activityReminder'] as bool;
+    final selectedMinutes = settings['selectedMinutes'] as int;
+
+    // Siempre cancelamos primero para evitar duplicados
+    await NotificationService.instance.cancelActivityNotifications();
+
+    if (!activityReminder) return;
+
+    // Tomamos las actividades recién actualizadas de la rutina que se está editando
+    await fetchActivitiesByRoutine(idRoutine);
+
+    final activities = currentRoutineActivities
+        .where((activity) => activity.hour.trim().isNotEmpty)
+        .toList();
+
+    if (activities.isEmpty) return;
+
+    await NotificationService.instance.scheduleActivitiesNotifications(
+      activities: activities,
+      minutesBefore: selectedMinutes,
+    );
+
+    debugPrint(
+      '✅ Notificaciones de actividades actualizadas para rutina $idRoutine: ${activities.length}',
+    );
   }
 
   Future<void> fetchActivitiesByRoutine(int idRoutine) async {
@@ -132,6 +167,7 @@ class ActivityController extends ChangeNotifier {
   }
 
   Future<bool> saveActivityToRoutine({
+    required BuildContext context,
     required int idRoutine,
     required String name,
     required String category,
@@ -148,48 +184,63 @@ class ActivityController extends ChangeNotifier {
 
       final idActivity = await _repository.createActivity(newActivity);
       await _repository.linkActivityToRoutine(idRoutine, idActivity, hour);
+
       await fetchActivitiesByRoutine(idRoutine);
 
+      if (context.mounted) {
+        await _refreshActivityNotifications(context, idRoutine);
+        context.read<DayRoutineController>().loadTodayRoutine();
+        context.read<RoutineProvider>().updateUpcomingActivity();
+      }
+
+      notifyListeners();
       return true;
     } catch (e) {
       debugPrint("Error al guardar y vincular actividad: $e");
       return false;
     }
   }
-
-  // Eliminar actividad físicamente y refrescar la lista de la rutina
+// Eliminar actividad físicamente y refrescar la lista de la rutina
   Future<void> removeActivity(
-    int idActivity,
-    int idRoutine,
-    BuildContext context,
-  ) async {
+      int idActivity,
+      int idRoutine,
+      BuildContext context,
+      ) async {
     try {
       await _repository.deleteActivity(idActivity);
       await fetchActivitiesByRoutine(idRoutine);
-      if (context.mounted) {
-        // Actualiza "Rutina del día"
-        context.read<DayRoutineController>().loadTodayRoutine();
 
-        // Actualiza la tarjeta de la pantalla principal
+      if (context.mounted) {
+        await _refreshActivityNotifications(context, idRoutine);
+        context.read<DayRoutineController>().loadTodayRoutine();
         context.read<RoutineProvider>().updateUpcomingActivity();
       }
+
       notifyListeners();
     } catch (e) {
       debugPrint("Error al eliminar actividad: $e");
     }
   }
-
-  Future<bool> updateExistingActivity(
-    Activity activity,
-    int idRoutine,
-    String oldHour,
-  ) async {
+  Future<bool> updateExistingActivity({
+    required BuildContext context,
+    required Activity activity,
+    required int idRoutine,
+    required String oldHour,
+  }) async {
     try {
       await _repository.updateActivityFull(activity, idRoutine, oldHour);
       await fetchActivitiesByRoutine(idRoutine);
+
+      if (context.mounted) {
+        await _refreshActivityNotifications(context, idRoutine);
+        context.read<DayRoutineController>().loadTodayRoutine();
+        context.read<RoutineProvider>().updateUpcomingActivity();
+      }
+
       notifyListeners();
       return true;
     } catch (e) {
+      debugPrint("Error al actualizar actividad: $e");
       return false;
     }
   }
