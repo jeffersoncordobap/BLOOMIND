@@ -78,24 +78,65 @@ class OnboardingPage extends StatelessWidget {
             ),
           ),
           Positioned(
-            top: 50,
+            top: 60,
             left: 0,
             right: 0,
             child: TweenAnimationBuilder<double>(
-              duration: const Duration(milliseconds: 600),
+              duration: const Duration(milliseconds: 900),
+              curve: Curves.easeOutExpo,
               tween: Tween(begin: 0, end: 1),
-              builder: (_, value, child) {
+              builder: (context, value, child) {
                 return Opacity(
-                  opacity: value * 0.7,
+                  opacity: value,
                   child: Transform.translate(
-                    offset: Offset(0, 10 * (1 - value)),
-                    child: child,
+                    offset: Offset(0, 24 * (1 - value)),
+                    child: Transform.scale(
+                      scale: 0.9 + (0.1 * value),
+                      child: child,
+                    ),
                   ),
                 );
               },
-              child: Image.asset(
-                'assets/logo/bloomind.png',
-                height: 120,
+              child: Center(
+                child: Container(
+                  width: 128,
+                  height: 128,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(34),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.white.withOpacity(0.08),
+                        Colors.white.withOpacity(0.02),
+                      ],
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF6C63FF).withOpacity(0.25),
+                        blurRadius: 35,
+                        spreadRadius: 4,
+                      ),
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.20),
+                        blurRadius: 18,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
+                    border: Border.all(
+                      color: Colors.white.withOpacity(0.08),
+                      width: 1.2,
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(10),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(26),
+                    child: Image.asset(
+                      'assets/logo/bloomind.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

@@ -16,7 +16,7 @@
     </queries>
 
     <application
-        android:label="bloomind"
+        android:label="Bloomind"
         android:name="${applicationName}"
         android:icon="@mipmap/launcher_icon">
 
