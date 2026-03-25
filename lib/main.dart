@@ -20,10 +20,11 @@ import 'package:bloomind/features/onboarding/presentation/screens/onboarding_scr
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('es_ES', null);
+  await NotificationService.instance.initTimezone();
   await NotificationService.instance.initNotifications();
   final dbHelper = DatabaseHelper();
   await dbHelper.database;
-  await NotificationService.instance.initTimezone();
+
 
   final onboardingService = OnboardingLocalService();
   final hasSeenOnboarding = await onboardingService.hasSeenOnboarding();

@@ -6,8 +6,9 @@ import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bloomind/features/activities/model/activity.dart';
-
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter/material.dart';
+
 
 
 class NotificationService {
@@ -282,10 +283,34 @@ class NotificationService {
     }
 }
 
+
+
   Future<void> initTimezone() async {
     tz.initializeTimeZones();
-  }
 
+    final timezoneInfo = await FlutterTimezone.getLocalTimezone();
+
+    String zoneId;
+
+    try {
+      zoneId = timezoneInfo.identifier;
+    } catch (_) {
+      final raw = timezoneInfo.toString();
+      final match = RegExp(r'TimezoneInfo\(([^,]+),').firstMatch(raw);
+      zoneId = match?.group(1) ?? raw;
+    }
+
+    zoneId = zoneId.trim();
+
+    if (zoneId == 'GMT' || zoneId == 'UTC') {
+      zoneId = 'Etc/UTC';
+    }
+
+    debugPrint('RAW TIMEZONE: $timezoneInfo');
+    debugPrint('ZONE ID FINAL: $zoneId');
+
+    tz.setLocalLocation(tz.getLocation(zoneId));
+  }
   Future<bool> requestNotificationPermission() async {
     final androidImplementation =
     flutterLocalNotificationsPlugin
