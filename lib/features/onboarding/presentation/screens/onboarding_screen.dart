@@ -2,6 +2,7 @@ import 'package:bloomind/features/onboarding/data/onboarding_local_service.dart'
 import 'package:bloomind/features/onboarding/presentation/widgets/onboarding_page.dart';
 import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -60,6 +61,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   ];
 
   Future<void> _finishOnboarding() async {
+    HapticFeedback.lightImpact();
     await _localService.setSeenOnboarding();
 
     if (!mounted) return;
@@ -78,9 +80,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       return;
     }
 
+    HapticFeedback.selectionClick();
+
     _pageController.nextPage(
       duration: const Duration(milliseconds: 320),
-      curve: Curves.easeInOut,
+      curve: Curves.easeOutCubic,
+    );
+  }
+
+  void _previousPage() {
+    if (_currentPage == 0) return;
+
+    HapticFeedback.selectionClick();
+
+    _pageController.previousPage(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
     );
   }
 
@@ -99,6 +114,35 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
+  Widget _buildTopButton({
+    required String label,
+    required VoidCallback? onPressed,
+    required bool visible,
+  }) {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 200),
+      opacity: visible ? 1 : 0,
+      child: IgnorePointer(
+        ignoring: !visible,
+        child: TextButton(
+          onPressed: onPressed,
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.white.withOpacity(0.55),
+            foregroundColor: const Color(0xFF5D8F7B),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          child: Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -107,7 +151,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final current = _pages[_currentPage];
     final bool isLastPage = _currentPage == _pages.length - 1;
 
     return Scaffold(
@@ -127,36 +170,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 imagePath: page['imagePath'] as String,
                 title: page['title'] as String,
                 description: page['description'] as String,
-                gradientColors:
-                (page['gradientColors'] as List<Color>),
+                gradientColors: page['gradientColors'] as List<Color>,
               );
             },
           ),
 
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              padding: const EdgeInsets.fromLTRB(18, 10, 18, 0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  AnimatedOpacity(
-                    duration: const Duration(milliseconds: 200),
-                    opacity: _currentPage > 0 ? 1 : 0,
-                    child: TextButton(
-                      onPressed: _currentPage > 0
-                          ? () {
-                        _pageController.previousPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        );
-                      }
-                          : null,
-                      child: const Text('Atrás'),
-                    ),
+                  _buildTopButton(
+                    label: 'Atrás',
+                    onPressed: _previousPage,
+                    visible: _currentPage > 0,
                   ),
-                  TextButton(
+                  _buildTopButton(
+                    label: 'Omitir',
                     onPressed: _finishOnboarding,
-                    child: const Text('Omitir'),
+                    visible: true,
                   ),
                 ],
               ),
@@ -166,23 +199,33 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           SafeArea(
             child: Align(
               alignment: Alignment.bottomCenter,
-              child: Container(
-                margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 250),
+                margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.92),
-                  borderRadius: BorderRadius.circular(24),
+                  color: Colors.white.withOpacity(0.94),
+                  borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.06),
-                      blurRadius: 16,
-                      offset: const Offset(0, 6),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Container(
+                      width: 42,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD9E4DD),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
@@ -190,7 +233,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             (index) => _buildIndicator(index == _currentPage),
                       ),
                     ),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
                       height: 56,
@@ -205,10 +248,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           ),
                         ),
                         child: Text(
-                          isLastPage ? 'Comenzar' : 'Siguiente',
+                          isLastPage ? 'Empezar ahora ✨' : 'Siguiente',
                           style: const TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
