@@ -136,5 +136,13 @@ class DatabaseHelper {
       ${DatabaseConfig.recMeditationFavorite} INTEGER DEFAULT 0
     )
     ''');
+
+    await db.execute('''
+    CREATE TABLE ${DatabaseConfig.tableTemas} (
+      id INTEGER PRIMARY KEY,
+      ${DatabaseConfig.segTemasBoleano} INTEGER NOT NULL CHECK(${DatabaseConfig.segTemasBoleano} IN (0,1))
+    )
+    ''');
+
   }
 }

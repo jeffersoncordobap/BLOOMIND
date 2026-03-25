@@ -1,3 +1,4 @@
+import 'package:bloomind/features/settings/presentation/tema_visual.dart';
 import 'package:flutter/material.dart';
 import 'package:bloomind/features/notifications/presentation/notification_settings_screen.dart';
 class SettingsScreen extends StatelessWidget {
@@ -35,6 +36,11 @@ class SettingsScreen extends StatelessWidget {
                       title: 'Tema visual',
                       onTap: () {
                         // Navegar a pantalla de tema visual
+                        Navigator.push(
+                          context, 
+                          MaterialPageRoute(
+                            builder: (_) => const TemaVisualScreen()),
+                        );
                       },
                     ),
                     const SizedBox(height: 18),

@@ -3,8 +3,6 @@ import 'package:bloomind/features/resourses/presentation/resourses_screen_favori
 import 'package:bloomind/features/resourses/presentation/support_lines_screen.dart';
 import 'package:flutter/material.dart';
 
-
-
 import 'package:provider/provider.dart';
 
 import '../../../core/database/database_helper.dart';
@@ -28,13 +26,16 @@ class RecurseScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F7),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: const Text("Recursos"),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -46,35 +47,42 @@ class RecurseScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFDCE6F1),
+                  color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: const [
+                  boxShadow: [
                     BoxShadow(
-                      color: Colors.black12,
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
                       blurRadius: 8,
-                      offset: Offset(0, 3),
+                      offset: const Offset(0, 3),
                     ),
                   ],
                 ),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       "Acceso personalizado",
-                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
                     ),
-                    SizedBox(height: 6),
+                    const SizedBox(height: 6),
                     Text(
                       "😊 Tu centro de recursos",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface,
                       ),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Text(
                       "Guarda tus favoritos y vuelve rápido a lo que más te ayuda.",
-                      style: TextStyle(fontSize: 15, color: Colors.black87),
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: colorScheme.onSurface.withValues(alpha: 0.8),
+                      ),
                     ),
                   ],
                 ),
@@ -88,26 +96,27 @@ class RecurseScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(22),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
-                        color: Colors.black12,
+                        color: colorScheme.onSurface.withValues(alpha: 0.1),
                         blurRadius: 8,
-                        offset: Offset(0, 3),
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Text("🧘", style: TextStyle(fontSize: 30)),
-                      SizedBox(width: 20),
+                      const Text("🧘", style: TextStyle(fontSize: 30)),
+                      const SizedBox(width: 20),
                       Expanded(
                         child: Text(
                           "Meditación y respiración",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
+                            color: colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -117,33 +126,34 @@ class RecurseScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // Tarjeta Frases y motivación
+              // Tarjeta Frases
               InkWell(
                 borderRadius: BorderRadius.circular(22),
                 onTap: alPresionarResoursesScreenFrases,
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(22),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
-                        color: Colors.black12,
+                        color: colorScheme.onSurface.withValues(alpha: 0.1),
                         blurRadius: 8,
-                        offset: Offset(0, 3),
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Text("☁️", style: TextStyle(fontSize: 30)),
-                      SizedBox(width: 20),
+                      const Text("☁️", style: TextStyle(fontSize: 30)),
+                      const SizedBox(width: 20),
                       Expanded(
                         child: Text(
                           "Frases y motivación",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
+                            color: colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -153,9 +163,7 @@ class RecurseScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // Tarjeta Audios Relajantes
-              // Tarjeta Audios Relajantes
-
+              // Tarjeta Audios
               InkWell(
                 borderRadius: BorderRadius.circular(22),
                 onTap: () {
@@ -174,29 +182,27 @@ class RecurseScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(22),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
-                        color: Colors.black12,
+                        color: colorScheme.onSurface.withValues(alpha: 0.1),
                         blurRadius: 8,
-                        offset: Offset(0, 3),
-                      )
+                        offset: const Offset(0, 3),
+                      ),
                     ],
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Text(
-                        "🎧",
-                        style: TextStyle(fontSize: 30),
-                      ),
-                      SizedBox(width: 20),
+                      const Text("🎧", style: TextStyle(fontSize: 30)),
+                      const SizedBox(width: 20),
                       Expanded(
                         child: Text(
                           "Audios relajantes",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
+                            color: colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -206,33 +212,34 @@ class RecurseScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // Tarjeta Actividad sorpresa
+              // Tarjeta Sorpresa
               InkWell(
                 borderRadius: BorderRadius.circular(22),
                 onTap: alPresionarResoursesScreenSorpresa,
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(22),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
-                        color: Colors.black12,
+                        color: colorScheme.onSurface.withValues(alpha: 0.1),
                         blurRadius: 8,
-                        offset: Offset(0, 3),
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Text("🎁", style: TextStyle(fontSize: 30)),
-                      SizedBox(width: 20),
+                      const Text("🎁", style: TextStyle(fontSize: 30)),
+                      const SizedBox(width: 20),
                       Expanded(
                         child: Text(
                           "Actividad sorpresa",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
+                            color: colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -256,26 +263,27 @@ class RecurseScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(22),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
-                        color: Colors.black12,
+                        color: colorScheme.onSurface.withValues(alpha: 0.1),
                         blurRadius: 8,
-                        offset: Offset(0, 3),
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Text("❤️", style: TextStyle(fontSize: 30)),
-                      SizedBox(width: 20),
+                      const Text("❤️", style: TextStyle(fontSize: 30)),
+                      const SizedBox(width: 20),
                       Expanded(
                         child: Text(
                           "Líneas de apoyo",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
+                            color: colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -299,26 +307,27 @@ class RecurseScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(22),
-                    boxShadow: const [
+                    boxShadow: [
                       BoxShadow(
-                        color: Colors.black12,
+                        color: colorScheme.onSurface.withValues(alpha: 0.1),
                         blurRadius: 8,
-                        offset: Offset(0, 3),
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Text("⭐", style: TextStyle(fontSize: 30)),
-                      SizedBox(width: 20),
+                      const Text("⭐", style: TextStyle(fontSize: 30)),
+                      const SizedBox(width: 20),
                       Expanded(
                         child: Text(
                           "Favoritos",
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
+                            color: colorScheme.onSurface,
                           ),
                         ),
                       ),
