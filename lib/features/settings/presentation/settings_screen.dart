@@ -1,11 +1,18 @@
+import 'package:bloomind/features/settings/presentation/bin_screen.dart';
 import 'package:bloomind/features/settings/presentation/tema_visual.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:bloomind/features/notifications/presentation/notification_settings_screen.dart';
+import 'package:bloomind/features/settings/presentation/profile_screen.dart';
+import 'package:bloomind/features/settings/controller/profile_controller.dart';
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<ProfileController>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFEEF2F6),
       body: SafeArea(
@@ -14,10 +21,13 @@ class SettingsScreen extends StatelessWidget {
             _buildHeader(),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 18,
+                ),
                 child: Column(
                   children: [
-                    _buildWelcomeCard(),
+                    _buildWelcomeCard(controller),
                     const SizedBox(height: 18),
                     _buildOptionCard(
                       context,
@@ -25,7 +35,12 @@ class SettingsScreen extends StatelessWidget {
                       iconColor: const Color(0xFF6A3FA0),
                       title: 'Perfil local',
                       onTap: () {
-                        // Navegar a pantalla de perfil
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ProfileScreen(),
+                          ),
+                        );
                       },
                     ),
                     const SizedBox(height: 18),
@@ -58,6 +73,21 @@ class SettingsScreen extends StatelessWidget {
                         );
                       },
                     ),
+                    const SizedBox(height: 18),
+                    _buildOptionCard(
+                      context,
+                      icon: Icons.delete,
+                      iconColor: const Color.fromARGB(255, 141, 181, 227),
+                      title: 'Papelera',
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PapeleraScreen(),
+                          ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -65,7 +95,6 @@ class SettingsScreen extends StatelessWidget {
           ],
         ),
       ),
-
     );
   }
 
@@ -100,7 +129,14 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWelcomeCard() {
+  Widget _buildWelcomeCard(ProfileController controller) {
+    String saludo = 'Bienvenido/a';
+    if (controller.profile.genero == 'Masculino') {
+      saludo = 'Bienvenido';
+    } else if (controller.profile.genero == 'Femenino') {
+      saludo = 'Bienvenida';
+    }
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -115,28 +151,27 @@ class SettingsScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Bienvenido/a',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFF6B7A90),
-            ),
+            saludo,
+            style: const TextStyle(fontSize: 14, color: Color(0xFF6B7A90)),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             children: [
               Text(
-                '😊',
-                style: TextStyle(fontSize: 24),
+                controller.profile.emoji,
+                style: const TextStyle(fontSize: 24),
               ),
-              SizedBox(width: 10),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Perfil local',
-                  style: TextStyle(
+                  controller.profile.nombre.isEmpty
+                      ? 'Perfil local'
+                      : controller.profile.nombre,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF23324A),
@@ -145,16 +180,15 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
-            'Género: Prefiero no decir',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFF58708E),
-            ),
+            controller.profile.genero.isEmpty
+                ? 'Género: No definido'
+                : 'Género: ${controller.profile.genero}',
+            style: const TextStyle(fontSize: 14, color: Color(0xFF58708E)),
           ),
-          SizedBox(height: 10),
-          Text(
+          const SizedBox(height: 10),
+          const Text(
             'Este perfil personaliza saludos, textos clave y tus resúmenes.',
             style: TextStyle(
               fontSize: 14,
@@ -168,12 +202,12 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _buildOptionCard(
-      BuildContext context, {
-        required IconData icon,
-        required Color iconColor,
-        required String title,
-        required VoidCallback onTap,
-      }) {
+    BuildContext context, {
+    required IconData icon,
+    required Color iconColor,
+    required String title,
+    required VoidCallback onTap,
+  }) {
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(20),
@@ -187,11 +221,7 @@ class SettingsScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
           child: Row(
             children: [
-              Icon(
-                icon,
-                color: iconColor,
-                size: 30,
-              ),
+              Icon(icon, color: iconColor, size: 30),
               const SizedBox(width: 18),
               Expanded(
                 child: Text(
@@ -214,18 +244,13 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
   }
-
-
 }
 
 class _BottomIcon extends StatelessWidget {
   final String icon;
   final bool isSelected;
 
-  const _BottomIcon({
-    required this.icon,
-    required this.isSelected,
-  });
+  const _BottomIcon({required this.icon, required this.isSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -237,10 +262,7 @@ class _BottomIcon extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
       ),
       alignment: Alignment.center,
-      child: Text(
-        icon,
-        style: const TextStyle(fontSize: 28),
-      ),
+      child: Text(icon, style: const TextStyle(fontSize: 28)),
     );
   }
 }

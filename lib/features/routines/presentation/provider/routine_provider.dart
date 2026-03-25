@@ -34,12 +34,18 @@ class RoutineProvider extends ChangeNotifier {
         orElse: () => Routine(name: "Rutina desconocida"),
       );
 
-      _currentRoutineName = rutinaActual.name;
+      // Si la rutina fue eliminada (Soft Delete), no tendrá ID válido o no estará en la lista activa
+      if (rutinaActual.idRoutine == null) {
+        _currentRoutineName = "Rutina no disponible";
+        _nextActivity = null;
+      } else {
+        _currentRoutineName = rutinaActual.name;
 
-      final actividades = await routineRepo.getActivitiesByRoutine(
-        asignacion.idRoutine,
-      ); //
-      _nextActivity = _findClosestActivity(actividades);
+        final actividades = await routineRepo.getActivitiesByRoutine(
+          asignacion.idRoutine,
+        );
+        _nextActivity = _findClosestActivity(actividades);
+      }
     } else {
       _currentRoutineName = "No hay rutinas hoy";
       _nextActivity = null;

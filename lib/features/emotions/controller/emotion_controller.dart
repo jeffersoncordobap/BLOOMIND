@@ -8,6 +8,7 @@ class EmotionController extends ChangeNotifier {
   final TextEditingController notaController = TextEditingController();
 
   List<Emotion> emotionsForSelectedDay = [];
+  List<Emotion> deletedEmotions = []; // Lista para la papelera
 
   Map<DateTime, List<Emotion>> _allEmotionsMap = {};
   Map<DateTime, List<Emotion>> get allEmotionsMap => _allEmotionsMap;
@@ -147,5 +148,37 @@ class EmotionController extends ChangeNotifier {
     } catch (e) {
       debugPrint("Error al actualizar: $e");
     }
+  }
+
+  // --- MÉTODOS PARA PAPELERA ---
+
+  /// Carga las emociones que están en la papelera
+  Future<void> cargarEmocionesEliminadas() async {
+    isLoading = true;
+    notifyListeners();
+    try {
+      deletedEmotions = await _repository.getDeletedEmotions();
+    } catch (e) {
+      debugPrint("Error cargando papelera: $e");
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Restaura una emoción y actualiza las listas
+  Future<void> restaurarEmocion(int id, DateTime fechaOriginal) async {
+    await _repository.restoreEmotion(id);
+    await cargarEmocionesEliminadas(); // Actualizar papelera
+    await cargarTodosLosEventos(); // Actualizar calendario
+    await cargarEmocionesPorFecha(fechaOriginal); // Si estamos viendo ese día
+    notifyListeners();
+  }
+
+  /// Elimina definitivamente de la base de datos
+  Future<void> eliminarDefinitivamente(int id) async {
+    await _repository.forceDeleteEmotion(id);
+    await cargarEmocionesEliminadas();
+    notifyListeners();
   }
 }

@@ -6,6 +6,7 @@ class Emotion {
   final String label;
   final String note;
   final String dateTime;
+  final int state;
 
   Emotion({
     this.idEmotion,
@@ -13,6 +14,7 @@ class Emotion {
     required this.label,
     required this.note,
     required this.dateTime,
+    this.state = 1,
   });
 
   Map<String, dynamic> toMap() {
@@ -22,6 +24,7 @@ class Emotion {
       DatabaseConfig.colEmotionMoodLevel: moodLevel,
       DatabaseConfig.colEmotionLabel: label,
       DatabaseConfig.colEmotionNote: note,
+      DatabaseConfig.colEmotionState: state,
     };
   }
 
@@ -32,6 +35,7 @@ class Emotion {
       label: map[DatabaseConfig.colEmotionLabel],
       note: map[DatabaseConfig.colEmotionNote],
       dateTime: map[DatabaseConfig.colEmotionDateTime],
+      state: map[DatabaseConfig.colEmotionState] ?? 1,
     );
   }
 

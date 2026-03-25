@@ -7,7 +7,11 @@ class StatisticsService {
 
   Future<StatisticsSummary> getDailyStatistics(DateTime selectedDate) async {
     final db = await _databaseHelper.database;
-    final rows = await db.query(DatabaseConfig.tableEmotion);
+    final rows = await db.query(
+      DatabaseConfig.tableEmotion,
+      where: '${DatabaseConfig.colEmotionState} = ?',
+      whereArgs: [1], // Solo emociones activas
+    );
 
     final filtered = rows.where((row) {
       final dateText = row[DatabaseConfig.colEmotionDateTime] as String?;
@@ -46,7 +50,11 @@ class StatisticsService {
 
   Future<StatisticsSummary> getWeeklyStatistics(DateTime selectedDate) async {
     final db = await _databaseHelper.database;
-    final rows = await db.query(DatabaseConfig.tableEmotion);
+    final rows = await db.query(
+      DatabaseConfig.tableEmotion,
+      where: '${DatabaseConfig.colEmotionState} = ?',
+      whereArgs: [1], // Solo emociones activas
+    );
 
     final start = _startOfWeek(selectedDate);
     final labels = ['D', 'L', 'M', 'Mi', 'J', 'V', 'S'];
@@ -86,7 +94,11 @@ class StatisticsService {
 
   Future<StatisticsSummary> getMonthlyStatistics(DateTime selectedDate) async {
     final db = await _databaseHelper.database;
-    final rows = await db.query(DatabaseConfig.tableEmotion);
+    final rows = await db.query(
+      DatabaseConfig.tableEmotion,
+      where: '${DatabaseConfig.colEmotionState} = ?',
+      whereArgs: [1], // Solo emociones activas
+    );
 
     final int year = selectedDate.year;
     final int month = selectedDate.month;
@@ -152,16 +164,12 @@ class StatisticsService {
         }
       }
 
-      points.add(
-        ChartPoint(
-          label: labels[i],
-          value: dayAverage,
-        ),
-      );
+      points.add(ChartPoint(label: labels[i], value: dayAverage));
     }
 
-    final double averageMood =
-    countedDays > 0 ? totalAverageSum / countedDays : 0.0;
+    final double averageMood = countedDays > 0
+        ? totalAverageSum / countedDays
+        : 0.0;
 
     return StatisticsSummary(
       averageMood: averageMood,

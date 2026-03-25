@@ -10,6 +10,7 @@ class DatabaseConfig {
   static const String colEmotionLabel = 'label';
   static const String colEmotionNote = 'note';
   static const String colEmotionDateTime = 'date_time';
+  static const String colEmotionState = 'state';
 
   // TABLA ACTIVITY
   static const String tableActivity = 'activity';
@@ -17,11 +18,13 @@ class DatabaseConfig {
   static const String colActivityCategory = 'category';
   static const String colActivityName = 'name';
   static const String colActivityEmoji = 'emoji';
+  static const String colActivityState = 'state';
 
   // TABLA ROUTINE
   static const String tableRoutine = 'routine';
   static const String colRoutineId = 'id_routine';
   static const String colRoutineName = 'name';
+  static const String colRoutineState = 'state';
 
   // TABLA INTERMEDIA: ROUTINE_ACTIVITY
   static const String tableRoutineActivity = 'routine_activity';
@@ -65,6 +68,7 @@ class DatabaseConfig {
   static const String colContactPhone = 'contact_phone';
   static const String colContactDescription = 'contact_description';
   static const String colIsFavoriteContact = 'is_favorite_contact';
+  static const String colContactState = 'state';
 
   // TABLA DE MEDITACION
   static const String tableAudiosMeditacion = 'Meditation';

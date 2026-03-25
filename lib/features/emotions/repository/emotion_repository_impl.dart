@@ -18,6 +18,8 @@ class EmotionRepositoryImpl implements EmotionRepository {
 
     final List<Map<String, dynamic>> maps = await db.query(
       DatabaseConfig.tableEmotion,
+      where: '${DatabaseConfig.colEmotionState} = ?',
+      whereArgs: [1], // Solo activos
       orderBy: '${DatabaseConfig.colEmotionDateTime} DESC',
     );
     return maps.map((map) => Emotion.fromMap(map)).toList();
@@ -39,8 +41,10 @@ class EmotionRepositoryImpl implements EmotionRepository {
   Future<int> deleteEmotion(int idEmotion) async {
     final db = await _dbHelper.database;
 
-    return await db.delete(
+    // Soft Delete: Actualizamos el estado a 0 en lugar de borrar
+    return await db.update(
       DatabaseConfig.tableEmotion,
+      {DatabaseConfig.colEmotionState: 0},
       where: '${DatabaseConfig.colEmotionId} = ?',
       whereArgs: [idEmotion],
     );
@@ -52,11 +56,48 @@ class EmotionRepositoryImpl implements EmotionRepository {
 
     final List<Map<String, dynamic>> maps = await db.query(
       DatabaseConfig.tableEmotion,
-      where: '${DatabaseConfig.colEmotionDateTime} LIKE ?',
-      whereArgs: ['$date%'],
+      where:
+          '${DatabaseConfig.colEmotionDateTime} LIKE ? AND ${DatabaseConfig.colEmotionState} = ?',
+      whereArgs: ['$date%', 1], // Solo activos
       orderBy: '${DatabaseConfig.colEmotionDateTime} ASC',
     );
 
     return maps.map((map) => Emotion.fromMap(map)).toList();
+  }
+
+  @override
+  Future<List<Emotion>> getDeletedEmotions() async {
+    final db = await _dbHelper.database;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      DatabaseConfig.tableEmotion,
+      where: '${DatabaseConfig.colEmotionState} = ?',
+      whereArgs: [0], // Solo eliminados (papelera)
+      orderBy: '${DatabaseConfig.colEmotionDateTime} DESC',
+    );
+    return maps.map((map) => Emotion.fromMap(map)).toList();
+  }
+
+  @override
+  Future<int> restoreEmotion(int idEmotion) async {
+    final db = await _dbHelper.database;
+
+    return await db.update(
+      DatabaseConfig.tableEmotion,
+      {DatabaseConfig.colEmotionState: 1}, // Restaurar a activo
+      where: '${DatabaseConfig.colEmotionId} = ?',
+      whereArgs: [idEmotion],
+    );
+  }
+
+  @override
+  Future<int> forceDeleteEmotion(int idEmotion) async {
+    final db = await _dbHelper.database;
+
+    return await db.delete(
+      DatabaseConfig.tableEmotion,
+      where: '${DatabaseConfig.colEmotionId} = ?',
+      whereArgs: [idEmotion],
+    );
   }
 }

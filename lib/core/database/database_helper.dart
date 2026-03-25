@@ -28,7 +28,8 @@ class DatabaseHelper {
       ${DatabaseConfig.colEmotionMoodLevel} INTEGER,
       ${DatabaseConfig.colEmotionLabel} TEXT,
       ${DatabaseConfig.colEmotionNote} TEXT,
-      ${DatabaseConfig.colEmotionDateTime} TEXT
+      ${DatabaseConfig.colEmotionDateTime} TEXT,
+      ${DatabaseConfig.colEmotionState} INTEGER DEFAULT 1
     )
     ''');
 
@@ -38,7 +39,8 @@ class DatabaseHelper {
       ${DatabaseConfig.colActivityId} INTEGER PRIMARY KEY AUTOINCREMENT,
       ${DatabaseConfig.colActivityCategory} TEXT,
       ${DatabaseConfig.colActivityName} TEXT,
-      ${DatabaseConfig.colActivityEmoji} TEXT
+      ${DatabaseConfig.colActivityEmoji} TEXT,
+      ${DatabaseConfig.colActivityState} INTEGER DEFAULT 1
     )
     ''');
 
@@ -46,7 +48,8 @@ class DatabaseHelper {
     await db.execute('''
     CREATE TABLE ${DatabaseConfig.tableRoutine} (
       ${DatabaseConfig.colRoutineId} INTEGER PRIMARY KEY AUTOINCREMENT,
-      ${DatabaseConfig.colRoutineName} TEXT
+      ${DatabaseConfig.colRoutineName} TEXT,
+      ${DatabaseConfig.colRoutineState} INTEGER DEFAULT 1
     )
     ''');
 
@@ -121,7 +124,8 @@ class DatabaseHelper {
       ${DatabaseConfig.colContactName} TEXT,
       ${DatabaseConfig.colContactPhone} TEXT,
       ${DatabaseConfig.colContactDescription} TEXT,
-      ${DatabaseConfig.colIsFavoriteContact} INTEGER DEFAULT 0
+      ${DatabaseConfig.colIsFavoriteContact} INTEGER DEFAULT 0,
+      ${DatabaseConfig.colContactState} INTEGER DEFAULT 1
     )
     ''');
 

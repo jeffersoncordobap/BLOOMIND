@@ -7,6 +7,7 @@ class SupportLineController extends ChangeNotifier {
 
   List<SupportLine> _lines = [];
   List<SupportLine> _favoriteLines = [];
+  List<SupportLine> _deletedLines = []; // Lista para la papelera
   bool _isLoading = false;
 
   SupportLineController(this.repository) {
@@ -15,6 +16,7 @@ class SupportLineController extends ChangeNotifier {
 
   List<SupportLine> get lines => _lines;
   List<SupportLine> get favoriteLines => _favoriteLines;
+  List<SupportLine> get deletedLines => _deletedLines;
   bool get isLoading => _isLoading;
 
   Future<void> loadSupportLines() async {
@@ -113,5 +115,35 @@ class SupportLineController extends ChangeNotifier {
       debugPrint("Error al obtener líneas favoritas: $e");
       return [];
     }
+  }
+
+  // --- MÉTODOS PARA PAPELERA ---
+
+  /// Carga los contactos que están en la papelera
+  Future<void> loadDeletedSupportLines() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      _deletedLines = await repository.getDeletedSupportLines();
+    } catch (e) {
+      debugPrint("Error cargando papelera de contactos: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Restaura un contacto y actualiza las listas activas
+  Future<void> restoreSupportLine(int id) async {
+    await repository.restoreSupportLine(id);
+    await loadDeletedSupportLines(); // Actualizar papelera
+    await loadSupportLines(); // Actualizar lista principal
+    await loadFavorites(); // Actualizar favoritos si lo era
+  }
+
+  /// Elimina definitivamente de la base de datos
+  Future<void> forceDeleteSupportLine(int id) async {
+    await repository.forceDeleteSupportLine(id);
+    await loadDeletedSupportLines();
   }
 }
