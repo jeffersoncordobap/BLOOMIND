@@ -57,7 +57,7 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
-                        color: colorScheme.onSurface,
+                        color: colorScheme.onSurface.withOpacity(0.7),
                       ),
                     ),
                   ),
@@ -84,7 +84,7 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
-                          color: colorScheme.onSurface,
+                          color: colorScheme.onSurface.withValues(red: 0.55, green: 0.3, blue: 0.75),
                         ),
                       ),
                     ],

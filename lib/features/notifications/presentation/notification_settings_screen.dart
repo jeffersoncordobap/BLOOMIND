@@ -236,7 +236,7 @@ class _NotificationSettingsScreenState
                   subtitle: 'Recuerda registrar tu emoción cada día',
                   icon: Icons.favorite_rounded,
                   iconBackground: Theme.of(context).colorScheme.primaryContainer,
-                  iconColor: Theme.of(context).colorScheme.primary,
+                  iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
                   value: dailyReminder,
                   onChanged: (value) {
                     setState(() {
@@ -324,7 +324,7 @@ class _NotificationSettingsScreenState
                   subtitle: 'Recibe un aviso antes de cada actividad',
                   icon: Icons.event_note_rounded,
                   iconBackground: Theme.of(context).colorScheme.primaryContainer,
-                  iconColor: Theme.of(context).colorScheme.primary,
+                  iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
                   value: activityReminder,
                   onChanged: (value) {
                     setState(() {
