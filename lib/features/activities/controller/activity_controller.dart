@@ -7,12 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bloomind/core/services/notification_service.dart';
 import 'package:bloomind/features/notifications/data/notification_preferences.dart';
+
 class ActivityController extends ChangeNotifier {
   final ActivityRepository _repository = ActivityRepositoryImpl();
 
   List<DropdownMenuItem<String>> categoryItems = [];
   List<Activity> currentRoutineActivities = [];
   bool isLoading = false;
+  List<Activity> deletedActivities = []; // Variable de clase para la UI
+
   Future<void> loadCategories() async {
     try {
       final activities = await _repository.getAllActivities();
@@ -32,9 +35,9 @@ class ActivityController extends ChangeNotifier {
   }
 
   Future<void> _refreshActivityNotifications(
-      BuildContext context,
-      int idRoutine,
-      ) async {
+    BuildContext context,
+    int idRoutine,
+  ) async {
     final prefs = NotificationPreferences();
     final settings = await prefs.loadSettings();
 
@@ -200,12 +203,13 @@ class ActivityController extends ChangeNotifier {
       return false;
     }
   }
-// Eliminar actividad físicamente y refrescar la lista de la rutina
+
+  // Eliminar actividad físicamente y refrescar la lista de la rutina
   Future<void> removeActivity(
-      int idActivity,
-      int idRoutine,
-      BuildContext context,
-      ) async {
+    int idActivity,
+    int idRoutine,
+    BuildContext context,
+  ) async {
     try {
       await _repository.deleteActivity(idActivity);
       await fetchActivitiesByRoutine(idRoutine);
@@ -221,6 +225,7 @@ class ActivityController extends ChangeNotifier {
       debugPrint("Error al eliminar actividad: $e");
     }
   }
+
   Future<bool> updateExistingActivity({
     required BuildContext context,
     required Activity activity,
@@ -243,5 +248,34 @@ class ActivityController extends ChangeNotifier {
       debugPrint("Error al actualizar actividad: $e");
       return false;
     }
+  }
+
+  /// Carga las actividades que están en la papelera
+  Future<void> cargarActividadesEliminadas() async {
+    isLoading = true;
+    notifyListeners();
+    try {
+      deletedActivities = await _repository.getDeletedActivities();
+    } catch (e) {
+      debugPrint("Error cargando papelera: $e");
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Restaura una actividad y actualiza las listas
+  Future<void> restaurarActividad(int id, DateTime fechaOriginal) async {
+    await _repository.restoreActivity(id);
+    await cargarActividadesEliminadas(); // Actualizar papelera
+    await loadCategories(); // Actualizar la biblioteca de actividades disponibles
+    notifyListeners();
+  }
+
+  /// Elimina definitivamente de la base de datos
+  Future<void> eliminarDefinitivamente(int id) async {
+    await _repository.forceDeleteActivity(id);
+    await cargarActividadesEliminadas();
+    notifyListeners();
   }
 }

@@ -1,5 +1,7 @@
 import 'package:bloomind/features/routines/controller/assing_routine_controller.dart';
+import 'package:bloomind/features/routines/controller/day_routine_controller.dart';
 import 'package:bloomind/features/routines/model/routine.dart';
+import 'package:bloomind/features/routines/presentation/provider/routine_provider.dart';
 import 'package:bloomind/features/routines/repository/routine_repository_impl.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -59,10 +61,35 @@ class RoutineController extends ChangeNotifier {
 
   Future<void> removeRoutine(int id, BuildContext context) async {
     try {
+      // 1. Eliminar (Soft Delete)
       await repository.deleteRoutine(id);
+
+      // 2. Actualizar lista local de rutinas
       await fetchRoutines();
+
       if (context.mounted) {
-        context.read<AssignRoutineController>().loadRoutines();
+        // 3. Actualizar otras pantallas dependientes:
+
+        // A. Actualizar dropdowns de asignación
+        try {
+          context.read<AssignRoutineController>().loadRoutines();
+        } catch (e) {
+          debugPrint("AssignRoutineController no encontrado: $e");
+        }
+
+        // B. Actualizar Rutina del Día (Si la rutina eliminada era la de hoy, la pantalla se vaciará)
+        try {
+          context.read<DayRoutineController>().loadTodayRoutine();
+        } catch (e) {
+          debugPrint("DayRoutineController no encontrado: $e");
+        }
+
+        // C. Actualizar Tarjeta de Próxima Actividad (Se mostrará "Rutina no disponible")
+        try {
+          context.read<RoutineProvider>().updateUpcomingActivity();
+        } catch (e) {
+          debugPrint("RoutineProvider no encontrado: $e");
+        }
       }
 
       debugPrint("Rutina $id eliminada y estados sincronizados.");

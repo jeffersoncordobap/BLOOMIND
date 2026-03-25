@@ -6,6 +6,7 @@ class SupportLine {
   final String phone;
   final String? description;
   final bool isFavorite;
+  final int state;
 
   SupportLine({
     this.idContact,
@@ -13,6 +14,7 @@ class SupportLine {
     required this.phone,
     this.description,
     this.isFavorite = false,
+    this.state = 1,
   });
 
   // Convertir de Objeto a Map (para insertar en la DB)
@@ -23,6 +25,7 @@ class SupportLine {
       DatabaseConfig.colContactPhone: phone,
       DatabaseConfig.colContactDescription: description,
       DatabaseConfig.colIsFavoriteContact: isFavorite ? 1 : 0,
+      DatabaseConfig.colContactState: state,
     };
   }
 
@@ -34,6 +37,7 @@ class SupportLine {
       phone: map[DatabaseConfig.colContactPhone],
       description: map[DatabaseConfig.colContactDescription],
       isFavorite: map[DatabaseConfig.colIsFavoriteContact] == 1,
+      state: map[DatabaseConfig.colContactState] ?? 1,
     );
   }
 }

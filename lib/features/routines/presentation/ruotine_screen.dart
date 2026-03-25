@@ -18,8 +18,12 @@ class RoutineScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Escuchamos el provider para obtener la próxima actividad
-    final routineProvider = context.watch<RoutineProvider>(); //
-    final nextActivity = routineProvider.nextActivity; //
+    final routineProvider = context
+        .watch<
+          RoutineProvider
+        >(); //se obtiene el provider para acceder a los datos de la rutina actual
+    final nextActivity = routineProvider
+        .nextActivity; //se obtiene la próxima actividad de la rutina actual
     final routineName = routineProvider.currentRoutineName;
 
     return Scaffold(
