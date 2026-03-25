@@ -14,16 +14,22 @@ import 'package:bloomind/features/routines/controller/assing_routine_controller.
 import 'package:bloomind/features/routines/repository/routine_repository_impl.dart';
 import 'package:bloomind/features/routines/repository/assign_routine_repository_impl.dart';
 import 'package:bloomind/core/services/notification_service.dart';
+import 'package:bloomind/features/onboarding/data/onboarding_local_service.dart';
+import 'package:bloomind/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:bloomind/features/settings/controller/profile_controller.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('es_ES', null);
+  await NotificationService.instance.initTimezone();
   await NotificationService.instance.initNotifications();
   final dbHelper = DatabaseHelper();
   await dbHelper.database;
-  await NotificationService.instance.initTimezone();
 
+
+  final onboardingService = OnboardingLocalService();
+  final hasSeenOnboarding = await onboardingService.hasSeenOnboarding();
   runApp(
     MultiProvider(
       providers: [
@@ -57,13 +63,18 @@ void main() async {
         // NUEVO: Agregamos el controlador de perfil aquí
         ChangeNotifierProvider(create: (_) => ProfileController()),
       ],
-      child: const BloomindApp(),
+      child: BloomindApp(hasSeenOnboarding: hasSeenOnboarding),
     ),
   );
 }
 
 class BloomindApp extends StatelessWidget {
-  const BloomindApp({super.key});
+  final bool hasSeenOnboarding;
+
+  const BloomindApp({
+    super.key,
+    required this.hasSeenOnboarding,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +86,9 @@ class BloomindApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Inter', // Si ya tienes la fuente instalada
       ),
-      home: const MainNavigationScreen(),
+      home: hasSeenOnboarding
+          ? const MainNavigationScreen()
+          : const OnboardingScreen(),
     );
   }
 }

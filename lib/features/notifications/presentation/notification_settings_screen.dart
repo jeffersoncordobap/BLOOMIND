@@ -116,66 +116,84 @@ class _NotificationSettingsScreenState
   Future<void> _saveSettings() async {
     final needsNotifications = dailyReminder || activityReminder;
 
-    if (needsNotifications) {
-      final granted = await _ensureNotificationPermission();
-      if (!granted) return;
-    }
+    try {
+      if (needsNotifications) {
+        final granted = await _ensureNotificationPermission();
+        if (!granted) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No se otorgaron permisos para notificaciones'),
+            ),
+          );
+          return;
+        }
+      }
 
-    await _preferences.saveSettings(
-      dailyReminder: dailyReminder,
-      selectedTime: selectedTime,
-      activityReminder: activityReminder,
-      selectedMinutes: selectedMinutes,
-    );
-
-    // RECORDATORIO DIARIO
-    if (dailyReminder) {
-      await NotificationService.instance.scheduleDailyNotification(
-        hour: selectedTime.hour,
-        minute: selectedTime.minute,
+      await _preferences.saveSettings(
+        dailyReminder: dailyReminder,
+        selectedTime: selectedTime,
+        activityReminder: activityReminder,
+        selectedMinutes: selectedMinutes,
       );
-    } else {
-      await NotificationService.instance.cancelDailyNotification();
-    }
 
-    // ACTIVIDADES DEL DÍA
-    if (activityReminder) {
-      final dayRoutineController = context.read<DayRoutineController>();
-      final activities = dayRoutineController.dayActivities;
+      // RECORDATORIO DIARIO
+      if (dailyReminder) {
+        await NotificationService.instance.scheduleDailyNotification(
+          hour: selectedTime.hour,
+          minute: selectedTime.minute,
+        );
+      } else {
+        await NotificationService.instance.cancelDailyNotification();
+      }
 
-      await NotificationService.instance.cancelActivityNotifications();
+      // ACTIVIDADES DEL DÍA
+      if (activityReminder) {
+        final dayRoutineController = context.read<DayRoutineController>();
+        final activities = dayRoutineController.dayActivities;
 
-      await NotificationService.instance.scheduleActivitiesNotifications(
-        activities: activities,
-        minutesBefore: selectedMinutes,
+        await NotificationService.instance.cancelActivityNotifications();
+
+        await NotificationService.instance.scheduleActivitiesNotifications(
+          activities: activities,
+          minutesBefore: selectedMinutes,
+        );
+      } else {
+        await NotificationService.instance.cancelActivityNotifications();
+      }
+
+      final pending = await NotificationService.instance.getPendingNotifications();
+
+      debugPrint('🔔 Notificaciones pendientes: ${pending.length}');
+      for (final item in pending) {
+        debugPrint('ID: ${item.id}, title: ${item.title}, body: ${item.body}');
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        _savedDailyReminder = dailyReminder;
+        _savedActivityReminder = activityReminder;
+        _savedSelectedTime = selectedTime;
+        _savedSelectedMinutes = selectedMinutes;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Configuración guardada')),
       );
-    } else {
-      await NotificationService.instance.cancelActivityNotifications();
-    }
+    } catch (e, st) {
+      debugPrint('❌ Error al guardar configuración: $e');
+      debugPrintStack(stackTrace: st);
 
-    final pending =
-    await NotificationService.instance.getPendingNotifications();
+      if (!mounted) return;
 
-    debugPrint('🔔 Notificaciones pendientes: ${pending.length}');
-    for (final item in pending) {
-      debugPrint(
-        'ID: ${item.id}, title: ${item.title}, body: ${item.body}',
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('No se pudieron guardar los cambios: $e'),
+        ),
       );
     }
-
-    setState(() {
-      _savedDailyReminder = dailyReminder;
-      _savedActivityReminder = activityReminder;
-      _savedSelectedTime = selectedTime;
-      _savedSelectedMinutes = selectedMinutes;
-    });
-
-    if (!context.mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Configuración guardada')),
-    );
   }
-
 
   @override
   Widget build(BuildContext context) {
