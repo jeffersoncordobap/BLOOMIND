@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:bloomind/features/notifications/presentation/notification_settings_screen.dart';
+import 'package:bloomind/features/settings/presentation/profile_screen.dart';
+import 'package:bloomind/features/settings/controller/profile_controller.dart';
+
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<ProfileController>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFEEF2F6),
       body: SafeArea(
@@ -16,7 +22,7 @@ class SettingsScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
                 child: Column(
                   children: [
-                    _buildWelcomeCard(),
+                    _buildWelcomeCard(controller),
                     const SizedBox(height: 18),
                     _buildOptionCard(
                       context,
@@ -24,7 +30,10 @@ class SettingsScreen extends StatelessWidget {
                       iconColor: const Color(0xFF6A3FA0),
                       title: 'Perfil local',
                       onTap: () {
-                        // Navegar a pantalla de perfil
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                        );
                       },
                     ),
                     const SizedBox(height: 18),
@@ -33,9 +42,7 @@ class SettingsScreen extends StatelessWidget {
                       icon: Icons.palette,
                       iconColor: const Color(0xFFF5A6A6),
                       title: 'Tema visual',
-                      onTap: () {
-                        // Navegar a pantalla de tema visual
-                      },
+                      onTap: () {},
                     ),
                     const SizedBox(height: 18),
                     _buildOptionCard(
@@ -46,9 +53,7 @@ class SettingsScreen extends StatelessWidget {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (_) => const NotificationSettingsScreen(),
-                          ),
+                          MaterialPageRoute(builder: (_) => const NotificationSettingsScreen()),
                         );
                       },
                     ),
@@ -59,7 +64,6 @@ class SettingsScreen extends StatelessWidget {
           ],
         ),
       ),
-
     );
   }
 
@@ -73,101 +77,67 @@ class SettingsScreen extends StatelessWidget {
           bottomLeft: Radius.circular(34),
           bottomRight: Radius.circular(34),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Color(0x14000000), blurRadius: 8, offset: Offset(0, 2))],
       ),
       child: const Center(
         child: Text(
           'Configuración',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: Color(0xFF2F3B52),
-          ),
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Color(0xFF2F3B52)),
         ),
       ),
     );
   }
 
-  Widget _buildWelcomeCard() {
+  Widget _buildWelcomeCard(ProfileController controller) {
+    // Lógica dinámica de bienvenida según género
+    String saludo = 'Bienvenido/a';
+    if (controller.profile.genero == 'Masculino') {
+      saludo = 'Bienvenido';
+    } else if (controller.profile.genero == 'Femenino') {
+      saludo = 'Bienvenida';
+    }
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFFE7F0FA),
         borderRadius: BorderRadius.circular(22),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 8,
-            offset: Offset(0, 3),
-          ),
-        ],
+        boxShadow: const [BoxShadow(color: Color(0x14000000), blurRadius: 8, offset: Offset(0, 3))],
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Bienvenido/a',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFF6B7A90),
-            ),
-          ),
-          SizedBox(height: 10),
+          Text(saludo, style: const TextStyle(fontSize: 14, color: Color(0xFF6B7A90))),
+          const SizedBox(height: 10),
           Row(
             children: [
-              Text(
-                '😊',
-                style: TextStyle(fontSize: 24),
-              ),
-              SizedBox(width: 10),
+              Text(controller.profile.emoji, style: const TextStyle(fontSize: 24)),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Perfil local',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF23324A),
-                  ),
+                  controller.profile.nombre.isEmpty ? 'Perfil local' : controller.profile.nombre,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF23324A)),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
-            'Género: Prefiero no decir',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFF58708E),
-            ),
+            controller.profile.genero.isEmpty ? 'Género: No definido' : 'Género: ${controller.profile.genero}',
+            style: const TextStyle(fontSize: 14, color: Color(0xFF58708E)),
           ),
-          SizedBox(height: 10),
-          Text(
+          const SizedBox(height: 10),
+          const Text(
             'Este perfil personaliza saludos, textos clave y tus resúmenes.',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFF58708E),
-              height: 1.4,
-            ),
+            style: TextStyle(fontSize: 14, color: Color(0xFF58708E), height: 1.4),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildOptionCard(
-      BuildContext context, {
-        required IconData icon,
-        required Color iconColor,
-        required String title,
-        required VoidCallback onTap,
-      }) {
+  Widget _buildOptionCard(BuildContext context, {required IconData icon, required Color iconColor, required String title, required VoidCallback onTap}) {
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(20),
@@ -181,59 +151,13 @@ class SettingsScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
           child: Row(
             children: [
-              Icon(
-                icon,
-                color: iconColor,
-                size: 30,
-              ),
+              Icon(icon, color: iconColor, size: 30),
               const SizedBox(width: 18),
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF22324B),
-                  ),
-                ),
-              ),
-              const Icon(
-                Icons.chevron_right,
-                color: Color(0xFF7A879A),
-                size: 28,
-              ),
+              Expanded(child: Text(title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Color(0xFF22324B)))),
+              const Icon(Icons.chevron_right, color: Color(0xFF7A879A), size: 28),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-
-}
-
-class _BottomIcon extends StatelessWidget {
-  final String icon;
-  final bool isSelected;
-
-  const _BottomIcon({
-    required this.icon,
-    required this.isSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 54,
-      height: 54,
-      decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFFE7EAF2) : Colors.transparent,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        icon,
-        style: const TextStyle(fontSize: 28),
       ),
     );
   }
