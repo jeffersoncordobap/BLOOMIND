@@ -14,8 +14,6 @@ import 'package:bloomind/features/routines/controller/assing_routine_controller.
 import 'package:bloomind/features/routines/repository/routine_repository_impl.dart';
 import 'package:bloomind/features/routines/repository/assign_routine_repository_impl.dart';
 import 'package:bloomind/core/services/notification_service.dart';
-
-// NUEVOS IMPORTS
 import 'package:bloomind/features/onboarding/data/onboarding_local_service.dart';
 import 'package:bloomind/features/onboarding/presentation/screens/onboarding_screen.dart';
 
@@ -27,10 +25,8 @@ void main() async {
   await dbHelper.database;
   await NotificationService.instance.initTimezone();
 
-  // NUEVO: verificar si ya vio el onboarding
   final onboardingService = OnboardingLocalService();
-  //final hasSeenOnboarding = await onboardingService.hasSeenOnboarding();
-  final hasSeenOnboarding = false;
+  final hasSeenOnboarding = await onboardingService.hasSeenOnboarding();
   runApp(
     MultiProvider(
       providers: [
