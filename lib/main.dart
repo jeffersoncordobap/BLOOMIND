@@ -26,7 +26,7 @@ void main() async {
   await NotificationService.instance.initTimezone();
 
   final onboardingService = OnboardingLocalService();
-  final hasSeenOnboarding = false;
+  final hasSeenOnboarding = await onboardingService.hasSeenOnboarding();
   runApp(
     MultiProvider(
       providers: [

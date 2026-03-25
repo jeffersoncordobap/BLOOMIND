@@ -2,13 +2,14 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
-import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:android_intent_plus/android_intent.dart';
 import 'package:android_intent_plus/flag.dart';
 import 'package:flutter/foundation.dart';
 import 'package:bloomind/features/activities/model/activity.dart';
-import 'package:intl/intl.dart';
+
 import 'package:flutter/material.dart';
+
+
 class NotificationService {
   NotificationService._();
 
@@ -74,11 +75,11 @@ class NotificationService {
       if (scheduledDate.isBefore(now)) continue;
 
       await flutterLocalNotificationsPlugin.zonedSchedule(
-        notificationId++,
-        'Actividad próxima',
-        '${activity.emoji} ${activity.name} en $minutesBefore minutos',
-        scheduledDate,
-        const NotificationDetails(
+        id: notificationId++,
+        title: 'Actividad próxima',
+        body: '${activity.emoji} ${activity.name} en $minutesBefore minutos',
+        scheduledDate: scheduledDate,
+        notificationDetails: const NotificationDetails(
           android: AndroidNotificationDetails(
             'activity_channel',
             'Actividades del día',
@@ -87,8 +88,6 @@ class NotificationService {
           ),
         ),
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-        UILocalNotificationDateInterpretation.absoluteTime,
       );
 
       print("✅ Notificación programada: ${activity.name} → $scheduledDate");
@@ -96,8 +95,13 @@ class NotificationService {
   }
 
   Future<void> cancelActivityNotifications() async {
-    for (int i = 200; i < 300; i++) {
-      await flutterLocalNotificationsPlugin.cancel(i);
+    try {
+      for (int i = 200; i < 300; i++) {
+        await flutterLocalNotificationsPlugin.cancel(id: i);
+      }
+    } catch (e, st) {
+      debugPrint('Error cancelando notificaciones de actividades: $e');
+      debugPrintStack(stackTrace: st);
     }
   }
 
@@ -121,14 +125,12 @@ class NotificationService {
     tz.TZDateTime.now(tz.local).add(Duration(minutes: minutesFromNow));
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      999,
-      'Bloomind',
-      'Prueba exacta programada',
-      scheduledDate,
-      details,
+      id: 999,
+      title: 'Bloomind',
+      body: 'Prueba exacta programada',
+      scheduledDate: scheduledDate,
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-      UILocalNotificationDateInterpretation.absoluteTime,
     );
   }
 
@@ -153,14 +155,12 @@ class NotificationService {
     debugPrint('⏰ SCHEDULED: $scheduledDate');
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      777,
-      'Bloomind Debug',
-      'Esta notificación debe aparecer en 1 minuto',
-      scheduledDate,
-      details,
+      id: 777,
+      title: 'Bloomind Debug',
+      body: 'Esta notificación debe aparecer en 1 minuto',
+      scheduledDate: scheduledDate,
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-      UILocalNotificationDateInterpretation.absoluteTime,
     );
 
     final pending = await flutterLocalNotificationsPlugin.pendingNotificationRequests();
@@ -171,7 +171,7 @@ class NotificationService {
   }
 
   Future<void> cancelDebugNotification() async {
-    await flutterLocalNotificationsPlugin.cancel(777);
+    await flutterLocalNotificationsPlugin.cancel(id: 777);
   }
 
   Future<void> openExactAlarmSettings() async {
@@ -184,7 +184,7 @@ class NotificationService {
   }
 
   Future<void> cancelExactTestNotification() async {
-    await flutterLocalNotificationsPlugin.cancel(999);
+    await flutterLocalNotificationsPlugin.cancel(id: 999);
   }
 
   Future<void> initNotifications() async {
@@ -195,7 +195,9 @@ class NotificationService {
       android: androidSettings,
     );
 
-    await flutterLocalNotificationsPlugin.initialize(settings);
+    await flutterLocalNotificationsPlugin.initialize(
+      settings: settings,
+    );
   }
 
 
@@ -210,11 +212,11 @@ class NotificationService {
     tz.TZDateTime.now(tz.local).add(const Duration(minutes: 1));
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      500,
-      'Test',
-      'Debe llegar en 1 minuto',
-      scheduledDate,
-      const NotificationDetails(
+      id: 500,
+      title: 'Test',
+      body: 'Debe llegar en 1 minuto',
+      scheduledDate: scheduledDate,
+      notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           'test',
           'test',
@@ -223,8 +225,6 @@ class NotificationService {
         ),
       ),
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-      UILocalNotificationDateInterpretation.absoluteTime,
     );
   }
 
@@ -257,29 +257,33 @@ class NotificationService {
     if (scheduledDate.isBefore(now)) {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
-
-    await flutterLocalNotificationsPlugin.zonedSchedule(
-      100, // ID único
-      'Bloomind',
-      'No olvides registrar tu emoción de hoy 💙',
-      scheduledDate,
-      details,
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-      UILocalNotificationDateInterpretation.absoluteTime,
-      matchDateTimeComponents: DateTimeComponents.time, // 🔥 clave para que sea diaria
-    );
+    try {
+      await flutterLocalNotificationsPlugin.zonedSchedule(
+        id: 100,
+        title: 'Bloomind',
+        body: 'No olvides registrar tu emoción de hoy 💙',
+        scheduledDate: scheduledDate,
+        notificationDetails: details,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    } catch (e, st) {
+      debugPrint('ERROR zonedSchedule: $e');
+      debugPrintStack(stackTrace: st);
+    }
   }
 
   Future<void> cancelDailyNotification() async {
-    await flutterLocalNotificationsPlugin.cancel(100);
-  }
+    try {
+      await flutterLocalNotificationsPlugin.cancel(id: 100);
+    } catch (e, st) {
+      debugPrint('Error cancelando recordatorio diario: $e');
+      debugPrintStack(stackTrace: st);
+    }
+}
 
   Future<void> initTimezone() async {
     tz.initializeTimeZones();
-
-    final timezoneInfo = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(timezoneInfo.identifier));
   }
 
   Future<bool> requestNotificationPermission() async {
@@ -314,10 +318,10 @@ class NotificationService {
     );
 
     await flutterLocalNotificationsPlugin.show(
-      0,
-      'Bloomind',
-      'Esta es una notificación de prueba',
-      details,
+      id: 0,
+      title: 'Bloomind',
+      body: 'Esta es una notificación de prueba',
+      notificationDetails: details,
     );
   }
 
@@ -336,14 +340,12 @@ class NotificationService {
     );
 
     await flutterLocalNotificationsPlugin.zonedSchedule(
-      1,
-      'Bloomind',
-      'Recordatorio en 5 segundos',
-      tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
-      details,
+      id: 1,
+      title: 'Bloomind',
+      body: 'Recordatorio en 5 segundos',
+      scheduledDate: tz.TZDateTime.now(tz.local).add(const Duration(seconds: 5)),
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-      UILocalNotificationDateInterpretation.absoluteTime,
     );
   }
 }
