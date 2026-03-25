@@ -13,13 +13,14 @@ import 'package:bloomind/features/routines/controller/routine_controller.dart';
 import 'package:bloomind/features/routines/controller/assing_routine_controller.dart';
 import 'package:bloomind/features/routines/repository/routine_repository_impl.dart';
 import 'package:bloomind/features/routines/repository/assign_routine_repository_impl.dart';
-
+import 'package:bloomind/core/services/notification_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('es_ES', null);
-
+  await NotificationService.instance.initNotifications();
   final dbHelper = DatabaseHelper();
   await dbHelper.database;
+  await NotificationService.instance.initTimezone();
 
   runApp(
     MultiProvider(
