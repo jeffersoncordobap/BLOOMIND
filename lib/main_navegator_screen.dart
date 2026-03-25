@@ -72,7 +72,6 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
     if (index == 9) {
       meditacionKey.currentState?.meditationRefresh(); 
     }
-    
   }
 
   void irAlDiario() {
