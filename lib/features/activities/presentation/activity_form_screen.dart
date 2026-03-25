@@ -20,7 +20,6 @@ class ActivityScreen extends StatefulWidget {
 }
 
 class _ActivityScreenState extends State<ActivityScreen> {
-  // Controladores de texto
   late TextEditingController _activityNameController;
   late TextEditingController _timeController;
   late TextEditingController _categoryController;
@@ -30,15 +29,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
   bool _isFormVisible = false;
   List<Activity> lista_sugerencias = [];
 
-  final Color backgroundColor = const Color(0xFFF1F5F9);
-  final Color primaryBlue = const Color(0xFF75B1EA);
-  final Color labelColor = const Color(0xFF64748B);
-
   @override
   void initState() {
     super.initState();
 
-    // Inicialización con datos de edición o valores por defecto
     _activityNameController = TextEditingController(
       text: widget.activityToEdit?.name ?? "",
     );
@@ -54,7 +48,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ActivityController>().categoriasIniciales();
-      // Si estamos editando y hay categoría, cargar sugerencias
       if (selectedCategory != null) {
         _cargarSugerencias(selectedCategory!);
       }
@@ -73,26 +66,28 @@ class _ActivityScreenState extends State<ActivityScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<ActivityController>();
+    final colorScheme = Theme.of(context).colorScheme;
+
     final String title = widget.activityToEdit != null
         ? "Editar actividad"
         : "Agregar actividad";
 
     return Scaffold(
-      backgroundColor: backgroundColor,
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3142)),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
           title,
-          style: const TextStyle(
-            color: Color(0xFF2D3142),
+          style: TextStyle(
+            color: colorScheme.onSurface,
             fontWeight: FontWeight.bold,
             fontSize: 22,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         centerTitle: false,
       ),
@@ -101,20 +96,26 @@ class _ActivityScreenState extends State<ActivityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildLabel("Categoria"),
+            _buildLabel("Categoria", colorScheme),
             const SizedBox(height: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              decoration: _containerDecoration(),
+              decoration: _containerDecoration(colorScheme),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
                   value: selectedCategory,
                   isExpanded: true,
-                  hint: const Text("Selecciona una categoría"),
+                  hint: Text(
+                    "Selecciona una categoría",
+                    style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
+                  ),
                   items: controller.categoryItems.map((item) {
                     return DropdownMenuItem(
                       value: item.value,
-                      child: Text(item.value!),
+                      child: Text(
+                        item.value!,
+                        style: TextStyle(color: colorScheme.onSurface),
+                      ),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -130,18 +131,19 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 _buildSmallButton(
                   "Nueva categoria",
                   () => setState(() => _isFormVisible = !_isFormVisible),
+                  colorScheme,
                 ),
                 const SizedBox(width: 10),
                 if (selectedCategory != null)
-                  _buildSmallButton("Eliminar categoria", _showDeleteDialog),
+                  _buildSmallButton("Eliminar categoria", _showDeleteDialog, colorScheme),
               ],
             ),
 
-            if (_isFormVisible) _buildCategoryForm(controller),
+            if (_isFormVisible) _buildCategoryForm(controller, colorScheme),
 
             const SizedBox(height: 24),
 
-            _buildLabel("Sugerencias"),
+            _buildLabel("Sugerencias", colorScheme),
             const SizedBox(height: 12),
             Wrap(
               spacing: 10,
@@ -161,10 +163,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
                           vertical: 10,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE0F2FE),
+                          color: colorScheme.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(25),
                           border: Border.all(
-                            color: primaryBlue.withOpacity(0.2),
+                            color: colorScheme.primary.withValues(alpha: 0.3),
                           ),
                         ),
                         child: Row(
@@ -174,8 +176,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
                             const SizedBox(width: 8),
                             Text(
                               activity.name,
-                              style: const TextStyle(
-                                color: Color(0xFF1E293B),
+                              style: TextStyle(
+                                color: colorScheme.onSurface,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -189,34 +191,37 @@ class _ActivityScreenState extends State<ActivityScreen> {
 
             const SizedBox(height: 24),
 
-            _buildLabel("Nombre de actividad"),
+            _buildLabel("Nombre de actividad", colorScheme),
             const SizedBox(height: 8),
             TextField(
               controller: _activityNameController,
-              decoration: _inputDecoration("Ej: Escalar, pintar, escribir"),
+              decoration: _inputDecoration("Ej: Escalar, pintar, escribir", colorScheme),
             ),
 
-            const SizedBox(height: 24),
+                        const SizedBox(height: 24),
 
-            _buildLabel("Emoji"),
+            _buildLabel("Emoji", colorScheme),
             const SizedBox(height: 8),
             TextField(
               controller: _emojiController,
-              decoration: _inputDecoration(""),
-              style: const TextStyle(fontSize: 24),
+              decoration: _inputDecoration("", colorScheme),
+              style: TextStyle(
+                fontSize: 24,
+                color: colorScheme.onSurface,
+              ),
             ),
 
             const SizedBox(height: 24),
 
-            _buildLabel("Hora"),
+            _buildLabel("Hora", colorScheme),
             const SizedBox(height: 8),
             TextField(
               controller: _timeController,
               readOnly: true,
-              decoration: _inputDecoration("07:00 a. m.").copyWith(
-                suffixIcon: const Icon(
+              decoration: _inputDecoration("07:00 a. m.", colorScheme).copyWith(
+                suffixIcon: Icon(
                   Icons.access_time,
-                  color: Colors.black54,
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
               onTap: () async {
@@ -239,7 +244,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
               height: 55,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryBlue,
+                  backgroundColor: colorScheme.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -250,8 +255,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   widget.activityToEdit != null
                       ? "Guardar cambios"
                       : "Guardar actividad",
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: colorScheme.onPrimary,
                     fontSize: 18,
                     fontWeight: FontWeight.w500,
                   ),
@@ -270,7 +275,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
       final format = MediaQuery.of(context).alwaysUse24HourFormat
           ? "HH:mm"
           : "h:mm a";
-      // Una aproximación simple para evitar errores si el string está vacío
       if (time.isEmpty) return TimeOfDay.now();
       return TimeOfDay.fromDateTime(
         DateTime.parse(
@@ -289,7 +293,13 @@ class _ActivityScreenState extends State<ActivityScreen> {
         selectedCategory == null ||
         _timeController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Completa todos los campos")),
+        SnackBar(
+          content: Text(
+            "Completa todos los campos",
+            style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.surface,
+        ),
       );
       return;
     }
@@ -313,7 +323,6 @@ class _ActivityScreenState extends State<ActivityScreen> {
         oldHour: originalHour,
       );
     } else {
-      // MODO CREACIÓN
       success = await controller.saveActivityToRoutine(
         context: context,
         idRoutine: widget.idRoutine,
@@ -325,33 +334,29 @@ class _ActivityScreenState extends State<ActivityScreen> {
     }
 
     if (success && mounted) {
-      context
-          .read<DayRoutineController>()
-          .loadTodayRoutine(); // Actualiza "Rutina del día"
-      context
-          .read<RoutineProvider>()
-          .updateUpcomingActivity(); // Actualiza "Próxima actividad"
+      context.read<DayRoutineController>().loadTodayRoutine();
+      context.read<RoutineProvider>().updateUpcomingActivity();
       Navigator.pop(context);
     }
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildLabel(String text, ColorScheme colorScheme) {
     return Text(
       text,
       style: TextStyle(
-        color: labelColor,
+        color: colorScheme.onSurface.withValues(alpha: 0.7),
         fontSize: 16,
         fontWeight: FontWeight.w500,
       ),
     );
   }
 
-  InputDecoration _inputDecoration(String hint) {
+  InputDecoration _inputDecoration(String hint, ColorScheme colorScheme) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
+      hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.5)),
       filled: true,
-      fillColor: Colors.white,
+      fillColor: colorScheme.surface,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(20),
@@ -360,39 +365,37 @@ class _ActivityScreenState extends State<ActivityScreen> {
     );
   }
 
-  BoxDecoration _containerDecoration() => BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.circular(20),
-  );
+  BoxDecoration _containerDecoration(ColorScheme colorScheme) => BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.circular(20),
+      );
 
-  Widget _buildSmallButton(String text, VoidCallback onPressed) {
+  Widget _buildSmallButton(String text, VoidCallback onPressed, ColorScheme colorScheme) {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        backgroundColor: const Color(0xFFE2E8F0),
+        backgroundColor: colorScheme.surfaceVariant.withValues(alpha: 0.7),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         padding: const EdgeInsets.symmetric(horizontal: 16),
       ),
       child: Text(
         text,
-        style: const TextStyle(color: Color(0xFF475569), fontSize: 14),
+        style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.8), fontSize: 14),
       ),
     );
   }
 
   Future<void> _cargarSugerencias(String categoria) async {
-    final nuevas = await context
-        .read<ActivityController>()
-        .obtener_recomendaciones(categoria);
+    final nuevas = await context.read<ActivityController>().obtener_recomendaciones(categoria);
     setState(() => lista_sugerencias = nuevas);
   }
 
-  Widget _buildCategoryForm(ActivityController controller) {
+  Widget _buildCategoryForm(ActivityController controller, ColorScheme colorScheme) {
     return Container(
       margin: const EdgeInsets.only(top: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -400,14 +403,15 @@ class _ActivityScreenState extends State<ActivityScreen> {
           Expanded(
             child: TextField(
               controller: _categoryController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: "Nueva categoría",
                 border: InputBorder.none,
+                hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.5)),
               ),
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.check, color: Colors.green),
+            icon: Icon(Icons.check, color: colorScheme.primary),
             onPressed: () async {
               String nueva = _categoryController.text.trim();
               if (nueva.isNotEmpty) {
@@ -430,22 +434,23 @@ class _ActivityScreenState extends State<ActivityScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Eliminar categoría"),
-        content: Text("¿Estás seguro de eliminar '$selectedCategory'?"),
+        title: Text("Eliminar categoría", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+        content: Text(
+          "¿Estás seguro de eliminar '$selectedCategory'?",
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8)),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
+            child: Text("Cancelar", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7))),
           ),
           TextButton(
             onPressed: () async {
-              await context.read<ActivityController>().removeCategory(
-                selectedCategory!,
-              );
+              await context.read<ActivityController>().removeCategory(selectedCategory!);
               setState(() => selectedCategory = null);
               if (mounted) Navigator.pop(context);
             },
-            child: const Text("Eliminar", style: TextStyle(color: Colors.red)),
+            child: Text("Eliminar", style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

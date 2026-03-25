@@ -12,13 +12,14 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<ProfileController>(context);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF2F6),
+      backgroundColor: colorScheme.background,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(colorScheme),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(
@@ -27,12 +28,13 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    _buildWelcomeCard(controller),
+                    _buildWelcomeCard(controller, colorScheme),
                     const SizedBox(height: 18),
                     _buildOptionCard(
                       context,
+                      colorScheme,
                       icon: Icons.person,
-                      iconColor: const Color(0xFF6A3FA0),
+                      iconColor: colorScheme.primary,
                       title: 'Perfil local',
                       onTap: () {
                         Navigator.push(
@@ -46,23 +48,25 @@ class SettingsScreen extends StatelessWidget {
                     const SizedBox(height: 18),
                     _buildOptionCard(
                       context,
+                      colorScheme,
                       icon: Icons.palette,
-                      iconColor: const Color(0xFFF5A6A6),
+                      iconColor: colorScheme.secondary,
                       title: 'Tema visual',
                       onTap: () {
-                        // Navegar a pantalla de tema visual
                         Navigator.push(
-                          context, 
+                          context,
                           MaterialPageRoute(
-                            builder: (_) => const TemaVisualScreen()),
+                            builder: (_) => const TemaVisualScreen(),
+                          ),
                         );
                       },
                     ),
                     const SizedBox(height: 18),
                     _buildOptionCard(
                       context,
+                      colorScheme,
                       icon: Icons.notifications,
-                      iconColor: const Color(0xFFF2B544),
+                      iconColor: colorScheme.tertiary,
                       title: 'Notificaciones',
                       onTap: () {
                         Navigator.push(
@@ -76,14 +80,15 @@ class SettingsScreen extends StatelessWidget {
                     const SizedBox(height: 18),
                     _buildOptionCard(
                       context,
+                      colorScheme,
                       icon: Icons.delete,
-                      iconColor: const Color.fromARGB(255, 141, 181, 227),
+                      iconColor: colorScheme.error,
                       title: 'Papelera',
                       onTap: () async {
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const PapeleraScreen(),
+                            builder: (_) => const PapeleraScreen(),
                           ),
                         );
                       },
@@ -98,56 +103,53 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(ColorScheme colorScheme) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 26),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(34),
           bottomRight: Radius.circular(34),
         ),
         boxShadow: [
           BoxShadow(
-            color: Color(0x14000000),
+            color: colorScheme.shadow.withValues(alpha: 0.08),
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: const Center(
+      child: Center(
         child: Text(
           'Configuración',
           style: TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF2F3B52),
+            color: colorScheme.onSurface,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildWelcomeCard(ProfileController controller) {
+  Widget _buildWelcomeCard(ProfileController controller, ColorScheme colorScheme) {
     String saludo = 'Bienvenido/a';
-    if (controller.profile.genero == 'Masculino') {
-      saludo = 'Bienvenido';
-    } else if (controller.profile.genero == 'Femenino') {
-      saludo = 'Bienvenida';
-    }
+    if (controller.profile.genero == 'Masculino') saludo = 'Bienvenido';
+    if (controller.profile.genero == 'Femenino') saludo = 'Bienvenida';
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFE7F0FA),
+        color: colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(22),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x14000000),
+            color: colorScheme.shadow.withValues(alpha: 0.08),
             blurRadius: 8,
-            offset: Offset(0, 3),
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -156,14 +158,14 @@ class SettingsScreen extends StatelessWidget {
         children: [
           Text(
             saludo,
-            style: const TextStyle(fontSize: 14, color: Color(0xFF6B7A90)),
+            style: TextStyle(fontSize: 14, color: colorScheme.onSurface.withValues(alpha: 0.6)),
           ),
           const SizedBox(height: 10),
           Row(
             children: [
               Text(
                 controller.profile.emoji,
-                style: const TextStyle(fontSize: 24),
+                style: TextStyle(fontSize: 24, color: colorScheme.onSurface),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -171,10 +173,10 @@ class SettingsScreen extends StatelessWidget {
                   controller.profile.nombre.isEmpty
                       ? 'Perfil local'
                       : controller.profile.nombre,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF23324A),
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ),
@@ -185,14 +187,17 @@ class SettingsScreen extends StatelessWidget {
             controller.profile.genero.isEmpty
                 ? 'Género: No definido'
                 : 'Género: ${controller.profile.genero}',
-            style: const TextStyle(fontSize: 14, color: Color(0xFF58708E)),
+            style: TextStyle(
+              fontSize: 14,
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
           ),
           const SizedBox(height: 10),
-          const Text(
+          Text(
             'Este perfil personaliza saludos, textos clave y tus resúmenes.',
             style: TextStyle(
               fontSize: 14,
-              color: Color(0xFF58708E),
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
               height: 1.4,
             ),
           ),
@@ -202,17 +207,18 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _buildOptionCard(
-    BuildContext context, {
+    BuildContext context,
+    ColorScheme colorScheme, {
     required IconData icon,
     required Color iconColor,
     required String title,
     required VoidCallback onTap,
   }) {
     return Material(
-      color: Colors.white,
+      color: colorScheme.surface,
       borderRadius: BorderRadius.circular(20),
       elevation: 2,
-      shadowColor: const Color(0x22000000),
+      shadowColor: colorScheme.shadow.withValues(alpha: 0.13),
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: onTap,
@@ -226,16 +232,16 @@ class SettingsScreen extends StatelessWidget {
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFF22324B),
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ),
-              const Icon(
+              Icon(
                 Icons.chevron_right,
-                color: Color(0xFF7A879A),
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
                 size: 28,
               ),
             ],
@@ -254,15 +260,19 @@ class _BottomIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: 54,
       height: 54,
       decoration: BoxDecoration(
-        color: isSelected ? const Color(0xFFE7EAF2) : Colors.transparent,
+        color: isSelected
+            ? colorScheme.surfaceVariant.withValues(alpha: 0.7)
+            : Colors.transparent,
         borderRadius: BorderRadius.circular(18),
       ),
       alignment: Alignment.center,
-      child: Text(icon, style: const TextStyle(fontSize: 28)),
+      child: Text(icon, style: TextStyle(fontSize: 28, color: colorScheme.onSurface)),
     );
   }
 }

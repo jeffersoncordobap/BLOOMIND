@@ -26,6 +26,7 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
 
   Future<void> _cargarFavoritas() async {
     try {
+      // Inserta frases iniciales si no existen
       final frasesExistentes = await _repository.getAllFrases();
       for (String frase in frasesMotivacionales) {
         bool existe = frasesExistentes.any((f) => f.contenido_frases == frase);
@@ -36,6 +37,7 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
         }
       }
 
+      // Carga todas las frases y filtra solo las favoritas
       final todas = await _repository.getAllFrases();
       setState(() {
         _favoritas = todas.where((f) => f.favorita_frase).toList();
@@ -52,7 +54,7 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
 
     _listKey.currentState?.removeItem(
       index,
-      (context, animation) => _buildCard(frase, index, animation),
+      (context, animation) => _buildCard(frase, index, animation, Theme.of(context).colorScheme),
       duration: const Duration(milliseconds: 300),
     );
 
@@ -81,7 +83,7 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: const Text("Meditación y respiración"),
+        title: const Text("Frases Favoritas"),
         centerTitle: true,
         elevation: 0,
         backgroundColor: colorScheme.surface,
@@ -109,12 +111,13 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
       initialItemCount: _favoritas.length,
       itemBuilder: (context, index, animation) {
-        return _buildCard(_favoritas[index], index, animation, colorScheme);
+        return _buildCard(_favoritas[index], index, animation, Theme.of(context).colorScheme);
       },
     );
   }
 
-  Widget _buildCard(ResourseFrases frase, int index, Animation<double> animation, ColorScheme colorScheme) {
+  Widget _buildCard(
+      ResourseFrases frase, int index, Animation<double> animation, ColorScheme colorScheme) {
     return SizeTransition(
       sizeFactor: animation,
       child: FadeTransition(

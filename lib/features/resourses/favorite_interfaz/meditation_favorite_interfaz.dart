@@ -164,7 +164,7 @@ class WidgetMeditacionFavoriteState extends State<WidgetMeditacionFavorite> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Meditación y respiración"),
+        title: const Text("Meditación y respiración Favoritas"),
         centerTitle: true,
         elevation: 0,
         backgroundColor: colorScheme.surface,

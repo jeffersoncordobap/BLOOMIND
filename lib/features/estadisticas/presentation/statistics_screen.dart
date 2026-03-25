@@ -76,19 +76,19 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F7),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Column(
             children: [
               const SizedBox(height: 8),
-              const Text(
+               Text(
                 'Estadísticas',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2F3A56),
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 18),
@@ -309,7 +309,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           const SizedBox(height: 18),
 
           Material(
-            color: const Color(0xFFDDEAF8),
+            color: Theme.of(context).colorScheme.primaryContainer,
             borderRadius: BorderRadius.circular(18),
             child: InkWell(
               borderRadius: BorderRadius.circular(18),
@@ -326,16 +326,19 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFFC8D8EB)),
+                  border: Border.all(color: Theme.of(context).colorScheme.outline),
                 ),
                 child: Row(
-                  children: const [
+                  children: [
                     Icon(Icons.info_outline_rounded, size: 22),
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         '¿Cómo se calculan las estadísticas?',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                        style: TextStyle(fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface
+                        ),
+                        
                       ),
                     ),
                   ],

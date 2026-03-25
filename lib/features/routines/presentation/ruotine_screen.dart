@@ -17,42 +17,42 @@ class RoutineScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Escuchamos el provider para obtener la próxima actividad
-    final routineProvider = context
-        .watch<
-          RoutineProvider
-        >(); //se obtiene el provider para acceder a los datos de la rutina actual
-    final nextActivity = routineProvider
-        .nextActivity; //se obtiene la próxima actividad de la rutina actual
+    final routineProvider = context.watch<RoutineProvider>();
+    final nextActivity = routineProvider.nextActivity;
     final routineName = routineProvider.currentRoutineName;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Rutinas'), centerTitle: true),
+      backgroundColor: colorScheme.background,
+      appBar: AppBar(
+        title: const Text('Rutinas'),
+        centerTitle: true,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
+        elevation: 0,
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         child: Column(
           children: [
-            _buildUpcomingCard(nextActivity, routineName),
-
+            _buildUpcomingCard(nextActivity, routineName, colorScheme),
             const SizedBox(height: 23),
-
             _buildPrimaryButton(
               text: 'Ver rutina del día',
               onTap: alPresionarVerRutinaDia,
+              colorScheme: colorScheme,
             ),
-
             const SizedBox(height: 18),
-
             _buildPrimaryButton(
               text: 'Asignar rutinas',
               onTap: alPresionarAsignarRutinas,
+              colorScheme: colorScheme,
             ),
-
             const SizedBox(height: 18),
-
             _buildPrimaryButton(
               text: 'Ver mis rutinas',
               onTap: alPresionarListaRutinas,
+              colorScheme: colorScheme,
             ),
           ],
         ),
@@ -60,63 +60,76 @@ class RoutineScreen extends StatelessWidget {
     );
   }
 
-  // Widget de la Tarjeta de Próxima Actividad
-  Widget _buildUpcomingCard(Activity? actividad, String routineName) {
+  // Tarjeta de próxima actividad
+  Widget _buildUpcomingCard(Activity? actividad, String routineName, ColorScheme colorScheme) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFE3F2FD),
+        color: colorScheme.surfaceVariant, // tema dinámico
         borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         children: [
-          const Text("Rutina de hoy", style: TextStyle(color: Colors.blueGrey)),
+          Text(
+            "Rutina de hoy",
+            style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+          ),
+          const SizedBox(height: 4),
           Text(
             routineName,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+              color: colorScheme.onSurface,
+            ),
           ),
-          const Divider(height: 30),
+          Divider(height: 30, color: colorScheme.onSurface.withValues(alpha: 0.3)),
           if (actividad != null) ...[
-            const Text("Próxima actividad"),
+            Text("Próxima actividad", style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7))),
             const SizedBox(height: 10),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(actividad.emoji, style: const TextStyle(fontSize: 24)),
+                Text(actividad.emoji, style: TextStyle(fontSize: 24)),
                 const SizedBox(width: 10),
                 Text(
                   actividad.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ],
             ),
             Text(
               "${actividad.hour} · ${actividad.category}",
-              style: const TextStyle(color: Colors.grey),
+              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
             ),
           ] else
-            const Text("No hay más actividades para hoy"),
+            Text(
+              "No hay más actividades para hoy",
+              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
+            ),
         ],
       ),
     );
   }
 
-  // Widget reutilizable para los botones
+  // Botones principales
   static Widget _buildPrimaryButton({
     required String text,
     required VoidCallback onTap,
+    required ColorScheme colorScheme,
   }) {
     return SizedBox(
       width: double.infinity,
       height: 54,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF4D86C7),
-          foregroundColor: Colors.white,
+          backgroundColor: colorScheme.primary,
+          foregroundColor: colorScheme.onPrimary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(28),
           ),

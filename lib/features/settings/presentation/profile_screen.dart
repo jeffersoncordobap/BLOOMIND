@@ -11,48 +11,28 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   static const _emojis = [
-    '😊',
-    '😎',
-    '🌸',
-    '🦋',
-    '🌟',
-    '🎯',
-    '🧘',
-    '🌈',
-    '🦁',
-    '🐬',
-    '🌻',
-    '🎨',
+    '😊', '😎', '🌸', '🦋', '🌟', '🎯', '🧘', '🌈', '🦁', '🐬', '🌻', '🎨'
   ];
   static const _generos = [
-    'Femenino',
-    'Masculino',
-    'Otro',
-    'Prefiero no decir',
+    'Femenino', 'Masculino', 'Otro', 'Prefiero no decir',
   ];
 
   late TextEditingController _nombreCtrl;
-
   late String _emojiSeleccionado;
   late String _generoSeleccionado;
-
-  // Colores de la paleta
-  static const _azul = Color(0xFF4A90D9);
-  static const _azulSuave = Color(0xFFEEF4FB);
-  static const _azulBorde = Color(0xFFB8D4F0);
 
   @override
   void initState() {
     super.initState();
     final profile = context.read<ProfileController>().profile;
-    _nombreCtrl = TextEditingController(text: profile.nombre); _emojiSeleccionado = profile.emoji;
+    _nombreCtrl = TextEditingController(text: profile.nombre);
+    _emojiSeleccionado = profile.emoji;
     _generoSeleccionado = profile.genero;
   }
 
   @override
   void dispose() {
     _nombreCtrl.dispose();
-
     super.dispose();
   }
 
@@ -63,16 +43,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       genero: _generoSeleccionado,
     );
     if (!mounted) return;
+    final colorScheme = Theme.of(context).colorScheme;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('✅ Perfil guardado'),
-        backgroundColor: _azul,
-        duration: Duration(seconds: 2),
+      SnackBar(
+        content: const Text('✅ Perfil guardado'),
+        backgroundColor: colorScheme.primary,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  // Saludo dinámico para la vista previa
   String get _saludoPrevia {
     final nombre = _nombreCtrl.text.trim();
     final base = nombre.isNotEmpty ? nombre : 'tú';
@@ -88,18 +68,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: _azulSuave,
+      backgroundColor: colorScheme.surfaceVariant,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Perfil local',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: colorScheme.onPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: _azul,
+        backgroundColor: colorScheme.primary,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onPrimary),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -108,14 +93,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. Tarjeta vista previa
             _TarjetaVistaPrevia(
               emoji: _emojiSeleccionado,
               saludo: _saludoPrevia,
             ),
             const SizedBox(height: 20),
-
-            // 2. Campo nombre
             _Seccion(
               titulo: 'Tu nombre',
               child: TextField(
@@ -123,38 +105,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
                   hintText: '¿Cómo te llamas?',
-                  prefixIcon: const Icon(Icons.person_outline, color: _azul),
+                  prefixIcon: Icon(Icons.person_outline, color: colorScheme.primary),
                   filled: true,
-                  fillColor: Colors.white,
+                  fillColor: colorScheme.surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: _azulBorde),
+                    borderSide: BorderSide(color: colorScheme.primary.withValues(alpha: 0.4)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: _azulBorde),
+                    borderSide: BorderSide(color: colorScheme.primary.withValues(alpha: 0.4)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: _azul, width: 2),
+                    borderSide: BorderSide(color: colorScheme.primary, width: 2),
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 20),
-
-            // 3. Selector de emoji
             _Seccion(
               titulo: 'Tu emoji (selecciona de la lista)',
-              child: Column(
-                children: [
-                  _SelectorEmoji(                    emojis: _emojis,                   seleccionado: _emojiSeleccionado,                   onSeleccionar: (e) => setState(() => _emojiSeleccionado = e)                  ),
-                ],
+              child: _SelectorEmoji(
+                emojis: _emojis,
+                seleccionado: _emojiSeleccionado,
+                onSeleccionar: (e) => setState(() => _emojiSeleccionado = e),
               ),
             ),
             const SizedBox(height: 20),
-
-            // 4. Selector de género
             _Seccion(
               titulo: 'Género',
               child: _SelectorGenero(
@@ -164,33 +142,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 28),
-
-            // 5. Botón guardar
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _guardar,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _azul,
+                  backgroundColor: colorScheme.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                   elevation: 2,
                 ),
-                child: const Text(
+                child: Text(
                   'Guardar cambios',
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.white,
+                    color: colorScheme.onPrimary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 24),
-
-            // 6. Tarjeta informativa
             _TarjetaInfo(),
             const SizedBox(height: 20),
           ],
@@ -200,58 +174,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 }
 
-// ── Tarjeta vista previa ──────────────────────────────────────────────────────
+// ── Tarjeta vista previa ────────────────────────────────────────────────
 class _TarjetaVistaPrevia extends StatelessWidget {
   final String emoji;
   final String saludo;
-
   const _TarjetaVistaPrevia({required this.emoji, required this.saludo});
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF4A90D9), Color(0xFF7BB8F0)],
+        gradient: LinearGradient(
+          colors: [
+            colorScheme.primary,
+            colorScheme.primaryContainer
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
+        boxShadow: [
           BoxShadow(
-            color: Color(0x334A90D9),
+            color: colorScheme.primary.withValues(alpha: 0.2),
             blurRadius: 12,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         children: [
-          const Text(
+          Text(
             'Vista previa',
             style: TextStyle(
               fontSize: 12,
-              color: Colors.white70,
+              color: colorScheme.onPrimary.withValues(alpha: 0.7),
               letterSpacing: 1,
             ),
           ),
           const SizedBox(height: 12),
-          Text(emoji, style: const TextStyle(fontSize: 56)),
+          Text(emoji, style: TextStyle(fontSize: 56)),
           const SizedBox(height: 8),
           Text(
             saludo,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: colorScheme.onPrimary,
             ),
           ),
           const SizedBox(height: 6),
-          const Text(
+          Text(
             'Así te verás en la app',
-            style: TextStyle(fontSize: 13, color: Colors.white70),
+            style: TextStyle(fontSize: 13, color: colorScheme.onPrimary.withValues(alpha: 0.7)),
           ),
         ],
       ),
@@ -259,24 +237,24 @@ class _TarjetaVistaPrevia extends StatelessWidget {
   }
 }
 
-// ── Sección con título ────────────────────────────────────────────────────────
+// ── Sección con título ───────────────────────────────────────────────
 class _Seccion extends StatelessWidget {
   final String titulo;
   final Widget child;
-
   const _Seccion({required this.titulo, required this.child});
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           titulo,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF4A90D9),
+            color: colorScheme.primary,
           ),
         ),
         const SizedBox(height: 10),
@@ -286,12 +264,11 @@ class _Seccion extends StatelessWidget {
   }
 }
 
-// ── Selector de emoji ─────────────────────────────────────────────────────────
+// ── Selector de emoji ───────────────────────────────────────────────
 class _SelectorEmoji extends StatelessWidget {
   final List<String> emojis;
   final String seleccionado;
   final ValueChanged<String> onSeleccionar;
-
   const _SelectorEmoji({
     required this.emojis,
     required this.seleccionado,
@@ -300,12 +277,14 @@ class _SelectorEmoji extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFB8D4F0)),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.4)),
       ),
       child: GridView.builder(
         shrinkWrap: true,
@@ -324,14 +303,16 @@ class _SelectorEmoji extends StatelessWidget {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               decoration: BoxDecoration(
-                color: activo ? const Color(0xFFDDEEFA) : Colors.transparent,
+                color: activo
+                    ? colorScheme.primary.withValues(alpha: 0.2)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
                 border: activo
-                    ? Border.all(color: const Color(0xFF4A90D9), width: 2)
+                    ? Border.all(color: colorScheme.primary, width: 2)
                     : null,
               ),
               child: Center(
-                child: Text(emoji, style: const TextStyle(fontSize: 26)),
+                child: Text(emoji, style: TextStyle(fontSize: 26)),
               ),
             ),
           );
@@ -341,7 +322,7 @@ class _SelectorEmoji extends StatelessWidget {
   }
 }
 
-// ── Selector de género ────────────────────────────────────────────────────────
+// ── Selector de género ───────────────────────────────────────────────
 class _SelectorGenero extends StatelessWidget {
   final List<String> generos;
   final String seleccionado;
@@ -355,6 +336,8 @@ class _SelectorGenero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Wrap(
       spacing: 10,
       runSpacing: 10,
@@ -366,19 +349,21 @@ class _SelectorGenero extends StatelessWidget {
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
             decoration: BoxDecoration(
-              color: activo ? const Color(0xFF4A90D9) : Colors.white,
+              color: activo
+                  ? colorScheme.primary
+                  : colorScheme.surface,
               borderRadius: BorderRadius.circular(30),
               border: Border.all(
                 color: activo
-                    ? const Color(0xFF4A90D9)
-                    : const Color(0xFFB8D4F0),
+                    ? colorScheme.primary
+                    : colorScheme.primary.withValues(alpha: 0.4),
               ),
               boxShadow: activo
                   ? [
-                      const BoxShadow(
-                        color: Color(0x334A90D9),
+                      BoxShadow(
+                        color: colorScheme.primary.withValues(alpha: 0.2),
                         blurRadius: 6,
-                        offset: Offset(0, 2),
+                        offset: const Offset(0, 2),
                       ),
                     ]
                   : [],
@@ -388,7 +373,9 @@ class _SelectorGenero extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: activo ? Colors.white : const Color(0xFF4A90D9),
+                color: activo
+                    ? colorScheme.onPrimary
+                    : colorScheme.primary,
               ),
             ),
           ),
@@ -398,49 +385,54 @@ class _SelectorGenero extends StatelessWidget {
   }
 }
 
-// ── Tarjeta informativa ───────────────────────────────────────────────────────
+// ── Tarjeta informativa ─────────────────────────────────────────────
 class _TarjetaInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFB8D4F0)),
+        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.4)),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.info_outline, color: Color(0xFF4A90D9), size: 18),
-              SizedBox(width: 8),
+              Icon(Icons.info_outline, color: colorScheme.primary, size: 18),
+              const SizedBox(width: 8),
               Text(
                 '¿Para qué sirve tu perfil?',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
-                  color: Color(0xFF4A90D9),
+                  color: colorScheme.primary,
                 ),
               ),
             ],
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _InfoItem(
             icono: '👋',
             texto: 'Personaliza el saludo en la pantalla de inicio',
+            colorScheme: colorScheme,
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _InfoItem(
             icono: '📊',
             texto: 'Tu género puede usarse en las estadísticas de bienestar',
+            colorScheme: colorScheme,
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           _InfoItem(
             icono: '🔒',
             texto:
                 'Todo se guarda localmente en tu dispositivo, sin servidores',
+            colorScheme: colorScheme,
           ),
         ],
       ),
@@ -448,23 +440,32 @@ class _TarjetaInfo extends StatelessWidget {
   }
 }
 
+// ── Item de info ───────────────────────────────────────────────────
 class _InfoItem extends StatelessWidget {
   final String icono;
   final String texto;
+  final ColorScheme colorScheme;
 
-  const _InfoItem({required this.icono, required this.texto});
+  const _InfoItem({
+    required this.icono,
+    required this.texto,
+    required this.colorScheme,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(icono, style: const TextStyle(fontSize: 16)),
+        Text(icono, style: TextStyle(fontSize: 16)),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             texto,
-            style: const TextStyle(fontSize: 13, color: Colors.black54),
+            style: TextStyle(
+              fontSize: 13,
+              color: colorScheme.onSurface.withValues(alpha: 0.7),
+            ),
           ),
         ),
       ],

@@ -180,22 +180,22 @@ class _NotificationSettingsScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F4F7),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F7FA),
-        surfaceTintColor: Colors.transparent,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Notificaciones',
           style: TextStyle(
-            color: Color(0xFF2F3B52),
+            color: Theme.of(context).colorScheme.onSurface,
             fontWeight: FontWeight.w800,
             fontSize: 22,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF2F3B52)),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -217,8 +217,8 @@ class _NotificationSettingsScreenState
                   title: 'Recordatorio diario',
                   subtitle: 'Recuerda registrar tu emoción cada día',
                   icon: Icons.favorite_rounded,
-                  iconBackground: const Color(0xFFE8F1FF),
-                  iconColor: const Color(0xFF5E8FD0),
+                  iconBackground: Theme.of(context).colorScheme.primaryContainer,
+                  iconColor: Theme.of(context).colorScheme.primary,
                   value: dailyReminder,
                   onChanged: (value) {
                     setState(() {
@@ -234,17 +234,17 @@ class _NotificationSettingsScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 18),
-                        const Divider(
-                          color: Color(0xFFE1E7EF),
+                        Divider(
+                          color: Theme.of(context).dividerColor,
                           height: 1,
                         ),
                         const SizedBox(height: 18),
-                        const Text(
+                        Text(
                           'Hora del recordatorio',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF607086),
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity( 0.7),
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -257,10 +257,10 @@ class _NotificationSettingsScreenState
                               vertical: 15,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF8FAFD),
+                              color: Theme.of(context).colorScheme.surfaceContainerHigh,
                               borderRadius: BorderRadius.circular(18),
                               border: Border.all(
-                                color: const Color(0xFFD9E2EC),
+                                color: Theme.of(context).colorScheme.outline,
                               ),
                             ),
                             child: Row(
@@ -269,28 +269,28 @@ class _NotificationSettingsScreenState
                                   width: 38,
                                   height: 38,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFEAF2FE),
+                                    color: Theme.of(context).colorScheme.primaryContainer,
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Icon(
+                                  child:  Icon(
                                     Icons.schedule_rounded,
-                                    color: Color(0xFF6A97D7),
+                                    color: Theme.of(context).colorScheme.primary,
                                     size: 20,
                                   ),
                                 ),
                                 const SizedBox(width: 12),
                                 Text(
                                   _formatTime(selectedTime),
-                                  style: const TextStyle(
+                                  style:  TextStyle(
                                     fontSize: 17,
                                     fontWeight: FontWeight.w700,
-                                    color: Color(0xFF27364D),
+                                    color: Theme.of(context).colorScheme.onSurface,
                                   ),
                                 ),
                                 const Spacer(),
-                                const Icon(
+                                 Icon(
                                   Icons.chevron_right_rounded,
-                                  color: Color(0xFF93A1B5),
+                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                                 ),
                               ],
                             ),
@@ -305,8 +305,8 @@ class _NotificationSettingsScreenState
                   title: 'Actividades del día',
                   subtitle: 'Recibe un aviso antes de cada actividad',
                   icon: Icons.event_note_rounded,
-                  iconBackground: const Color(0xFFEFF6EC),
-                  iconColor: const Color(0xFF79A862),
+                  iconBackground: Theme.of(context).colorScheme.primaryContainer,
+                  iconColor: Theme.of(context).colorScheme.primary,
                   value: activityReminder,
                   onChanged: (value) {
                     setState(() {
@@ -322,17 +322,17 @@ class _NotificationSettingsScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const SizedBox(height: 18),
-                        const Divider(
-                          color: Color(0xFFE1E7EF),
+                         Divider(
+                          color: Theme.of(context).dividerColor,
                           height: 1,
                         ),
                         const SizedBox(height: 18),
-                        const Text(
+                         Text(
                           'Avisar con anticipación',
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: Color(0xFF607086),
+                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
                           ),
                         ),
                         const SizedBox(height: 14),
@@ -375,14 +375,14 @@ class _NotificationSettingsScreenState
                   child: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF7F9FC),
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(22),
                       border: Border.all(
-                        color: const Color(0xFFE0E6EE),
+                        color:Theme.of(context).colorScheme.outline,
                       ),
-                      boxShadow: const [
+                      boxShadow: [
                         BoxShadow(
-                          color: Color(0x14000000),
+                          color :Theme.of(context).colorScheme.onSurface.withOpacity(0.08),
                           blurRadius: 16,
                           offset: Offset(0, 6),
                         ),
@@ -394,8 +394,8 @@ class _NotificationSettingsScreenState
                       child: ElevatedButton(
                         onPressed: _saveSettings,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF5F93D3),
-                          foregroundColor: Colors.white,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          foregroundColor: Theme.of(context).colorScheme.onPrimary,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(18),
@@ -457,14 +457,14 @@ class _NotificationSectionCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(26),
         border: Border.all(
-          color: const Color(0xFFE7ECF2),
+          color: Theme.of(context).colorScheme.outline,
         ),
-        boxShadow: const [
+        boxShadow:  [
           BoxShadow(
-            color: Color(0x12000000),
+            color: Theme.of(context).colorScheme.shadow.withOpacity(0.07),
             blurRadius: 16,
             offset: Offset(0, 6),
           ),
@@ -498,19 +498,19 @@ class _NotificationSectionCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFF24344D),
+                          color: Theme.of(context).colorScheme.onSurface,
                           height: 1.15,
                         ),
                       ),
                       const SizedBox(height: 6),
                       Text(
                         subtitle,
-                        style: const TextStyle(
+                        style:  TextStyle(
                           fontSize: 15,
-                          color: Color(0xFF72839A),
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                           height: 1.35,
                         ),
                       ),
@@ -522,28 +522,28 @@ class _NotificationSectionCard extends StatelessWidget {
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF5F8FC),
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                              color: const Color(0xFFE0E8F2),
+                              color: Theme.of(context).colorScheme.outline,
                             ),
                           ),
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(
+                               Icon(
                                 Icons.notifications_active_rounded,
                                 size: 18,
-                                color: Color(0xFF6A97D7),
+                                color: Theme.of(context).colorScheme.primary,
                               ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   summaryText!,
-                                  style: const TextStyle(
+                                  style:  TextStyle(
                                     fontSize: 13.5,
                                     fontWeight: FontWeight.w600,
-                                    color: Color(0xFF5D7088),
+                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                                     height: 1.35,
                                   ),
                                 ),
@@ -590,12 +590,12 @@ class _CustomToggle extends StatelessWidget {
         height: 34,
         padding: const EdgeInsets.symmetric(horizontal: 4),
         decoration: BoxDecoration(
-          color: value ? const Color(0xFF6A9BDA) : const Color(0xFFE4E8EE),
+          color: value ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(30),
           boxShadow: value
-              ? const [
+              ?  [
             BoxShadow(
-              color: Color(0x226A9BDA),
+              color: Theme.of(context).colorScheme.primary.withOpacity( 0.15),
               blurRadius: 8,
               offset: Offset(0, 3),
             ),
@@ -609,12 +609,12 @@ class _CustomToggle extends StatelessWidget {
           child: Container(
             width: 24,
             height: 24,
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration:  BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Color(0x22000000),
+                  color: Theme.of(context).colorScheme.shadow.withOpacity(0.13),
                   blurRadius: 4,
                   offset: Offset(0, 2),
                 ),
@@ -623,11 +623,11 @@ class _CustomToggle extends StatelessWidget {
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 180),
               child: value
-                  ? const Icon(
+                  ?  Icon(
                 Icons.check_rounded,
                 key: ValueKey('active_icon'),
                 size: 15,
-                color: Color(0xFF6A9BDA),
+                color: Theme.of(context).colorScheme.primary,
               )
                   : const SizedBox(
                 key: ValueKey('empty_icon'),
@@ -661,15 +661,15 @@ class _MinuteChip extends StatelessWidget {
         width: 70,
         height: 56,
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF5F93D3) : const Color(0xFFF7F9FB),
+          color: selected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: selected ? const Color(0xFF5F93D3) : const Color(0xFFDCE4ED),
+            color: selected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outline,
           ),
           boxShadow: selected
-              ? const [
+              ?  [
             BoxShadow(
-              color: Color(0x225F93D3),
+              color:  Theme.of(context).colorScheme.primary.withOpacity(0.15),
               blurRadius: 12,
               offset: Offset(0, 4),
             ),
@@ -682,7 +682,7 @@ class _MinuteChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w800,
-            color: selected ? Colors.white : const Color(0xFF25354D),
+            color: selected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ),
