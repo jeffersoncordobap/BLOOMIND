@@ -18,6 +18,7 @@ class DatabaseConfig {
   static const String colActivityCategory = 'category';
   static const String colActivityName = 'name';
   static const String colActivityEmoji = 'emoji';
+  static const String colActivityState = 'state';
 
   // TABLA ROUTINE
   static const String tableRoutine = 'routine';

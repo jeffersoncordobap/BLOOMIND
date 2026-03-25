@@ -1,4 +1,5 @@
 import 'package:bloomind/features/settings/controller/bin_controller.dart';
+import 'package:bloomind/features/settings/presentation/bin_activities_screen.dart';
 import 'package:bloomind/features/settings/presentation/bin_emotions_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +19,9 @@ class PapeleraScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => BinController()..loadDeletedEmotions(),
+      create: (_) => BinController()
+        ..loadDeletedEmotions()
+        ..loadDeletedActivities(), // Cargamos también las actividades
       child: Scaffold(
         backgroundColor: const Color(0xFFF2F4F7),
         appBar: AppBar(
@@ -36,12 +39,12 @@ class PapeleraScreen extends StatelessWidget {
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: ListView(
-            children: [
-              // 1. Papelera Emociones
-              Consumer<BinController>(
-                builder: (context, binController, child) {
-                  return _CardPapelera(
+          child: Consumer<BinController>(
+            builder: (context, binController, child) {
+              return ListView(
+                children: [
+                  // 1. Papelera Emociones
+                  _CardPapelera(
                     emoji: '😄',
                     nombre: 'Papelera emociones',
                     count: binController.deletedEmotions.length,
@@ -56,37 +59,47 @@ class PapeleraScreen extends StatelessWidget {
                         ),
                       );
                     },
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
+                  ),
+                  const SizedBox(height: 12),
 
-              // 2. Papelera Actividades
-              _CardPapelera(
-                emoji: '⏰',
-                nombre: 'Papelera actividades',
-                count: 0,
-                onTap: () => _showComingSoon(context),
-              ),
-              const SizedBox(height: 12),
+                  // 2. Papelera Actividades
+                  _CardPapelera(
+                    emoji: '⏰',
+                    nombre: 'Papelera actividades',
+                    count: binController.deletedActivities.length,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChangeNotifierProvider.value(
+                            value: binController,
+                            child: const OnlyActivitiesRemovedScreen(),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 12),
 
-              // 3. Papelera Rutinas
-              _CardPapelera(
-                emoji: '🏋️‍♂️',
-                nombre: 'Papelera Rutinas',
-                count: 0,
-                onTap: () => _showComingSoon(context),
-              ),
-              const SizedBox(height: 12),
+                  // 3. Papelera Rutinas
+                  _CardPapelera(
+                    emoji: '🏋️‍♂️',
+                    nombre: 'Papelera Rutinas',
+                    count: 0,
+                    onTap: () => _showComingSoon(context),
+                  ),
+                  const SizedBox(height: 12),
 
-              // 4. Papelera Líneas de apoyo
-              _CardPapelera(
-                emoji: '❤️',
-                nombre: 'Papelera líneas de apoyo',
-                count: 0,
-                onTap: () => _showComingSoon(context),
-              ),
-            ],
+                  // 4. Papelera Líneas de apoyo
+                  _CardPapelera(
+                    emoji: '❤️',
+                    nombre: 'Papelera líneas de apoyo',
+                    count: 0,
+                    onTap: () => _showComingSoon(context),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),

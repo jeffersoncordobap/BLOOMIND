@@ -32,4 +32,13 @@ abstract class ActivityRepository {
     int idRoutine,
     String oldHour,
   ) async {}
+
+  // Obtener actividades que han sido eliminadas (Papelera)
+  Future<List<Activity>> getDeletedActivities();
+
+  // Restaurar una actividad eliminada (state -> 1)
+  Future<int> restoreActivity(int idActivity);
+
+  // Eliminar permanentemente de la base de datos (Opcional, para vaciar papelera)
+  Future<int> forceDeleteActivity(int idActivity);
 }

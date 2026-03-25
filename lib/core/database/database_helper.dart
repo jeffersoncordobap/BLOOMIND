@@ -39,7 +39,8 @@ class DatabaseHelper {
       ${DatabaseConfig.colActivityId} INTEGER PRIMARY KEY AUTOINCREMENT,
       ${DatabaseConfig.colActivityCategory} TEXT,
       ${DatabaseConfig.colActivityName} TEXT,
-      ${DatabaseConfig.colActivityEmoji} TEXT
+      ${DatabaseConfig.colActivityEmoji} TEXT,
+      ${DatabaseConfig.colActivityState} INTEGER DEFAULT 1
     )
     ''');
 

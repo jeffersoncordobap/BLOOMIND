@@ -51,7 +51,7 @@ class RoutineRepositoryImpl implements RoutineRepository {
       FROM ${DatabaseConfig.tableActivity} a
       INNER JOIN ${DatabaseConfig.tableRoutineActivity} ra 
       ON a.${DatabaseConfig.colActivityId} = ra.${DatabaseConfig.colActivityId}
-      WHERE ra.${DatabaseConfig.colRoutineId} = ?
+      WHERE ra.${DatabaseConfig.colRoutineId} = ? AND a.${DatabaseConfig.colActivityState} = 1
       ORDER BY ra.${DatabaseConfig.colRoutineActivityHour} ASC
     ''',
       [idRoutine],

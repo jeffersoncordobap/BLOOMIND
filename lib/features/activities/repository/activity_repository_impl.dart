@@ -18,6 +18,8 @@ class ActivityRepositoryImpl implements ActivityRepository {
 
     final List<Map<String, dynamic>> maps = await db.query(
       DatabaseConfig.tableActivity,
+      where: '${DatabaseConfig.colActivityState} = ?',
+      whereArgs: [1], // Solo mostrar activas
       orderBy: '${DatabaseConfig.colActivityName} ASC',
     );
     return maps.map((map) => Activity.fromMap(map)).toList();
@@ -37,8 +39,11 @@ class ActivityRepositoryImpl implements ActivityRepository {
   @override
   Future<int> deleteActivity(int idActivity) async {
     final db = await _dbHelper.database;
-    return await db.delete(
+
+    // Soft Delete: Actualizamos el estado a 0 en lugar de borrar
+    return await db.update(
       DatabaseConfig.tableActivity,
+      {DatabaseConfig.colActivityState: 0},
       where: '${DatabaseConfig.colActivityId} = ?',
       whereArgs: [idActivity],
     );
@@ -49,8 +54,9 @@ class ActivityRepositoryImpl implements ActivityRepository {
     final db = await _dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
       DatabaseConfig.tableActivity,
-      where: '${DatabaseConfig.colActivityCategory} = ?',
-      whereArgs: [category],
+      where:
+          '${DatabaseConfig.colActivityCategory} = ? AND ${DatabaseConfig.colActivityState} = ?',
+      whereArgs: [category, 1], // Solo mostrar activas por categoría
     );
     return maps.map((map) => Activity.fromMap(map)).toList();
   }
@@ -64,7 +70,7 @@ class ActivityRepositoryImpl implements ActivityRepository {
       FROM ${DatabaseConfig.tableActivity} a
       INNER JOIN ${DatabaseConfig.tableRoutineActivity} ra 
       ON a.${DatabaseConfig.colActivityId} = ra.${DatabaseConfig.colActivityId}
-      WHERE ra.${DatabaseConfig.colRoutineId} = ?
+      WHERE ra.${DatabaseConfig.colRoutineId} = ? AND a.${DatabaseConfig.colActivityState} = 1
     ''',
       [idRoutine],
     );
@@ -112,6 +118,42 @@ class ActivityRepositoryImpl implements ActivityRepository {
       where:
           '${DatabaseConfig.colRoutineId} = ? AND ${DatabaseConfig.colActivityId} = ? AND ${DatabaseConfig.colRoutineActivityHour} = ?',
       whereArgs: [idRoutine, activity.idActivity, oldHour],
+    );
+  }
+
+  @override
+  Future<List<Activity>> getDeletedActivities() async {
+    final db = await _dbHelper.database;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      DatabaseConfig.tableActivity,
+      where: '${DatabaseConfig.colActivityState} = ?',
+      whereArgs: [0], // Solo eliminados (papelera)
+      //orderBy: '${DatabaseConfig.colActivityDateTime} DESC',
+    );
+    return maps.map((map) => Activity.fromMap(map)).toList();
+  }
+
+  @override
+  Future<int> restoreActivity(int idActivity) async {
+    final db = await _dbHelper.database;
+
+    return await db.update(
+      DatabaseConfig.tableActivity,
+      {DatabaseConfig.colActivityState: 1}, // Restaurar a activo
+      where: '${DatabaseConfig.colActivityId} = ?',
+      whereArgs: [idActivity],
+    );
+  }
+
+  @override
+  Future<int> forceDeleteActivity(int idActivity) async {
+    final db = await _dbHelper.database;
+
+    return await db.delete(
+      DatabaseConfig.tableActivity,
+      where: '${DatabaseConfig.colActivityId} = ?',
+      whereArgs: [idActivity],
     );
   }
 }
