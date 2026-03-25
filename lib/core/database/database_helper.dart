@@ -28,7 +28,8 @@ class DatabaseHelper {
       ${DatabaseConfig.colEmotionMoodLevel} INTEGER,
       ${DatabaseConfig.colEmotionLabel} TEXT,
       ${DatabaseConfig.colEmotionNote} TEXT,
-      ${DatabaseConfig.colEmotionDateTime} TEXT
+      ${DatabaseConfig.colEmotionDateTime} TEXT,
+      ${DatabaseConfig.colEmotionState} INTEGER DEFAULT 1
     )
     ''');
 

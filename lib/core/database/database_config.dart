@@ -10,6 +10,7 @@ class DatabaseConfig {
   static const String colEmotionLabel = 'label';
   static const String colEmotionNote = 'note';
   static const String colEmotionDateTime = 'date_time';
+  static const String colEmotionState = 'state';
 
   // TABLA ACTIVITY
   static const String tableActivity = 'activity';

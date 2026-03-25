@@ -1,55 +1,24 @@
-import 'package:bloomind/features/resourses/controller/support_line_controller.dart';
-import 'package:bloomind/features/resourses/presentation/only_favorites_support_lines_screen.dart';
-import 'package:bloomind/features/resourses/repository/resourse_repository.dart';
-import 'package:bloomind/features/resourses/repository/resourse_repository_impl.dart';
+import 'package:bloomind/features/settings/controller/bin_controller.dart';
+import 'package:bloomind/features/settings/presentation/bin_emotions_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../core/database/database_helper.dart';
-import '../../relaxing_audio/controller/relaxing_audio_controller.dart';
-import '../../relaxing_audio/presentation/favorite_audio_screen.dart';
-import '../../relaxing_audio/repository/relaxing_audio_repository_impl.dart';
-
-class PapeleraScreen extends StatefulWidget {
+class PapeleraScreen extends StatelessWidget {
   const PapeleraScreen({super.key});
 
-  @override
-  State<PapeleraScreen> createState() => _PapeleraScreenState();
-}
-
-class _PapeleraScreenState extends State<PapeleraScreen> {
-  final ResourseRepository _repository = ResourseRepositoryImpl();
-  int _frasesFavoritas = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _cargarContadores();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      context.read<SupportLineController>().loadFavorites();
-    });
-  }
-
-  Future<void> _cargarContadores() async {
-    final frases = await _repository.getAllFrases();
-
-    if (!mounted) return;
-
-    setState(() {
-      _frasesFavoritas = frases.where((f) => f.favorita_frase).length;
-    });
+  void _showComingSoon(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Esta papelera estará disponible próximamente.'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final supportController = context.watch<SupportLineController>();
-
     return ChangeNotifierProvider(
-      create: (_) =>
-          RelaxingAudioController(RelaxingAudioRepositoryImpl(DatabaseHelper()))
-            ..loadFavoriteAudios(),
+      create: (_) => BinController()..loadDeletedEmotions(),
       child: Scaffold(
         backgroundColor: const Color(0xFFF2F4F7),
         appBar: AppBar(
@@ -60,93 +29,62 @@ class _PapeleraScreenState extends State<PapeleraScreen> {
           centerTitle: true,
           elevation: 0,
           backgroundColor: Colors.white,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.black87),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: ListView(
             children: [
-              // 1.Papelera Rutinas
-              Consumer<RelaxingAudioController>(
-                builder: (context, controller, child) {
-                  return _CardFavorito(
-                    emoji: '🏋️‍♂️',
-                    nombre: 'Papelera Rutinas',
-                    count: controller.favoriteAudios.length,
-                    onTap: () async {
-                      await Navigator.push(
+              // 1. Papelera Emociones
+              Consumer<BinController>(
+                builder: (context, binController, child) {
+                  return _CardPapelera(
+                    emoji: '😄',
+                    nombre: 'Papelera emociones',
+                    count: binController.deletedEmotions.length,
+                    onTap: () {
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => ChangeNotifierProvider.value(
-                            value: controller,
-                            child: const FavoriteAudioScreen(),
+                            value: binController,
+                            child: const OnlyEmotionsRemovedScreen(),
                           ),
                         ),
                       );
-
-                      if (!mounted) return;
-                      await context
-                          .read<RelaxingAudioController>()
-                          .loadFavoriteAudios();
                     },
                   );
                 },
               ),
               const SizedBox(height: 12),
 
-              // 2. LÍNEAS DE APOYO
-              _CardFavorito(
-                emoji: '❤️',
-                nombre: 'Papelera líneas de apoyo',
-                count: supportController.favoriteLines.length,
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const OnlyFavoritesSupportLinesScreen(),
-                    ),
-                  );
-
-                  if (!mounted) return;
-                  await context.read<SupportLineController>().loadFavorites();
-                },
-              ),
-              const SizedBox(height: 12),
-              _CardFavorito(
-                emoji: '😄',
-                nombre: 'Papelera emociones',
-                count: supportController.favoriteLines.length,
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const OnlyFavoritesSupportLinesScreen(),
-                    ),
-                  );
-
-                  if (!mounted) return;
-                  await context.read<SupportLineController>().loadFavorites();
-                },
-              ),
-
-              const SizedBox(height: 12),
-              _CardFavorito(
+              // 2. Papelera Actividades
+              _CardPapelera(
                 emoji: '⏰',
                 nombre: 'Papelera actividades',
-                count: supportController.favoriteLines.length,
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const OnlyFavoritesSupportLinesScreen(),
-                    ),
-                  );
+                count: 0,
+                onTap: () => _showComingSoon(context),
+              ),
+              const SizedBox(height: 12),
 
-                  if (!mounted) return;
-                  await context.read<SupportLineController>().loadFavorites();
-                },
+              // 3. Papelera Rutinas
+              _CardPapelera(
+                emoji: '🏋️‍♂️',
+                nombre: 'Papelera Rutinas',
+                count: 0,
+                onTap: () => _showComingSoon(context),
+              ),
+              const SizedBox(height: 12),
+
+              // 4. Papelera Líneas de apoyo
+              _CardPapelera(
+                emoji: '❤️',
+                nombre: 'Papelera líneas de apoyo',
+                count: 0,
+                onTap: () => _showComingSoon(context),
               ),
             ],
           ),
@@ -156,13 +94,13 @@ class _PapeleraScreenState extends State<PapeleraScreen> {
   }
 }
 
-class _CardFavorito extends StatelessWidget {
+class _CardPapelera extends StatelessWidget {
   final String emoji;
   final String nombre;
   final int count;
   final VoidCallback onTap;
 
-  const _CardFavorito({
+  const _CardPapelera({
     required this.emoji,
     required this.nombre,
     required this.count,
