@@ -33,8 +33,8 @@ class WidgetMeditacionFavoriteState extends State<WidgetMeditacionFavorite> {
   }
 
   Future<void> _initializeData() async {
-    await _seedMeditations(); // Inserta audios iniciales si no existen
-    await _loadFavoritas();    // Carga favoritos desde la DB
+    await _seedMeditations();
+    await _loadFavoritas();
   }
 
   Future<void> _seedMeditations() async {
@@ -84,7 +84,6 @@ class WidgetMeditacionFavoriteState extends State<WidgetMeditacionFavorite> {
     try {
       await ResourseMeditationRepositoryImpl().updateMeditation(updated);
     } catch (e) {
-      // Revertir si falla
       setState(() {
         _favoritas.insert(index, audio);
         _listKey.currentState?.insertItem(index);
@@ -120,34 +119,39 @@ class WidgetMeditacionFavoriteState extends State<WidgetMeditacionFavorite> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: colorScheme.background,
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_favoritas.isEmpty) {
       return Scaffold(
         appBar: AppBar(
-        title: const Text("Meditación y respiración"),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3142)),
-          onPressed: () => Navigator.pop(context),
+          title: const Text("Meditación y respiración"),
+          centerTitle: true,
+          elevation: 0,
+          backgroundColor: colorScheme.surface,
+          foregroundColor: colorScheme.onSurface,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
+            onPressed: () => Navigator.pop(context),
+          ),
         ),
-      ),
+        backgroundColor: colorScheme.background,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Icon(Icons.star_border_rounded, size: 64, color: Color(0xFFA0A5BC)),
-              SizedBox(height: 12),
+            children: [
+              Icon(Icons.star_border_rounded, size: 64, color: colorScheme.onSurface.withValues(alpha: 0.5)),
+              const SizedBox(height: 12),
               Text(
                 'No tienes meditaciones favoritas aún',
                 style: TextStyle(
-                  color: Color(0xFFA0A5BC),
+                  color: colorScheme.onSurface.withValues(alpha: 0.5),
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
                 ),
@@ -163,12 +167,14 @@ class WidgetMeditacionFavoriteState extends State<WidgetMeditacionFavorite> {
         title: const Text("Meditación y respiración"),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3142)),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
       ),
+      backgroundColor: colorScheme.background,
       body: AnimatedList(
         key: _listKey,
         padding: const EdgeInsets.all(8),
@@ -182,6 +188,7 @@ class WidgetMeditacionFavoriteState extends State<WidgetMeditacionFavorite> {
   }
 
   Widget _buildCard(ResourseMeditation audio, int index, Animation<double> animation) {
+    final colorScheme = Theme.of(context).colorScheme;
     final isCurrent = currentIndex == index;
 
     return SizeTransition(
@@ -191,6 +198,7 @@ class WidgetMeditacionFavoriteState extends State<WidgetMeditacionFavorite> {
         child: Card(
           margin: const EdgeInsets.symmetric(vertical: 8),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          color: colorScheme.surface,
           child: Column(
             children: [
               ListTile(
@@ -202,22 +210,32 @@ class WidgetMeditacionFavoriteState extends State<WidgetMeditacionFavorite> {
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: isCurrent ? Colors.blue[200] : Colors.blue[100],
+                        color: isCurrent
+                            ? colorScheme.primary.withValues(alpha: 0.2)
+                            : colorScheme.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         isCurrent && isPlaying ? Icons.pause : Icons.play_arrow,
-                        color: Colors.blue,
+                        color: colorScheme.primary,
                       ),
                     );
                   },
                 ),
-                title: Text(audio.title_meditation),
-                subtitle: Text(audio.descripcion_meditation),
+                title: Text(
+                  audio.title_meditation,
+                  style: TextStyle(color: colorScheme.onSurface),
+                ),
+                subtitle: Text(
+                  audio.descripcion_meditation,
+                  style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.8)),
+                ),
                 trailing: IconButton(
                   icon: Icon(
                     audio.favorite_meditation ? Icons.star : Icons.star_border,
-                    color: audio.favorite_meditation ? Colors.yellow[700] : Colors.grey,
+                    color: audio.favorite_meditation
+                        ? colorScheme.secondary
+                        : colorScheme.onSurface.withValues(alpha: 0.4),
                   ),
                   onPressed: () => _quitarFavorito(index),
                 ),
@@ -240,14 +258,16 @@ class WidgetMeditacionFavoriteState extends State<WidgetMeditacionFavorite> {
                                 value: pos.inSeconds.toDouble().clamp(0, total.inSeconds.toDouble()),
                                 max: total.inSeconds.toDouble().clamp(1, double.infinity),
                                 onChanged: (val) => _player.seek(Duration(seconds: val.toInt())),
-                                activeColor: Colors.blue,
-                                inactiveColor: Colors.blue[100],
+                                activeColor: colorScheme.primary,
+                                inactiveColor: colorScheme.primary.withValues(alpha: 0.2),
                               ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text(_formatDuration(pos), style: const TextStyle(fontSize: 12, color: Colors.grey)),
-                                  Text(_formatDuration(total), style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                                  Text(_formatDuration(pos),
+                                      style: TextStyle(fontSize: 12, color: colorScheme.onSurface.withValues(alpha: 0.6))),
+                                  Text(_formatDuration(total),
+                                      style: TextStyle(fontSize: 12, color: colorScheme.onSurface.withValues(alpha: 0.6))),
                                 ],
                               ),
                             ],
