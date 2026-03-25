@@ -9,12 +9,13 @@ class ResoursesScreenSorpresa extends StatefulWidget {
   State<ResoursesScreenSorpresa> createState() => _ResoursesScreenSorpresaState();
 }
 
-class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa> with SingleTickerProviderStateMixin {
+class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa>
+    with SingleTickerProviderStateMixin {
   bool mostrarRuleta = false;
   String? actividadSeleccionada;
   bool girando = false;
   late AnimationController _controller;
-  
+
   final List<String> actividades = [
     'Medita por 5 minutos',
     'Toma un vaso de agua',
@@ -43,10 +44,10 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa> with 
       girando = true;
       actividadSeleccionada = null;
     });
-    
+
     _controller.reset();
     _controller.forward();
-    
+
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         actividadSeleccionada = actividades[Random().nextInt(actividades.length)];
@@ -57,15 +58,18 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa> with 
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F7),
+      backgroundColor: colorScheme.surfaceVariant,
       appBar: AppBar(
         title: const Text('Actividad sorpresa'),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3142)),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () {
             context
                 .findAncestorStateOfType<MainNavigationScreenState>()
@@ -83,17 +87,17 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa> with 
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: colorScheme.surface,
                         borderRadius: BorderRadius.circular(20),
-                        boxShadow: const [
+                        boxShadow: [
                           BoxShadow(
-                            color: Colors.black12,
+                            color: colorScheme.onSurface.withValues(alpha: 0.1),
                             blurRadius: 8,
-                            offset: Offset(0, 3),
+                            offset: const Offset(0, 3),
                           )
                         ],
                       ),
-                      child: const Column(
+                      child: Column(
                         children: [
                           Text(
                             '¿Necesitas inspiración para tu día?',
@@ -101,13 +105,17 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa> with 
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
+                              color: colorScheme.onSurface,
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             'Deja que te sugiera una actividad que puede mejorar tu bienestar.',
                             textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 16),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: colorScheme.onSurface.withValues(alpha: 0.7),
+                            ),
                           ),
                         ],
                       ),
@@ -120,7 +128,7 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa> with 
                         });
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
+                        backgroundColor: colorScheme.primary,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 48,
                           vertical: 16,
@@ -129,9 +137,9 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa> with 
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         'Sorpréndeme',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
+                        style: TextStyle(fontSize: 18, color: colorScheme.onPrimary),
                       ),
                     ),
                   ],
@@ -143,13 +151,13 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa> with 
                       width: 250,
                       height: 250,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: colorScheme.surface,
                         shape: BoxShape.circle,
-                        boxShadow: const [
+                        boxShadow: [
                           BoxShadow(
-                            color: Colors.black12,
+                            color: colorScheme.onSurface.withValues(alpha: 0.1),
                             blurRadius: 10,
-                            offset: Offset(0, 4),
+                            offset: const Offset(0, 4),
                           )
                         ],
                       ),
@@ -157,24 +165,31 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa> with 
                         child: girando
                             ? RotationTransition(
                                 turns: _controller,
-                                child: const Text(
+                                child: Text(
                                   '🎁',
-                                  style: TextStyle(fontSize: 80),
+                                  style: TextStyle(
+                                    fontSize: 80,
+                                    color: colorScheme.primary,
+                                  ),
                                 ),
                               )
                             : actividadSeleccionada == null
-                                ? const Text(
+                                ? Text(
                                     '🎁',
-                                    style: TextStyle(fontSize: 80),
+                                    style: TextStyle(
+                                      fontSize: 80,
+                                      color: colorScheme.primary,
+                                    ),
                                   )
                                 : Padding(
                                     padding: const EdgeInsets.all(20),
                                     child: Text(
                                       actividadSeleccionada!,
                                       textAlign: TextAlign.center,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w500,
+                                        color: colorScheme.onSurface,
                                       ),
                                     ),
                                   ),
@@ -184,7 +199,7 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa> with 
                     ElevatedButton(
                       onPressed: girando ? null : girarRuleta,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
+                        backgroundColor: colorScheme.secondary,
                         padding: const EdgeInsets.symmetric(
                           horizontal: 48,
                           vertical: 16,
@@ -195,7 +210,7 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa> with 
                       ),
                       child: Text(
                         actividadSeleccionada == null ? 'Girar' : 'Girar de nuevo',
-                        style: const TextStyle(fontSize: 18, color: Colors.white),
+                        style: TextStyle(fontSize: 18, color: colorScheme.onSecondary),
                       ),
                     ),
                   ],

@@ -1,4 +1,5 @@
 import 'package:bloomind/features/settings/presentation/bin_screen.dart';
+import 'package:bloomind/features/settings/presentation/tema_visual.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:bloomind/features/notifications/presentation/notification_settings_screen.dart';
@@ -11,37 +12,40 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Provider.of<ProfileController>(context);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F6FA),
+      backgroundColor: colorScheme.background,
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            _buildHeader(colorScheme),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildWelcomeCard(controller),
+                    _buildWelcomeCard(controller, colorScheme),
                     const SizedBox(height: 22),
-                    const Padding(
-                      padding: EdgeInsets.only(left: 4, bottom: 10),
+
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4, bottom: 10),
                       child: Text(
                         'Preferencias',
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.w600,
-                          color: Color(0xFF6E7C91),
+                          color: colorScheme.onSurface.withOpacity(0.6),
                         ),
                       ),
                     ),
+
                     _buildOptionCard(
                       context,
                       icon: Icons.person_rounded,
-                      iconColor: const Color(0xFF7C4DCC),
-                      iconBackground: const Color(0xFFF1E8FF),
+                      iconColor: colorScheme.primary,
+                      iconBackground: colorScheme.primary.withOpacity(0.1),
                       title: 'Perfil local',
                       subtitle: 'Personaliza tu experiencia en la app',
                       onTap: () {
@@ -53,22 +57,33 @@ class SettingsScreen extends StatelessWidget {
                         );
                       },
                     ),
+
                     const SizedBox(height: 16),
+
                     _buildOptionCard(
                       context,
                       icon: Icons.palette_rounded,
-                      iconColor: const Color(0xFFE78C95),
-                      iconBackground: const Color(0xFFFFEEF1),
+                      iconColor: colorScheme.secondary,
+                      iconBackground: colorScheme.secondary.withOpacity(0.1),
                       title: 'Tema visual',
                       subtitle: 'Ajusta colores y apariencia',
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const TemaVisualScreen(),
+                          ),
+                        );
+                      },
                     ),
+
                     const SizedBox(height: 16),
+
                     _buildOptionCard(
                       context,
                       icon: Icons.notifications_rounded,
-                      iconColor: const Color(0xFFF0A93E),
-                      iconBackground: const Color(0xFFFFF4DF),
+                      iconColor: colorScheme.tertiary,
+                      iconBackground: colorScheme.tertiary.withOpacity(0.1),
                       title: 'Notificaciones',
                       subtitle: 'Gestiona recordatorios y avisos',
                       onTap: () {
@@ -76,24 +91,26 @@ class SettingsScreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (_) =>
-                            const NotificationSettingsScreen(),
+                                const NotificationSettingsScreen(),
                           ),
                         );
                       },
                     ),
+
                     const SizedBox(height: 18),
+
                     _buildOptionCard(
                       context,
                       icon: Icons.delete,
-                      iconColor: const Color.fromARGB(255, 141, 181, 227),
-                      iconBackground: const Color(0xFFEAF3FF),
+                      iconColor: colorScheme.error,
+                      iconBackground: colorScheme.error.withOpacity(0.1),
                       title: 'Papelera',
                       subtitle: 'Recupera o elimina elementos archivados',
                       onTap: () async {
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const PapeleraScreen(),
+                            builder: (_) => const PapeleraScreen(),
                           ),
                         );
                       },
@@ -108,63 +125,54 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildHeader(ColorScheme colorScheme) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(top: 16, bottom: 14),
+      padding: const EdgeInsets.symmetric(vertical: 26),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.96),
+        color: colorScheme.surface,
         borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(22),
-          bottomRight: Radius.circular(22),
+          bottomLeft: Radius.circular(34),
+          bottomRight: Radius.circular(34),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
+            color: colorScheme.shadow.withOpacity(0.08),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: const Center(
+      child: Center(
         child: Text(
           'Configuración',
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w700,
-            color: Color(0xFF26344A),
+            color: colorScheme.onSurface,
           ),
         ),
       ),
     );
   }
 
-  Widget _buildWelcomeCard(ProfileController controller) {
+  Widget _buildWelcomeCard(
+      ProfileController controller, ColorScheme colorScheme) {
     String saludo = 'Bienvenido/a';
-    if (controller.profile.genero == 'Masculino') {
-      saludo = 'Bienvenido';
-    } else if (controller.profile.genero == 'Femenino') {
-      saludo = 'Bienvenida';
-    }
+    if (controller.profile.genero == 'Masculino') saludo = 'Bienvenido';
+    if (controller.profile.genero == 'Femenino') saludo = 'Bienvenida';
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFEAF3FF),
-            Color(0xFFF4F8FF),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(26),
+        color: colorScheme.surfaceVariant,
+        borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
+            color: colorScheme.shadow.withOpacity(0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -173,10 +181,9 @@ class SettingsScreen extends StatelessWidget {
         children: [
           Text(
             saludo,
-            style: const TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF7B8AA0),
+            style: TextStyle(
+              fontSize: 14,
+              color: colorScheme.onSurface.withOpacity(0.6),
             ),
           ),
           const SizedBox(height: 12),
@@ -198,33 +205,14 @@ class SettingsScreen extends StatelessWidget {
                   controller.profile.nombre.isEmpty
                       ? 'Perfil local'
                       : controller.profile.nombre,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF24344B),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ),
             ],
-          ),
-          const SizedBox(height: 14),
-          Text(
-            controller.profile.genero.isEmpty
-                ? 'Género: No definido'
-                : 'Género: ${controller.profile.genero}',
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xFF5D7390),
-            ),
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            'Este perfil personaliza saludos, textos clave y tus resúmenes dentro de Bloomind.',
-            style: TextStyle(
-              fontSize: 14,
-              color: Color(0xFF5D7390),
-              height: 1.45,
-            ),
           ),
         ],
       ),
@@ -232,91 +220,61 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _buildOptionCard(
-      BuildContext context, {
-        required IconData icon,
-        required Color iconColor,
-        required Color iconBackground,
-        required String title,
-        required String subtitle,
-        required VoidCallback onTap,
-      }) {
+    BuildContext context, {
+    required IconData icon,
+    required Color iconColor,
+    required Color iconBackground,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Material(
-      color: Colors.white,
+      color: colorScheme.surface,
       borderRadius: BorderRadius.circular(24),
-      elevation: 0,
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
         onTap: onTap,
-        child: Ink(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.045),
-                blurRadius: 14,
-                offset: const Offset(0, 6),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: iconBackground,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(icon, color: iconColor, size: 28),
               ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        color: colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right_rounded),
             ],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-            child: Row(
-              children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: iconBackground,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: iconColor,
-                    size: 28,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF22324B),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        subtitle,
-                        style: const TextStyle(
-                          fontSize: 13.5,
-                          color: Color(0xFF7C889A),
-                          height: 1.3,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  width: 34,
-                  height: 34,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF3F5F8),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.chevron_right_rounded,
-                    color: Color(0xFF7A879A),
-                    size: 22,
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),

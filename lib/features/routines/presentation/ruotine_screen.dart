@@ -21,19 +21,20 @@ class RoutineScreen extends StatelessWidget {
     final nextActivity = routineProvider.nextActivity;
     final routineName = routineProvider.currentRoutineName;
 
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F7FB),
+      backgroundColor: colorScheme.surfaceVariant,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Rutinas',
           style: TextStyle(
             fontWeight: FontWeight.w700,
-            color: Color(0xFF22324A),
+            color: colorScheme.onSurface,
           ),
         ),
         centerTitle: true,
-        backgroundColor: const Color(0xFFF7F1F7),
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
       ),
@@ -43,37 +44,40 @@ class RoutineScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildUpcomingCard(nextActivity, routineName),
+              _buildUpcomingCard(context, nextActivity, routineName),
               const SizedBox(height: 24),
 
               _buildActionCard(
+                context: context,
                 title: 'Ver rutina del día',
                 subtitle: 'Consulta las actividades que tienes programadas hoy',
                 icon: Icons.today_rounded,
-                iconBackground: const Color(0xFFDCEBFF),
-                iconColor: const Color(0xFF4D86C7),
+                iconBackground: colorScheme.primaryContainer,
+                iconColor: colorScheme.onPrimaryContainer,
                 onTap: alPresionarVerRutinaDia,
               ),
 
               const SizedBox(height: 16),
 
               _buildActionCard(
+                context: context,
                 title: 'Asignar rutinas',
                 subtitle: 'Organiza y asigna una rutina a tus días',
                 icon: Icons.auto_awesome_motion_rounded,
-                iconBackground: const Color(0xFFE4F4E8),
-                iconColor: const Color(0xFF4FA36C),
+                iconBackground: colorScheme.primaryContainer,
+                iconColor: colorScheme.onPrimaryContainer,
                 onTap: alPresionarAsignarRutinas,
               ),
 
               const SizedBox(height: 16),
 
               _buildActionCard(
+                context: context,
                 title: 'Ver mis rutinas',
                 subtitle: 'Revisa todas las rutinas que ya has creado',
                 icon: Icons.menu_book_rounded,
-                iconBackground: const Color(0xFFFFE8D9),
-                iconColor: const Color(0xFFDD8A4D),
+                iconBackground: colorScheme.primaryContainer,
+                iconColor: colorScheme.onPrimaryContainer,
                 onTap: alPresionarListaRutinas,
               ),
             ],
@@ -83,7 +87,8 @@ class RoutineScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildUpcomingCard(Activity? actividad, String routineName) {
+  Widget _buildUpcomingCard(BuildContext context, Activity? actividad, String routineName) {
+    final colorScheme = Theme.of(context).colorScheme;
     final hasRoutine = routineName.trim().isNotEmpty;
     final displayRoutineName = hasRoutine ? routineName : 'Sin rutina asignada';
 
@@ -91,10 +96,10 @@ class RoutineScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           colors: [
-            Color(0xFFDCEBFA),
-            Color(0xFFEAF3FB),
+            colorScheme.primaryContainer.withOpacity(0.4),
+            colorScheme.primaryContainer.withOpacity(0.2),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -102,14 +107,12 @@ class RoutineScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(26),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: colorScheme.shadow.withOpacity(0.05),
             blurRadius: 14,
             offset: const Offset(0, 6),
           ),
         ],
-        border: Border.all(
-          color: const Color(0xFFD5E3F2),
-        ),
+        border: Border.all(color: colorScheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,17 +123,17 @@ class RoutineScreen extends StatelessWidget {
                 width: 46,
                 height: 46,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.75),
+                  color: colorScheme.surface.withOpacity(0.75),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.self_improvement_rounded,
-                  color: Color(0xFF4D86C7),
+                  color: colorScheme.primary,
                   size: 24,
                 ),
               ),
               const SizedBox(width: 12),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -138,16 +141,16 @@ class RoutineScreen extends StatelessWidget {
                       'Rutina de hoy',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF6B7B8F),
+                        color: colorScheme.onSurface.withOpacity(0.7),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
                       'Tu guía para organizar el día',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF8A98AA),
+                        color: colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),
                   ],
@@ -158,25 +161,25 @@ class RoutineScreen extends StatelessWidget {
           const SizedBox(height: 18),
           Text(
             displayRoutineName,
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.w800,
               fontSize: 22,
-              color: Color(0xFF1F2B44),
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 14),
           Container(
             width: double.infinity,
             height: 1,
-            color: const Color(0xFFC8D5E3),
+            color: colorScheme.outline,
           ),
           const SizedBox(height: 16),
           if (actividad != null) ...[
-            const Text(
+            Text(
               'Próxima actividad',
               style: TextStyle(
                 fontSize: 14,
-                color: Color(0xFF6B7B8F),
+                color: colorScheme.onSurface.withOpacity(0.7),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -184,7 +187,7 @@ class RoutineScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.72),
+                color: colorScheme.surface.withOpacity(0.72),
                 borderRadius: BorderRadius.circular(18),
               ),
               child: Row(
@@ -194,12 +197,12 @@ class RoutineScreen extends StatelessWidget {
                     height: 52,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEAF3FF),
+                      color: colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
                       actividad.emoji,
-                      style: const TextStyle(fontSize: 24),
+                      style: TextStyle(fontSize: 24),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -209,26 +212,26 @@ class RoutineScreen extends StatelessWidget {
                       children: [
                         Text(
                           actividad.name,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.w700,
                             fontSize: 16,
-                            color: Color(0xFF1F2B44),
+                            color: colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           '${actividad.hour} · ${actividad.category}',
-                          style: const TextStyle(
-                            color: Color(0xFF6E7D90),
+                          style: TextStyle(
+                            color: colorScheme.onSurface.withOpacity(0.7),
                             fontSize: 13,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const Icon(
+                  Icon(
                     Icons.chevron_right_rounded,
-                    color: Color(0xFF8AA0B8),
+                    color: colorScheme.onSurface.withOpacity(0.6),
                   ),
                 ],
               ),
@@ -238,22 +241,22 @@ class RoutineScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.72),
+                color: colorScheme.surface.withOpacity(0.72),
                 borderRadius: BorderRadius.circular(18),
               ),
-              child: const Row(
+              child: Row(
                 children: [
                   Icon(
                     Icons.check_circle_outline_rounded,
-                    color: Color(0xFF4FA36C),
+                    color: colorScheme.primary,
                   ),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'No hay más actividades para hoy',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF556579),
+                        color: colorScheme.onSurface.withOpacity(0.7),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -268,6 +271,7 @@ class RoutineScreen extends StatelessWidget {
   }
 
   Widget _buildActionCard({
+    required BuildContext context,
     required String title,
     required String subtitle,
     required IconData icon,
@@ -275,8 +279,10 @@ class RoutineScreen extends StatelessWidget {
     required Color iconColor,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Material(
-      color: Colors.white,
+      color: colorScheme.surface,
       borderRadius: BorderRadius.circular(24),
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
@@ -285,10 +291,10 @@ class RoutineScreen extends StatelessWidget {
           padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFE3E9F1)),
+            border: Border.all(color: colorScheme.outline),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
+                color: colorScheme.shadow.withOpacity(0.04),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -316,29 +322,29 @@ class RoutineScreen extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFF1F2B44),
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         height: 1.35,
-                        color: Color(0xFF708094),
+                        color: colorScheme.onSurface.withOpacity(0.7),
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 8),
-              const Icon(
+              Icon(
                 Icons.arrow_forward_ios_rounded,
                 size: 18,
-                color: Color(0xFF9AA9BA),
+                color: colorScheme.onSurface.withOpacity(0.6),
               ),
             ],
           ),

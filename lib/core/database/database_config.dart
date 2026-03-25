@@ -78,4 +78,26 @@ class DatabaseConfig {
   static const String recMeditationDurat = 'duration_meditation';
   static const String recMeditationFilepath = 'filepath_meditation';
   static const String recMeditationFavorite = 'favorite_meditation';
+
+
+
+
+  // Tabla de tema 
+  static const String tableTemas = "Temas"; 
+  static const String segTemasBoleano = "bool_tema";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

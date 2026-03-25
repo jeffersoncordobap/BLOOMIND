@@ -24,6 +24,7 @@ class _BinRoutinesScreenState extends State<BinRoutinesScreen> {
 
   void _showOptionsDialog(Routine routine) {
     final binController = context.read<BinController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     showDialog(
       context: context,
@@ -34,55 +35,32 @@ class _BinRoutinesScreenState extends State<BinRoutinesScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(
-                Icons.restore_from_trash,
-                color: Color.fromARGB(221, 48, 199, 230),
-              ),
-              title: const Text("Restaurar"),
+              leading: Icon(Icons.restore_from_trash, color: colorScheme.primary),
+              title: Text("Restaurar", style: TextStyle(color: colorScheme.onSurface)),
               onTap: () async {
                 Navigator.pop(dialogContext);
-
                 await binController.restoreRoutine(routine.idRoutine!);
 
                 if (mounted) {
-                  // Intentamos actualizar la lista principal de rutinas si el controlador está disponible
                   try {
                     context.read<RoutineController>().fetchRoutines();
-                  } catch (e) {
-                    // El controlador podría no estar en el árbol si venimos de otro lado
-                    debugPrint(
-                      "RoutineController no encontrado o no necesario actualizar: $e",
-                    );
-                  }
-
-                  // Actualizar RoutineProvider (Tarjeta de Próxima Actividad)
+                  } catch (_) {}
                   try {
                     context.read<RoutineProvider>().updateUpcomingActivity();
-                  } catch (e) {
-                    debugPrint("RoutineProvider no encontrado: $e");
-                  }
-
-                  // Actualizar Rutina del Día (por si la rutina restaurada es la de hoy)
+                  } catch (_) {}
                   try {
                     context.read<DayRoutineController>().loadTodayRoutine();
-                  } catch (e) {
-                    debugPrint("DayRoutineController no encontrado: $e");
-                  }
+                  } catch (_) {}
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Rutina restaurada correctamente'),
-                    ),
+                    const SnackBar(content: Text('Rutina restaurada correctamente')),
                   );
                 }
               },
             ),
             ListTile(
-              leading: const Icon(
-                Icons.delete_forever,
-                color: Color.fromARGB(221, 232, 68, 68),
-              ),
-              title: const Text("Eliminar definitivamente"),
+              leading: Icon(Icons.delete_forever, color: colorScheme.error),
+              title: Text("Eliminar definitivamente", style: TextStyle(color: colorScheme.error)),
               onTap: () {
                 Navigator.pop(dialogContext);
                 binController.forceDeleteRoutine(routine.idRoutine!);
@@ -97,29 +75,34 @@ class _BinRoutinesScreenState extends State<BinRoutinesScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<BinController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F7),
+      backgroundColor: colorScheme.surfaceVariant,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           "Papelera de rutinas",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Text(
               "Aquí puedes ver las rutinas que has eliminado.",
-              style: TextStyle(color: Colors.black54, fontSize: 14),
+              style: TextStyle(
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
+                fontSize: 14,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
@@ -127,18 +110,23 @@ class _BinRoutinesScreenState extends State<BinRoutinesScreen> {
             child: controller.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : controller.deletedRoutines.isEmpty
-                ? const Center(child: Text("No tienes rutinas eliminadas"))
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: controller.deletedRoutines.length,
-                    itemBuilder: (context, index) {
-                      final routine = controller.deletedRoutines[index];
-                      return GestureDetector(
-                        onLongPress: () => _showOptionsDialog(routine),
-                        child: _DeleteRoutineCard(routine: routine),
-                      );
-                    },
-                  ),
+                    ? Center(
+                        child: Text(
+                          "No tienes rutinas eliminadas",
+                          style: TextStyle(color: colorScheme.onSurface),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        itemCount: controller.deletedRoutines.length,
+                        itemBuilder: (context, index) {
+                          final routine = controller.deletedRoutines[index];
+                          return GestureDetector(
+                            onLongPress: () => _showOptionsDialog(routine),
+                            child: _DeleteRoutineCard(routine: routine),
+                          );
+                        },
+                      ),
           ),
         ],
       ),
@@ -152,14 +140,20 @@ class _DeleteRoutineCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.onSurface.withValues(alpha: 0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Row(
@@ -169,7 +163,7 @@ class _DeleteRoutineCard extends StatelessWidget {
             height: 50,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: const Color(0xFFF2F4F7),
+              color: colorScheme.surfaceVariant,
               borderRadius: BorderRadius.circular(15),
             ),
             child: const Text("🏋️‍♂️", style: TextStyle(fontSize: 28)),
@@ -178,43 +172,31 @@ class _DeleteRoutineCard extends StatelessWidget {
           Expanded(
             child: Text(
               routine.name,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onSurface,
+              ),
             ),
           ),
           IconButton(
             icon: Icon(
               Icons.restore_from_trash_rounded,
-              color: Colors.green[600],
+              color: colorScheme.primary,
             ),
             tooltip: "Restaurar",
             onPressed: () async {
-              await context.read<BinController>().restoreRoutine(
-                routine.idRoutine!,
-              );
+              await context.read<BinController>().restoreRoutine(routine.idRoutine!);
               if (context.mounted) {
-                // Actualizar inmediatamente la lista de rutinas disponibles
                 try {
                   context.read<RoutineController>().fetchRoutines();
-                } catch (e) {
-                  debugPrint(
-                    "RoutineController no encontrado para actualizar: $e",
-                  );
-                }
-
-                // Actualizar RoutineProvider (Tarjeta de Próxima Actividad)
+                } catch (_) {}
                 try {
                   context.read<RoutineProvider>().updateUpcomingActivity();
-                } catch (e) {
-                  debugPrint("RoutineProvider no encontrado: $e");
-                }
-
-                // Actualizar Rutina del Día
+                } catch (_) {}
                 try {
                   context.read<DayRoutineController>().loadTodayRoutine();
-                } catch (e) {
-                  debugPrint("DayRoutineController no encontrado: $e");
-                }
-
+                } catch (_) {}
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Rutina restaurada')),
                 );

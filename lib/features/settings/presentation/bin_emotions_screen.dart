@@ -23,6 +23,7 @@ class _OnlyEmotionRemovedScreenState extends State<OnlyEmotionsRemovedScreen> {
 
   void _showOptionsDialog(Emotion emotion) {
     final binController = context.read<BinController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     showDialog(
       context: context,
@@ -33,30 +34,22 @@ class _OnlyEmotionRemovedScreenState extends State<OnlyEmotionsRemovedScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(
-                Icons.restore_from_trash,
-                color: Color.fromARGB(221, 48, 199, 230),
-              ),
-              title: const Text("Restaurar"),
+              leading: Icon(Icons.restore_from_trash, color: colorScheme.primary),
+              title: Text("Restaurar", style: TextStyle(color: colorScheme.onSurface)),
               onTap: () async {
                 Navigator.pop(dialogContext);
                 await binController.restoreEmotion(emotion.idEmotion!);
                 if (mounted) {
                   context.read<EmotionController>().cargarTodosLosEventos();
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Emoción restaurada correctamente'),
-                    ),
+                    const SnackBar(content: Text('Emoción restaurada correctamente')),
                   );
                 }
               },
             ),
             ListTile(
-              leading: const Icon(
-                Icons.delete_forever,
-                color: Color.fromARGB(221, 232, 68, 68),
-              ),
-              title: const Text("Eliminar definitivamente"),
+              leading: Icon(Icons.delete_forever, color: colorScheme.error),
+              title: Text("Eliminar definitivamente", style: TextStyle(color: colorScheme.error)),
               onTap: () {
                 Navigator.pop(dialogContext);
                 binController.forceDeleteEmotion(emotion.idEmotion!);
@@ -71,45 +64,57 @@ class _OnlyEmotionRemovedScreenState extends State<OnlyEmotionsRemovedScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<BinController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F7),
+      backgroundColor: colorScheme.surfaceVariant,
       appBar: AppBar(
         title: const Text("Papelera de emociones"),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Text(
               "Aquí puedes ver las emociones que has eliminado. Restáuralas si fue un error.",
-              style: TextStyle(color: Colors.black54, fontSize: 14),
+              style: TextStyle(
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
+                fontSize: 14,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
           Expanded(
             child: controller.isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(
+                    child: CircularProgressIndicator(color: colorScheme.primary),
+                  )
                 : controller.deletedEmotions.isEmpty
-                ? const Center(child: Text("No tienes emociones eliminadas"))
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: controller.deletedEmotions.length,
-                    itemBuilder: (context, index) {
-                      final emotion = controller.deletedEmotions[index];
-                      return GestureDetector(
-                        onLongPress: () => _showOptionsDialog(emotion),
-                        child: _DeleteEmotionCard(emotion: emotion),
-                      );
-                    },
-                  ),
+                    ? Center(
+                        child: Text(
+                          "No tienes emociones eliminadas",
+                          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        itemCount: controller.deletedEmotions.length,
+                        itemBuilder: (context, index) {
+                          final emotion = controller.deletedEmotions[index];
+                          return GestureDetector(
+                            onLongPress: () => _showOptionsDialog(emotion),
+                            child: _DeleteEmotionCard(emotion: emotion),
+                          );
+                        },
+                      ),
           ),
         ],
       ),
@@ -123,48 +128,54 @@ class _DeleteEmotionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.onSurface.withValues(alpha: 0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Row(
         children: [
-          // 1. Emoji representativo
+          // Emoji representativo
           Container(
             width: 50,
             height: 50,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: const Color(0xFFF2F4F7),
+              color: colorScheme.surfaceVariant,
               borderRadius: BorderRadius.circular(15),
             ),
-            child: Text(emotion.emoji, style: const TextStyle(fontSize: 28)),
+            child: Text(emotion.emoji, style: TextStyle(fontSize: 28, color: colorScheme.onSurface)),
           ),
           const SizedBox(width: 16),
-          // 2. Información
+          // Información
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  emotion.label, // Ejemplo: "Feliz", "Triste"
-                  style: const TextStyle(
+                  emotion.label,
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  // Parseamos la fecha ISO8601 a algo legible (Solo Fecha)
                   emotion.dateTime.split('T')[0],
-                  style: const TextStyle(
-                    color: Color(0xFF6A94C9),
+                  style: TextStyle(
+                    color: colorScheme.primary,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
@@ -175,8 +186,8 @@ class _DeleteEmotionCard extends StatelessWidget {
                     '"${emotion.note}"',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.black54,
+                    style: TextStyle(
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
                       fontStyle: FontStyle.italic,
                       fontSize: 13,
                     ),
@@ -185,20 +196,16 @@ class _DeleteEmotionCard extends StatelessWidget {
               ],
             ),
           ),
-          // 3. Botón rápido de Restaurar
+          // Botón rápido de Restaurar
           IconButton(
             icon: Icon(
               Icons.restore_from_trash_rounded,
-              color: Colors.green[600],
+              color: colorScheme.secondary,
             ),
             tooltip: "Restaurar",
             onPressed: () async {
-              await context.read<BinController>().restoreEmotion(
-                emotion.idEmotion!,
-              );
-
+              await context.read<BinController>().restoreEmotion(emotion.idEmotion!);
               if (context.mounted) {
-                // Actualizamos la lista principal para ver el cambio al volver
                 context.read<EmotionController>().cargarTodosLosEventos();
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('Emoción restaurada')),

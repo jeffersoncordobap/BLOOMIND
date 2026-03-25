@@ -28,12 +28,12 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
   @override
   Widget build(BuildContext context) {
     final emotionProvider = context.read<EmotionController>();
-    // Escuchamos el perfil globalmente
     final profileController = Provider.of<ProfileController>(context);
     final perfil = profileController.profile;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: colorScheme.background,
       body: SafeArea(
         child: Center(
           child: Container(
@@ -41,47 +41,57 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
             child: ListView(
               padding: const EdgeInsets.only(bottom: 20),
               children: [
+                // Header
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 30),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.vertical(
+                  decoration: BoxDecoration(
+                    color: colorScheme.surface,
+                    borderRadius: const BorderRadius.vertical(
                       bottom: Radius.circular(30),
                     ),
                   ),
-                  child: const Center(
+                  child: Center(
                     child: Text(
                       "Registro emocional",
                       style: TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurface.withOpacity(0.7),
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
+
+                // Perfil
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 20),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFDDE7F0),
+                    color: colorScheme.primary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
                     children: [
-                      // Emoji dinámico del perfil
-                      Text(perfil.emoji, style: const TextStyle(fontSize: 28)),
+                      Text(perfil.emoji,
+                          style: TextStyle(fontSize: 28, color: colorScheme.onSurface)),
                       const SizedBox(width: 10),
-                      // Nombre dinámico del perfil
                       Text(
-                        perfil.nombre.isEmpty ? "Bienvenido/a" : "Hola, ${perfil.nombre}",
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                        perfil.nombre.isEmpty
+                            ? "Bienvenido/a"
+                            : "Hola, ${perfil.nombre}",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: colorScheme.onSurface.withValues(red: 0.55, green: 0.3, blue: 0.75),
+                        ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 25),
+
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 30),
                   child: Text(
@@ -92,6 +102,7 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                 ),
                 const SizedBox(height: 20),
 
+                // Emojis
                 ...emociones.map((emocion) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -108,15 +119,17 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                   );
                 }).toList(),
 
+                // Texto adicional + botón
                 if (emocionSeleccionada != null) ...[
                   const SizedBox(height: 30),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
                       "Cuéntame más",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
+                        color: colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -126,14 +139,18 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: colorScheme.surface,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: TextField(
                         controller: emotionProvider.notaController,
                         maxLines: 4,
-                        decoration: const InputDecoration(
+                        style: TextStyle(color: colorScheme.onSurface),
+                        decoration: InputDecoration(
                           hintText: "¿Qué pasó hoy? (opcional)",
+                          hintStyle: TextStyle(
+                            color: colorScheme.onSurface.withValues(alpha: 0.5),
+                          ),
                           border: InputBorder.none,
                         ),
                       ),
@@ -159,20 +176,25 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF5F8FBF),
+                        backgroundColor: colorScheme.primary,
                         minimumSize: const Size(double.infinity, 55),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      child: const Text(
+                      child: Text(
                         "Guardar registro",
-                        style: TextStyle(fontSize: 16, color: Colors.white),
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: colorScheme.onPrimary,
+                        ),
                       ),
                     ),
                   ),
                 ],
                 const SizedBox(height: 20),
+
+                // Ver diario
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: OutlinedButton(
@@ -181,9 +203,13 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
+                      side: BorderSide(color: colorScheme.outline),
                     ),
                     onPressed: widget.alPresionarDiario,
-                    child: const Text("Ver mi diario"),
+                    child: Text(
+                      "Ver mi diario",
+                      style: TextStyle(color: colorScheme.onSurface),
+                    ),
                   ),
                 ),
               ],
