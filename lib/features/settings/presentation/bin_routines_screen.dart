@@ -1,37 +1,33 @@
-import 'package:bloomind/features/activities/model/activity.dart';
-import 'package:bloomind/features/activities/controller/activity_controller.dart';
-import 'package:bloomind/features/settings/controller/bin_controller.dart';
 import 'package:bloomind/features/routines/controller/day_routine_controller.dart';
+import 'package:bloomind/features/routines/controller/routine_controller.dart';
+import 'package:bloomind/features/routines/model/routine.dart';
 import 'package:bloomind/features/routines/presentation/provider/routine_provider.dart';
+import 'package:bloomind/features/settings/controller/bin_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class OnlyActivitiesRemovedScreen extends StatefulWidget {
-  const OnlyActivitiesRemovedScreen({super.key});
+class BinRoutinesScreen extends StatefulWidget {
+  const BinRoutinesScreen({super.key});
 
   @override
-  State<OnlyActivitiesRemovedScreen> createState() =>
-      _OnlyActivityRemovedScreenState();
+  State<BinRoutinesScreen> createState() => _BinRoutinesScreenState();
 }
 
-class _OnlyActivityRemovedScreenState
-    extends State<OnlyActivitiesRemovedScreen> {
+class _BinRoutinesScreenState extends State<BinRoutinesScreen> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<BinController>().loadDeletedActivities();
+      context.read<BinController>().loadDeletedRoutines();
     });
   }
 
-  void _showOptionsDialog(Activity activity) {
-    // 1. Capturamos el controlador AQUÍ, usando el contexto de la pantalla que sí tiene el Provider
+  void _showOptionsDialog(Routine routine) {
     final binController = context.read<BinController>();
 
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        // 2. Renombramos a dialogContext para no confundir
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         contentPadding: const EdgeInsets.symmetric(vertical: 10),
         content: Column(
@@ -46,31 +42,36 @@ class _OnlyActivityRemovedScreenState
               onTap: () async {
                 Navigator.pop(dialogContext);
 
-                // 1. Restaurar en BD y actualizar lista de Papelera
-                await binController.restoreActivity(
-                  // 3. Usamos la variable capturada
-                  activity.idActivity!,
-                );
+                await binController.restoreRoutine(routine.idRoutine!);
 
-                // 2. Actualizar el controlador principal (Calendario/Lista activa)
                 if (mounted) {
-                  // Actualizamos las categorías para que la actividad vuelva a aparecer disponible
-                  context.read<ActivityController>().loadCategories();
+                  // Intentamos actualizar la lista principal de rutinas si el controlador está disponible
+                  try {
+                    context.read<RoutineController>().fetchRoutines();
+                  } catch (e) {
+                    // El controlador podría no estar en el árbol si venimos de otro lado
+                    debugPrint(
+                      "RoutineController no encontrado o no necesario actualizar: $e",
+                    );
+                  }
 
-                  // Actualizamos la rutina del día para que la actividad reaparezca inmediatamente en la lista
-                  context.read<DayRoutineController>().loadTodayRoutine();
-
-                  // Actualizamos el RoutineProvider (Tarjeta de Próxima Actividad)
+                  // Actualizar RoutineProvider (Tarjeta de Próxima Actividad)
                   try {
                     context.read<RoutineProvider>().updateUpcomingActivity();
                   } catch (e) {
                     debugPrint("RoutineProvider no encontrado: $e");
                   }
 
-                  // 3. Feedback visual
+                  // Actualizar Rutina del Día (por si la rutina restaurada es la de hoy)
+                  try {
+                    context.read<DayRoutineController>().loadTodayRoutine();
+                  } catch (e) {
+                    debugPrint("DayRoutineController no encontrado: $e");
+                  }
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Actividad restaurada correctamente'),
+                      content: Text('Rutina restaurada correctamente'),
                     ),
                   );
                 }
@@ -84,10 +85,7 @@ class _OnlyActivityRemovedScreenState
               title: const Text("Eliminar definitivamente"),
               onTap: () {
                 Navigator.pop(dialogContext);
-                binController.forceDeleteActivity(
-                  // 3. Usamos la variable capturada
-                  activity.idActivity!,
-                );
+                binController.forceDeleteRoutine(routine.idRoutine!);
               },
             ),
           ],
@@ -104,7 +102,7 @@ class _OnlyActivityRemovedScreenState
       backgroundColor: const Color(0xFFF2F4F7),
       appBar: AppBar(
         title: const Text(
-          "Papelera de actividades",
+          "Papelera de rutinas",
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -120,7 +118,7 @@ class _OnlyActivityRemovedScreenState
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text(
-              "Aquí puedes ver las actividades que has eliminado. Restáuralas si fue un error.",
+              "Aquí puedes ver las rutinas que has eliminado.",
               style: TextStyle(color: Colors.black54, fontSize: 14),
               textAlign: TextAlign.center,
             ),
@@ -128,16 +126,16 @@ class _OnlyActivityRemovedScreenState
           Expanded(
             child: controller.isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : controller.deletedActivities.isEmpty
-                ? const Center(child: Text("No tienes actividades eliminadas"))
+                : controller.deletedRoutines.isEmpty
+                ? const Center(child: Text("No tienes rutinas eliminadas"))
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: controller.deletedActivities.length,
+                    itemCount: controller.deletedRoutines.length,
                     itemBuilder: (context, index) {
-                      final activity = controller.deletedActivities[index];
+                      final routine = controller.deletedRoutines[index];
                       return GestureDetector(
-                        onLongPress: () => _showOptionsDialog(activity),
-                        child: _DeleteActivityCard(activity: activity),
+                        onLongPress: () => _showOptionsDialog(routine),
+                        child: _DeleteRoutineCard(routine: routine),
                       );
                     },
                   ),
@@ -148,9 +146,9 @@ class _OnlyActivityRemovedScreenState
   }
 }
 
-class _DeleteActivityCard extends StatelessWidget {
-  final Activity activity;
-  const _DeleteActivityCard({super.key, required this.activity});
+class _DeleteRoutineCard extends StatelessWidget {
+  final Routine routine;
+  const _DeleteRoutineCard({required this.routine});
 
   @override
   Widget build(BuildContext context) {
@@ -166,7 +164,6 @@ class _DeleteActivityCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // 1. Emoji representativo
           Container(
             width: 50,
             height: 50,
@@ -175,34 +172,15 @@ class _DeleteActivityCard extends StatelessWidget {
               color: const Color(0xFFF2F4F7),
               borderRadius: BorderRadius.circular(15),
             ),
-            child: Text(activity.emoji, style: const TextStyle(fontSize: 28)),
+            child: const Text("🏋️‍♂️", style: TextStyle(fontSize: 28)),
           ),
           const SizedBox(width: 16),
-          // 2. Información
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  activity.name,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  activity.category,
-                  style: const TextStyle(
-                    color: Color(0xFF6A94C9),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
+            child: Text(
+              routine.name,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-          // 3. Botón rápido de Restaurar
           IconButton(
             icon: Icon(
               Icons.restore_from_trash_rounded,
@@ -210,30 +188,35 @@ class _DeleteActivityCard extends StatelessWidget {
             ),
             tooltip: "Restaurar",
             onPressed: () async {
-              await context.read<BinController>().restoreActivity(
-                activity.idActivity!,
+              await context.read<BinController>().restoreRoutine(
+                routine.idRoutine!,
               );
-
               if (context.mounted) {
-                // Actualizamos la lista principal para ver el cambio al volver
-                context.read<ActivityController>().loadCategories();
-
-                // Actualizamos también la rutina del día por si la actividad pertenece a hoy
+                // Actualizar inmediatamente la lista de rutinas disponibles
                 try {
-                  context.read<DayRoutineController>().loadTodayRoutine();
+                  context.read<RoutineController>().fetchRoutines();
                 } catch (e) {
-                  debugPrint("DayRoutineController no encontrado: $e");
+                  debugPrint(
+                    "RoutineController no encontrado para actualizar: $e",
+                  );
                 }
 
-                // Actualizamos el RoutineProvider
+                // Actualizar RoutineProvider (Tarjeta de Próxima Actividad)
                 try {
                   context.read<RoutineProvider>().updateUpcomingActivity();
                 } catch (e) {
                   debugPrint("RoutineProvider no encontrado: $e");
                 }
 
+                // Actualizar Rutina del Día
+                try {
+                  context.read<DayRoutineController>().loadTodayRoutine();
+                } catch (e) {
+                  debugPrint("DayRoutineController no encontrado: $e");
+                }
+
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Actividad restaurada')),
+                  const SnackBar(content: Text('Rutina restaurada')),
                 );
               }
             },

@@ -24,6 +24,7 @@ class DatabaseConfig {
   static const String tableRoutine = 'routine';
   static const String colRoutineId = 'id_routine';
   static const String colRoutineName = 'name';
+  static const String colRoutineState = 'state';
 
   // TABLA INTERMEDIA: ROUTINE_ACTIVITY
   static const String tableRoutineActivity = 'routine_activity';

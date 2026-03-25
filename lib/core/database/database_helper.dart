@@ -48,7 +48,8 @@ class DatabaseHelper {
     await db.execute('''
     CREATE TABLE ${DatabaseConfig.tableRoutine} (
       ${DatabaseConfig.colRoutineId} INTEGER PRIMARY KEY AUTOINCREMENT,
-      ${DatabaseConfig.colRoutineName} TEXT
+      ${DatabaseConfig.colRoutineName} TEXT,
+      ${DatabaseConfig.colRoutineState} INTEGER DEFAULT 1
     )
     ''');
 

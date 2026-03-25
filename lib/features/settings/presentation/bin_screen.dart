@@ -1,6 +1,7 @@
 import 'package:bloomind/features/settings/controller/bin_controller.dart';
 import 'package:bloomind/features/settings/presentation/bin_activities_screen.dart';
 import 'package:bloomind/features/settings/presentation/bin_emotions_screen.dart';
+import 'package:bloomind/features/settings/presentation/bin_routines_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,7 +22,8 @@ class PapeleraScreen extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => BinController()
         ..loadDeletedEmotions()
-        ..loadDeletedActivities(), // Cargamos también las actividades
+        ..loadDeletedActivities()
+        ..loadDeletedRoutines(), // Cargamos rutinas, actividades y emociones
       child: Scaffold(
         backgroundColor: const Color(0xFFF2F4F7),
         appBar: AppBar(
@@ -85,8 +87,18 @@ class PapeleraScreen extends StatelessWidget {
                   _CardPapelera(
                     emoji: '🏋️‍♂️',
                     nombre: 'Papelera Rutinas',
-                    count: 0,
-                    onTap: () => _showComingSoon(context),
+                    count: binController.deletedRoutines.length,
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChangeNotifierProvider.value(
+                            value: binController,
+                            child: const BinRoutinesScreen(),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                   const SizedBox(height: 12),
 

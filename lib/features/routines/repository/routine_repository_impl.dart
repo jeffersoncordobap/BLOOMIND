@@ -26,8 +26,12 @@ class RoutineRepositoryImpl implements RoutineRepository {
   @override
   Future<List<Routine>> getAllRoutines() async {
     final db = await _dbHelper.database;
+
     final List<Map<String, dynamic>> maps = await db.query(
       DatabaseConfig.tableRoutine,
+      where: '${DatabaseConfig.colRoutineState} = ?',
+      whereArgs: [1], // Solo mostrar activas
+      orderBy: '${DatabaseConfig.colRoutineName} ASC',
     );
     return maps.map((map) => Routine.fromMap(map)).toList();
   }
@@ -63,6 +67,45 @@ class RoutineRepositoryImpl implements RoutineRepository {
   @override
   Future<int> deleteRoutine(int idRoutine) async {
     final db = await _dbHelper.database;
+
+    // Soft Delete: Actualizamos el estado a 0 en lugar de borrar
+    return await db.update(
+      DatabaseConfig.tableRoutine,
+      {DatabaseConfig.colRoutineState: 0},
+      where: '${DatabaseConfig.colRoutineId} = ?',
+      whereArgs: [idRoutine],
+    );
+  }
+
+  @override
+  Future<List<Routine>> getDeletedRoutines() async {
+    final db = await _dbHelper.database;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      DatabaseConfig.tableRoutine,
+      where: '${DatabaseConfig.colRoutineState} = ?',
+      whereArgs: [0], // Solo eliminados (papelera)
+      //orderBy: '${DatabaseConfig.colActivityDateTime} DESC',
+    );
+    return maps.map((map) => Routine.fromMap(map)).toList();
+  }
+
+  @override
+  Future<int> restoreRoutine(int idRoutine) async {
+    final db = await _dbHelper.database;
+
+    return await db.update(
+      DatabaseConfig.tableRoutine,
+      {DatabaseConfig.colRoutineState: 1}, // Restaurar a activo
+      where: '${DatabaseConfig.colRoutineId} = ?',
+      whereArgs: [idRoutine],
+    );
+  }
+
+  @override
+  Future<int> forceDeleteRoutine(int idRoutine) async {
+    final db = await _dbHelper.database;
+
     return await db.delete(
       DatabaseConfig.tableRoutine,
       where: '${DatabaseConfig.colRoutineId} = ?',
