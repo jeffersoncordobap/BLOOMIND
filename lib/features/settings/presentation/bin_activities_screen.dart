@@ -25,13 +25,11 @@ class _OnlyActivityRemovedScreenState
   }
 
   void _showOptionsDialog(Activity activity) {
-    // 1. Capturamos el controlador AQUÍ, usando el contexto de la pantalla que sí tiene el Provider
     final binController = context.read<BinController>();
 
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        // 2. Renombramos a dialogContext para no confundir
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         contentPadding: const EdgeInsets.symmetric(vertical: 10),
         content: Column(
@@ -45,29 +43,15 @@ class _OnlyActivityRemovedScreenState
               title: const Text("Restaurar"),
               onTap: () async {
                 Navigator.pop(dialogContext);
-
-                // 1. Restaurar en BD y actualizar lista de Papelera
-                await binController.restoreActivity(
-                  // 3. Usamos la variable capturada
-                  activity.idActivity!,
-                );
-
-                // 2. Actualizar el controlador principal (Calendario/Lista activa)
+                await binController.restoreActivity(activity.idActivity!);
                 if (mounted) {
-                  // Actualizamos las categorías para que la actividad vuelva a aparecer disponible
                   context.read<ActivityController>().loadCategories();
-
-                  // Actualizamos la rutina del día para que la actividad reaparezca inmediatamente en la lista
                   context.read<DayRoutineController>().loadTodayRoutine();
-
-                  // Actualizamos el RoutineProvider (Tarjeta de Próxima Actividad)
                   try {
                     context.read<RoutineProvider>().updateUpcomingActivity();
                   } catch (e) {
                     debugPrint("RoutineProvider no encontrado: $e");
                   }
-
-                  // 3. Feedback visual
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Actividad restaurada correctamente'),
@@ -84,10 +68,7 @@ class _OnlyActivityRemovedScreenState
               title: const Text("Eliminar definitivamente"),
               onTap: () {
                 Navigator.pop(dialogContext);
-                binController.forceDeleteActivity(
-                  // 3. Usamos la variable capturada
-                  activity.idActivity!,
-                );
+                binController.forceDeleteActivity(activity.idActivity!);
               },
             ),
           ],
@@ -166,7 +147,6 @@ class _DeleteActivityCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // 1. Emoji representativo
           Container(
             width: 50,
             height: 50,
@@ -178,7 +158,6 @@ class _DeleteActivityCard extends StatelessWidget {
             child: Text(activity.emoji, style: const TextStyle(fontSize: 28)),
           ),
           const SizedBox(width: 16),
-          // 2. Información
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -202,7 +181,6 @@ class _DeleteActivityCard extends StatelessWidget {
               ],
             ),
           ),
-          // 3. Botón rápido de Restaurar
           IconButton(
             icon: Icon(
               Icons.restore_from_trash_rounded,
@@ -215,17 +193,12 @@ class _DeleteActivityCard extends StatelessWidget {
               );
 
               if (context.mounted) {
-                // Actualizamos la lista principal para ver el cambio al volver
                 context.read<ActivityController>().loadCategories();
-
-                // Actualizamos también la rutina del día por si la actividad pertenece a hoy
                 try {
                   context.read<DayRoutineController>().loadTodayRoutine();
                 } catch (e) {
                   debugPrint("DayRoutineController no encontrado: $e");
                 }
-
-                // Actualizamos el RoutineProvider
                 try {
                   context.read<RoutineProvider>().updateUpcomingActivity();
                 } catch (e) {

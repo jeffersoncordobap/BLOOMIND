@@ -22,13 +22,11 @@ class _OnlyEmotionRemovedScreenState extends State<OnlyEmotionsRemovedScreen> {
   }
 
   void _showOptionsDialog(Emotion emotion) {
-    // 1. Capturamos el controlador AQUÍ, usando el contexto de la pantalla que sí tiene el Provider
     final binController = context.read<BinController>();
 
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        // 2. Renombramos a dialogContext para no confundir
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         contentPadding: const EdgeInsets.symmetric(vertical: 10),
         content: Column(
@@ -42,18 +40,9 @@ class _OnlyEmotionRemovedScreenState extends State<OnlyEmotionsRemovedScreen> {
               title: const Text("Restaurar"),
               onTap: () async {
                 Navigator.pop(dialogContext);
-
-                // 1. Restaurar en BD y actualizar lista de Papelera
-                await binController.restoreEmotion(
-                  // 3. Usamos la variable capturada
-                  emotion.idEmotion!,
-                );
-
-                // 2. Actualizar el controlador principal (Calendario/Lista activa)
+                await binController.restoreEmotion(emotion.idEmotion!);
                 if (mounted) {
                   context.read<EmotionController>().cargarTodosLosEventos();
-
-                  // 3. Feedback visual
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Emoción restaurada correctamente'),
@@ -70,10 +59,7 @@ class _OnlyEmotionRemovedScreenState extends State<OnlyEmotionsRemovedScreen> {
               title: const Text("Eliminar definitivamente"),
               onTap: () {
                 Navigator.pop(dialogContext);
-                binController.forceDeleteEmotion(
-                  // 3. Usamos la variable capturada
-                  emotion.idEmotion!,
-                );
+                binController.forceDeleteEmotion(emotion.idEmotion!);
               },
             ),
           ],
