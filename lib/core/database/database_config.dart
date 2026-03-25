@@ -68,6 +68,7 @@ class DatabaseConfig {
   static const String colContactPhone = 'contact_phone';
   static const String colContactDescription = 'contact_description';
   static const String colIsFavoriteContact = 'is_favorite_contact';
+  static const String colContactState = 'state';
 
   // TABLA DE MEDITACION
   static const String tableAudiosMeditacion = 'Meditation';

@@ -8,11 +8,16 @@ import '../../activities/repository/activity_repository_impl.dart';
 import '../../routines/model/routine.dart';
 import '../../routines/repository/routine_repository.dart';
 import '../../routines/repository/routine_repository_impl.dart';
+import '../../resourses/model/support_line.dart';
+import '../../resourses/repository/support_lines_repository.dart';
+import '../../resourses/repository/support_lines_repository_impl.dart';
 
 class BinController extends ChangeNotifier {
   final EmotionRepository _emotionRepository = EmotionRepositoryImpl();
   final ActivityRepository _activityRepository = ActivityRepositoryImpl();
   final RoutineRepository _routineRepository = RoutineRepositoryImpl();
+  final SupportLineRepository _supportLineRepository =
+      SupportLineRepositoryImpl();
 
   List<Emotion> _deletedEmotions = [];
   List<Emotion> get deletedEmotions => _deletedEmotions;
@@ -22,6 +27,9 @@ class BinController extends ChangeNotifier {
 
   List<Routine> _deletedRoutines = [];
   List<Routine> get deletedRoutines => _deletedRoutines;
+
+  List<SupportLine> _deletedSupportLines = [];
+  List<SupportLine> get deletedSupportLines => _deletedSupportLines;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
@@ -102,5 +110,32 @@ class BinController extends ChangeNotifier {
   Future<void> forceDeleteRoutine(int id) async {
     await _routineRepository.forceDeleteRoutine(id);
     await loadDeletedRoutines();
+  }
+
+  // --- MÉTODOS PARA LÍNEAS DE APOYO ---
+
+  /// Cargar lista de contactos eliminados
+  Future<void> loadDeletedSupportLines() async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      _deletedSupportLines = await _supportLineRepository
+          .getDeletedSupportLines();
+    } catch (e) {
+      debugPrint("Error cargando papelera de contactos: $e");
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> restoreSupportLine(int id) async {
+    await _supportLineRepository.restoreSupportLine(id);
+    await loadDeletedSupportLines();
+  }
+
+  Future<void> forceDeleteSupportLine(int id) async {
+    await _supportLineRepository.forceDeleteSupportLine(id);
+    await loadDeletedSupportLines();
   }
 }

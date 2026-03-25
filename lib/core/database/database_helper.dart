@@ -124,7 +124,8 @@ class DatabaseHelper {
       ${DatabaseConfig.colContactName} TEXT,
       ${DatabaseConfig.colContactPhone} TEXT,
       ${DatabaseConfig.colContactDescription} TEXT,
-      ${DatabaseConfig.colIsFavoriteContact} INTEGER DEFAULT 0
+      ${DatabaseConfig.colIsFavoriteContact} INTEGER DEFAULT 0,
+      ${DatabaseConfig.colContactState} INTEGER DEFAULT 1
     )
     ''');
 
