@@ -14,6 +14,8 @@ import 'package:bloomind/features/routines/controller/assing_routine_controller.
 import 'package:bloomind/features/routines/repository/routine_repository_impl.dart';
 import 'package:bloomind/features/routines/repository/assign_routine_repository_impl.dart';
 import 'package:bloomind/core/services/notification_service.dart';
+import 'package:bloomind/features/settings/controller/profile_controller.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('es_ES', null);
@@ -29,14 +31,12 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => RoutineController(repository: RoutineRepositoryImpl()),
         ),
-
         ChangeNotifierProvider(
           create: (_) => AssignRoutineController(
             routineRepo: RoutineRepositoryImpl(),
             assignRepo: AssignRoutineRepositoryImpl(),
           ),
         ),
-
         ChangeNotifierProvider(create: (_) => ActivityController()),
         ChangeNotifierProvider(
           create: (_) => DayRoutineController(
@@ -44,18 +44,18 @@ void main() async {
             routineRepo: RoutineRepositoryImpl(),
           ),
         ),
-
         ChangeNotifierProvider(
           create: (_) => RoutineProvider(
             routineRepo: RoutineRepositoryImpl(),
             assignRepo: AssignRoutineRepositoryImpl(),
           ),
         ),
-
         ChangeNotifierProvider(
           create: (context) =>
               SupportLineController(SupportLineRepositoryImpl()),
         ),
+        // NUEVO: Agregamos el controlador de perfil aquí
+        ChangeNotifierProvider(create: (_) => ProfileController()),
       ],
       child: const BloomindApp(),
     ),
@@ -73,6 +73,7 @@ class BloomindApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFFE9EDF2),
         useMaterial3: true,
+        fontFamily: 'Inter', // Si ya tienes la fuente instalada
       ),
       home: const MainNavigationScreen(),
     );

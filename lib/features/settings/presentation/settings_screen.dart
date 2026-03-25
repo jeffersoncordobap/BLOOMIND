@@ -1,12 +1,17 @@
 import 'package:bloomind/features/settings/presentation/bin_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:bloomind/features/notifications/presentation/notification_settings_screen.dart';
+import 'package:bloomind/features/settings/presentation/profile_screen.dart';
+import 'package:bloomind/features/settings/controller/profile_controller.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<ProfileController>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFEEF2F6),
       body: SafeArea(
@@ -21,7 +26,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    _buildWelcomeCard(),
+                    _buildWelcomeCard(controller),
                     const SizedBox(height: 18),
                     _buildOptionCard(
                       context,
@@ -29,7 +34,12 @@ class SettingsScreen extends StatelessWidget {
                       iconColor: const Color(0xFF6A3FA0),
                       title: 'Perfil local',
                       onTap: () {
-                        // Navegar a pantalla de perfil
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ProfileScreen(),
+                          ),
+                        );
                       },
                     ),
                     const SizedBox(height: 18),
@@ -38,9 +48,7 @@ class SettingsScreen extends StatelessWidget {
                       icon: Icons.palette,
                       iconColor: const Color(0xFFF5A6A6),
                       title: 'Tema visual',
-                      onTap: () {
-                        // Navegar a pantalla de tema visual
-                      },
+                      onTap: () {},
                     ),
                     const SizedBox(height: 18),
                     _buildOptionCard(
@@ -113,7 +121,14 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWelcomeCard() {
+  Widget _buildWelcomeCard(ProfileController controller) {
+    String saludo = 'Bienvenido/a';
+    if (controller.profile.genero == 'Masculino') {
+      saludo = 'Bienvenido';
+    } else if (controller.profile.genero == 'Femenino') {
+      saludo = 'Bienvenida';
+    }
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -128,22 +143,27 @@ class SettingsScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Bienvenido/a',
-            style: TextStyle(fontSize: 14, color: Color(0xFF6B7A90)),
+            saludo,
+            style: const TextStyle(fontSize: 14, color: Color(0xFF6B7A90)),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             children: [
-              Text('😊', style: TextStyle(fontSize: 24)),
-              SizedBox(width: 10),
+              Text(
+                controller.profile.emoji,
+                style: const TextStyle(fontSize: 24),
+              ),
+              const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Perfil local',
-                  style: TextStyle(
+                  controller.profile.nombre.isEmpty
+                      ? 'Perfil local'
+                      : controller.profile.nombre,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFF23324A),
@@ -152,13 +172,15 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
-            'Género: Prefiero no decir',
-            style: TextStyle(fontSize: 14, color: Color(0xFF58708E)),
+            controller.profile.genero.isEmpty
+                ? 'Género: No definido'
+                : 'Género: ${controller.profile.genero}',
+            style: const TextStyle(fontSize: 14, color: Color(0xFF58708E)),
           ),
-          SizedBox(height: 10),
-          Text(
+          const SizedBox(height: 10),
+          const Text(
             'Este perfil personaliza saludos, textos clave y tus resúmenes.',
             style: TextStyle(
               fontSize: 14,
