@@ -48,15 +48,14 @@ class _OnlyActivityRemovedScreenState
               onTap: () async {
                 Navigator.pop(dialogContext);
                 await binController.restoreActivity(activity.idActivity!);
-
                 if (mounted) {
                   context.read<ActivityController>().loadCategories();
                   context.read<DayRoutineController>().loadTodayRoutine();
-
                   try {
                     context.read<RoutineProvider>().updateUpcomingActivity();
-                  } catch (_) {}
-
+                  } catch (e) {
+                    debugPrint("RoutineProvider no encontrado: $e");
+                  }
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
@@ -229,7 +228,9 @@ class _DeleteActivityCard extends StatelessWidget {
                 context.read<ActivityController>().loadCategories();
                 try {
                   context.read<DayRoutineController>().loadTodayRoutine();
-                } catch (_) {}
+                } catch (e) {
+                  debugPrint("DayRoutineController no encontrado: $e");
+                }
                 try {
                   context.read<RoutineProvider>().updateUpcomingActivity();
                 } catch (_) {}

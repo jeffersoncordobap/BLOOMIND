@@ -39,7 +39,6 @@ class _OnlyEmotionRemovedScreenState extends State<OnlyEmotionsRemovedScreen> {
               onTap: () async {
                 Navigator.pop(dialogContext);
                 await binController.restoreEmotion(emotion.idEmotion!);
-
                 if (mounted) {
                   context.read<EmotionController>().cargarTodosLosEventos();
                   ScaffoldMessenger.of(context).showSnackBar(

@@ -22,20 +22,32 @@ class SettingsScreen extends StatelessWidget {
             _buildHeader(colorScheme),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 18,
-                ),
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildWelcomeCard(controller, colorScheme),
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 22),
+
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4, bottom: 10),
+                      child: Text(
+                        'Preferencias',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface.withOpacity(0.6),
+                        ),
+                      ),
+                    ),
+
                     _buildOptionCard(
                       context,
-                      colorScheme,
-                      icon: Icons.person,
+                      icon: Icons.person_rounded,
                       iconColor: colorScheme.primary,
+                      iconBackground: colorScheme.primary.withOpacity(0.1),
                       title: 'Perfil local',
+                      subtitle: 'Personaliza tu experiencia en la app',
                       onTap: () {
                         Navigator.push(
                           context,
@@ -45,13 +57,16 @@ class SettingsScreen extends StatelessWidget {
                         );
                       },
                     ),
-                    const SizedBox(height: 18),
+
+                    const SizedBox(height: 16),
+
                     _buildOptionCard(
                       context,
-                      colorScheme,
-                      icon: Icons.palette,
+                      icon: Icons.palette_rounded,
                       iconColor: colorScheme.secondary,
+                      iconBackground: colorScheme.secondary.withOpacity(0.1),
                       title: 'Tema visual',
+                      subtitle: 'Ajusta colores y apariencia',
                       onTap: () {
                         Navigator.push(
                           context,
@@ -61,29 +76,36 @@ class SettingsScreen extends StatelessWidget {
                         );
                       },
                     ),
-                    const SizedBox(height: 18),
+
+                    const SizedBox(height: 16),
+
                     _buildOptionCard(
                       context,
-                      colorScheme,
-                      icon: Icons.notifications,
+                      icon: Icons.notifications_rounded,
                       iconColor: colorScheme.tertiary,
+                      iconBackground: colorScheme.tertiary.withOpacity(0.1),
                       title: 'Notificaciones',
+                      subtitle: 'Gestiona recordatorios y avisos',
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const NotificationSettingsScreen(),
+                            builder: (_) =>
+                                const NotificationSettingsScreen(),
                           ),
                         );
                       },
                     ),
+
                     const SizedBox(height: 18),
+
                     _buildOptionCard(
                       context,
-                      colorScheme,
                       icon: Icons.delete,
                       iconColor: colorScheme.error,
+                      iconBackground: colorScheme.error.withOpacity(0.1),
                       title: 'Papelera',
+                      subtitle: 'Recupera o elimina elementos archivados',
                       onTap: () async {
                         await Navigator.push(
                           context,
@@ -115,7 +137,7 @@ class SettingsScreen extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.08),
+            color: colorScheme.shadow.withOpacity(0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -125,7 +147,7 @@ class SettingsScreen extends StatelessWidget {
         child: Text(
           'Configuración',
           style: TextStyle(
-            fontSize: 22,
+            fontSize: 20,
             fontWeight: FontWeight.w700,
             color: colorScheme.onSurface,
           ),
@@ -134,20 +156,21 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWelcomeCard(ProfileController controller, ColorScheme colorScheme) {
+  Widget _buildWelcomeCard(
+      ProfileController controller, ColorScheme colorScheme) {
     String saludo = 'Bienvenido/a';
     if (controller.profile.genero == 'Masculino') saludo = 'Bienvenido';
     if (controller.profile.genero == 'Femenino') saludo = 'Bienvenida';
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
         color: colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.08),
+            color: colorScheme.shadow.withOpacity(0.08),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -158,16 +181,25 @@ class SettingsScreen extends StatelessWidget {
         children: [
           Text(
             saludo,
-            style: TextStyle(fontSize: 14, color: colorScheme.onSurface.withValues(alpha: 0.6)),
+            style: TextStyle(
+              fontSize: 14,
+              color: colorScheme.onSurface.withOpacity(0.6),
+            ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Row(
             children: [
-              Text(
-                controller.profile.emoji,
-                style: TextStyle(fontSize: 24, color: colorScheme.onSurface),
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: Colors.white,
+                child: Text(
+                  controller.profile.emoji.isEmpty
+                      ? '😊'
+                      : controller.profile.emoji,
+                  style: const TextStyle(fontSize: 22),
+                ),
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   controller.profile.nombre.isEmpty
@@ -182,97 +214,70 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
-          Text(
-            controller.profile.genero.isEmpty
-                ? 'Género: No definido'
-                : 'Género: ${controller.profile.genero}',
-            style: TextStyle(
-              fontSize: 14,
-              color: colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            'Este perfil personaliza saludos, textos clave y tus resúmenes.',
-            style: TextStyle(
-              fontSize: 14,
-              color: colorScheme.onSurface.withValues(alpha: 0.7),
-              height: 1.4,
-            ),
-          ),
         ],
       ),
     );
   }
 
   Widget _buildOptionCard(
-    BuildContext context,
-    ColorScheme colorScheme, {
+    BuildContext context, {
     required IconData icon,
     required Color iconColor,
+    required Color iconBackground,
     required String title,
+    required String subtitle,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Material(
       color: colorScheme.surface,
-      borderRadius: BorderRadius.circular(20),
-      elevation: 2,
-      shadowColor: colorScheme.shadow.withValues(alpha: 0.13),
+      borderRadius: BorderRadius.circular(24),
       child: InkWell(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(24),
         onTap: onTap,
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 22),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
           child: Row(
             children: [
-              Icon(icon, color: iconColor, size: 30),
-              const SizedBox(width: 18),
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: iconBackground,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(icon, color: iconColor, size: 28),
+              ),
+              const SizedBox(width: 16),
               Expanded(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: colorScheme.onSurface,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 13.5,
+                        color: colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right,
-                color: colorScheme.onSurface.withValues(alpha: 0.6),
-                size: 28,
-              ),
+              const Icon(Icons.chevron_right_rounded),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class _BottomIcon extends StatelessWidget {
-  final String icon;
-  final bool isSelected;
-
-  const _BottomIcon({required this.icon, required this.isSelected});
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      width: 54,
-      height: 54,
-      decoration: BoxDecoration(
-        color: isSelected
-            ? colorScheme.surfaceVariant.withValues(alpha: 0.7)
-            : Colors.transparent,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      alignment: Alignment.center,
-      child: Text(icon, style: TextStyle(fontSize: 28, color: colorScheme.onSurface)),
     );
   }
 }

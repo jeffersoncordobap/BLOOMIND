@@ -25,7 +25,7 @@ class PapeleraScreen extends StatelessWidget {
         ..loadDeletedEmotions()
         ..loadDeletedActivities()
         ..loadDeletedRoutines()
-        ..loadDeletedSupportLines(), // Cargamos también líneas de apoyo
+        ..loadDeletedSupportLines(),
       child: Scaffold(
         backgroundColor: const Color(0xFFF2F4F7),
         appBar: AppBar(
