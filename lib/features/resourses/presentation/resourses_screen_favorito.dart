@@ -1,4 +1,5 @@
 import 'package:bloomind/features/resourses/favorite_interfaz/meditation_favorite_interfaz.dart';
+import 'package:bloomind/features/resourses/presentation/surprise_activity_favorites_screen.dart';
 import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -12,6 +13,8 @@ import '../controller/support_line_controller.dart';
 import '../favorite_interfaz/frases_favorite_interfaz.dart';
 import '../repository/resourse_repository.dart';
 import '../repository/resourse_repository_impl.dart';
+import '../repository/surprise_activity_repository.dart';
+import '../repository/surprise_activity_repository_impl.dart';
 import 'only_favorites_support_lines_screen.dart';
 
 class FavoritosScreen extends StatefulWidget {
@@ -23,7 +26,10 @@ class FavoritosScreen extends StatefulWidget {
 
 class _FavoritosScreenState extends State<FavoritosScreen> {
   final ResourseRepository _repository = ResourseRepositoryImpl();
+  final SurpriseActivityRepository _surpriseRepository =
+      SurpriseActivityRepositoryImpl();
   int _frasesFavoritas = 0;
+  int _surpriseFavoritas = 0;
 
   @override
   void initState() {
@@ -38,11 +44,13 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
 
   Future<void> _cargarContadores() async {
     final frases = await _repository.getAllFrases();
+    final surpriseCount = await _surpriseRepository.countFavoritos();
 
     if (!mounted) return;
 
     setState(() {
       _frasesFavoritas = frases.where((f) => f.favorita_frase).length;
+      _surpriseFavoritas = surpriseCount;
     });
   }
 
@@ -51,18 +59,15 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
     final supportController = context.watch<SupportLineController>();
 
     return ChangeNotifierProvider(
-      create: (_) => RelaxingAudioController(
-        RelaxingAudioRepositoryImpl(DatabaseHelper()),
-      )..loadFavoriteAudios(),
+      create: (_) =>
+          RelaxingAudioController(RelaxingAudioRepositoryImpl(DatabaseHelper()))
+            ..loadFavoriteAudios(),
       child: Scaffold(
         backgroundColor: const Color(0xFFF2F4F7),
         appBar: AppBar(
           title: const Text(
             'Favoritos',
-            style: TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
           elevation: 0,
@@ -146,7 +151,27 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
               ),
               const SizedBox(height: 12),
 
-              // 4. LÍNEAS DE APOYO
+              // 4. ACTIVIDADES SORPRESA
+              _CardFavorito(
+                emoji: '🎁',
+                nombre: 'Actividad sorpresa',
+                count: _surpriseFavoritas,
+                onTap: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          const SurpriseActivityFavoritesScreen(),
+                    ),
+                  );
+
+                  if (!mounted) return;
+                  await _cargarContadores();
+                },
+              ),
+              const SizedBox(height: 12),
+
+              // 5. LÍNEAS DE APOYO
               _CardFavorito(
                 emoji: '❤️',
                 nombre: 'Líneas de apoyo',
@@ -156,7 +181,7 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
-                      const OnlyFavoritesSupportLinesScreen(),
+                          const OnlyFavoritesSupportLinesScreen(),
                     ),
                   );
 
@@ -192,11 +217,7 @@ class _CardFavorito extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: const [
-          BoxShadow(
-            color: Colors.black12,
-            blurRadius: 6,
-            offset: Offset(0, 3),
-          ),
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
         ],
       ),
       child: Material(
@@ -208,10 +229,7 @@ class _CardFavorito extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
               children: [
-                Text(
-                  emoji,
-                  style: const TextStyle(fontSize: 30),
-                ),
+                Text(emoji, style: const TextStyle(fontSize: 30)),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(

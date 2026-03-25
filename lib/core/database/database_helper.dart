@@ -16,8 +16,23 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDB() async {
-    String path = join(await getDatabasesPath(), 'bloomind.db');
-    return await openDatabase(path, version: 1, onCreate: _onCreate);
+    String path = join(await getDatabasesPath(), DatabaseConfig.dbName);
+    return await openDatabase(
+      path,
+      version: DatabaseConfig.dbVersion,
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+    );
+  }
+
+  Future _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2 && newVersion >= 2) {
+      // Agregar campo deleted_at_surprise_activity si no existía
+      await db.execute('''
+        ALTER TABLE ${DatabaseConfig.tableSurpriseActivities}
+        ADD COLUMN ${DatabaseConfig.colSurpriseActivityDeletedAt} TEXT
+      ''');
+    }
   }
 
   Future _onCreate(Database db, int version) async {
@@ -113,7 +128,8 @@ class DatabaseHelper {
     CREATE TABLE ${DatabaseConfig.tableSurpriseActivities} (
       ${DatabaseConfig.colSurpriseActivityId} INTEGER PRIMARY KEY AUTOINCREMENT,
       ${DatabaseConfig.colSurpriseActivityDescription} TEXT,
-      ${DatabaseConfig.colSurpriseActivityFavorite} INTEGER DEFAULT 0
+      ${DatabaseConfig.colSurpriseActivityFavorite} INTEGER DEFAULT 0,
+      ${DatabaseConfig.colSurpriseActivityDeletedAt} TEXT
     )
     ''');
 
