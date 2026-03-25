@@ -21,6 +21,7 @@ class RoutineScreen extends StatelessWidget {
     final nextActivity = routineProvider.nextActivity;
     final routineName = routineProvider.currentRoutineName;
 
+
     return Scaffold(
       backgroundColor: const Color(0xFFF4F7FB),
       appBar: AppBar(

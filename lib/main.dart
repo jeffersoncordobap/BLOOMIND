@@ -16,6 +16,8 @@ import 'package:bloomind/features/routines/repository/assign_routine_repository_
 import 'package:bloomind/core/services/notification_service.dart';
 import 'package:bloomind/features/onboarding/data/onboarding_local_service.dart';
 import 'package:bloomind/features/onboarding/presentation/screens/onboarding_screen.dart';
+import 'package:bloomind/features/settings/controller/profile_controller.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,6 +60,8 @@ void main() async {
           create: (context) =>
               SupportLineController(SupportLineRepositoryImpl()),
         ),
+        // NUEVO: Agregamos el controlador de perfil aquí
+        ChangeNotifierProvider(create: (_) => ProfileController()),
       ],
       child: BloomindApp(hasSeenOnboarding: hasSeenOnboarding),
     ),
@@ -80,6 +84,7 @@ class BloomindApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFFE9EDF2),
         useMaterial3: true,
+        fontFamily: 'Inter', // Si ya tienes la fuente instalada
       ),
       home: hasSeenOnboarding
           ? const MainNavigationScreen()

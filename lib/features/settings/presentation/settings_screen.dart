@@ -1,11 +1,17 @@
+import 'package:bloomind/features/settings/presentation/bin_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:bloomind/features/notifications/presentation/notification_settings_screen.dart';
+import 'package:bloomind/features/settings/presentation/profile_screen.dart';
+import 'package:bloomind/features/settings/controller/profile_controller.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final controller = Provider.of<ProfileController>(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF3F6FA),
       body: SafeArea(
@@ -18,7 +24,7 @@ class SettingsScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildWelcomeCard(),
+                    _buildWelcomeCard(controller),
                     const SizedBox(height: 22),
                     const Padding(
                       padding: EdgeInsets.only(left: 4, bottom: 10),
@@ -39,7 +45,12 @@ class SettingsScreen extends StatelessWidget {
                       title: 'Perfil local',
                       subtitle: 'Personaliza tu experiencia en la app',
                       onTap: () {
-                        // Navegar a perfil
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const ProfileScreen(),
+                          ),
+                        );
                       },
                     ),
                     const SizedBox(height: 16),
@@ -50,9 +61,7 @@ class SettingsScreen extends StatelessWidget {
                       iconBackground: const Color(0xFFFFEEF1),
                       title: 'Tema visual',
                       subtitle: 'Ajusta colores y apariencia',
-                      onTap: () {
-                        // Navegar a tema visual
-                      },
+                      onTap: () {},
                     ),
                     const SizedBox(height: 16),
                     _buildOptionCard(
@@ -66,7 +75,25 @@ class SettingsScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => const NotificationSettingsScreen(),
+                            builder: (_) =>
+                            const NotificationSettingsScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 18),
+                    _buildOptionCard(
+                      context,
+                      icon: Icons.delete,
+                      iconColor: const Color.fromARGB(255, 141, 181, 227),
+                      iconBackground: const Color(0xFFEAF3FF),
+                      title: 'Papelera',
+                      subtitle: 'Recupera o elimina elementos archivados',
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PapeleraScreen(),
                           ),
                         );
                       },
@@ -112,7 +139,14 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildWelcomeCard() {
+  Widget _buildWelcomeCard(ProfileController controller) {
+    String saludo = 'Bienvenido/a';
+    if (controller.profile.genero == 'Masculino') {
+      saludo = 'Bienvenido';
+    } else if (controller.profile.genero == 'Femenino') {
+      saludo = 'Bienvenida';
+    }
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(22),
@@ -134,33 +168,37 @@ class SettingsScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Bienvenido/a',
-            style: TextStyle(
+            saludo,
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
               color: Color(0xFF7B8AA0),
             ),
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           Row(
             children: [
               CircleAvatar(
                 radius: 22,
                 backgroundColor: Colors.white,
                 child: Text(
-                  '😊',
-                  style: TextStyle(fontSize: 22),
+                  controller.profile.emoji.isEmpty
+                      ? '😊'
+                      : controller.profile.emoji,
+                  style: const TextStyle(fontSize: 22),
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Perfil local',
-                  style: TextStyle(
+                  controller.profile.nombre.isEmpty
+                      ? 'Perfil local'
+                      : controller.profile.nombre,
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF24344B),
@@ -169,16 +207,18 @@ class SettingsScreen extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 14),
+          const SizedBox(height: 14),
           Text(
-            'Género: Prefiero no decir',
-            style: TextStyle(
+            controller.profile.genero.isEmpty
+                ? 'Género: No definido'
+                : 'Género: ${controller.profile.genero}',
+            style: const TextStyle(
               fontSize: 14,
               color: Color(0xFF5D7390),
             ),
           ),
-          SizedBox(height: 10),
-          Text(
+          const SizedBox(height: 10),
+          const Text(
             'Este perfil personaliza saludos, textos clave y tus resúmenes dentro de Bloomind.',
             style: TextStyle(
               fontSize: 14,
