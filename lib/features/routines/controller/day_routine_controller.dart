@@ -25,13 +25,26 @@ class DayRoutineController extends ChangeNotifier {
       final assignment = await assignRepo.getAssignmentByDate(todayStr);
 
       if (assignment != null) {
-        // 2. GUARDAMOS EL ID
-        currentRoutineId = assignment.idRoutine;
-
-        // 3. Cargamos las actividades
-        dayActivities = await routineRepo.getActivitiesByRoutine(
-          assignment.idRoutine,
+        // 1.5 VERIFICAMOS SI LA RUTINA SIGUE ACTIVA (NO ELIMINADA)
+        // Traemos todas las rutinas activas y buscamos si la asignada está ahí
+        final activeRoutines = await routineRepo.getAllRoutines();
+        final isActive = activeRoutines.any(
+          (r) => r.idRoutine == assignment.idRoutine,
         );
+
+        if (isActive) {
+          // 2. GUARDAMOS EL ID
+          currentRoutineId = assignment.idRoutine;
+
+          // 3. Cargamos las actividades (el repositorio ya filtra las actividades eliminadas)
+          dayActivities = await routineRepo.getActivitiesByRoutine(
+            assignment.idRoutine,
+          );
+        } else {
+          // La rutina fue eliminada, así que mostramos estado vacío
+          currentRoutineId = null;
+          dayActivities = [];
+        }
       } else {
         currentRoutineId = null;
         dayActivities = [];

@@ -16,4 +16,13 @@ abstract class EmotionRepository {
   // Obtener emociones de un día específico
   // Recibe un String en formato 'YYYY-MM-DD'
   Future<List<Emotion>> getEmotionsByDate(String date);
+
+  // Obtener emociones que han sido eliminadas (Papelera)
+  Future<List<Emotion>> getDeletedEmotions();
+
+  // Restaurar una emoción eliminada (state -> 1)
+  Future<int> restoreEmotion(int idEmotion);
+
+  // Eliminar permanentemente de la base de datos (Opcional, para vaciar papelera)
+  Future<int> forceDeleteEmotion(int idEmotion);
 }

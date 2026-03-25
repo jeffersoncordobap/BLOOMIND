@@ -13,14 +13,21 @@ import 'package:bloomind/features/routines/controller/routine_controller.dart';
 import 'package:bloomind/features/routines/controller/assing_routine_controller.dart';
 import 'package:bloomind/features/routines/repository/routine_repository_impl.dart';
 import 'package:bloomind/features/routines/repository/assign_routine_repository_impl.dart';
+import 'package:bloomind/core/services/notification_service.dart';
+import 'package:bloomind/features/onboarding/data/onboarding_local_service.dart';
+import 'package:bloomind/features/onboarding/presentation/screens/onboarding_screen.dart';
+import 'package:bloomind/features/settings/controller/profile_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('es_ES', null);
-
+  await NotificationService.instance.initTimezone();
+  await NotificationService.instance.initNotifications();
   final dbHelper = DatabaseHelper();
   await dbHelper.database;
 
+  final onboardingService = OnboardingLocalService();
+  final hasSeenOnboarding = await onboardingService.hasSeenOnboarding();
   runApp(
     MultiProvider(
       providers: [
@@ -28,14 +35,12 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => RoutineController(repository: RoutineRepositoryImpl()),
         ),
-
         ChangeNotifierProvider(
           create: (_) => AssignRoutineController(
             routineRepo: RoutineRepositoryImpl(),
             assignRepo: AssignRoutineRepositoryImpl(),
           ),
         ),
-
         ChangeNotifierProvider(create: (_) => ActivityController()),
         ChangeNotifierProvider(
           create: (_) => DayRoutineController(
@@ -43,26 +48,27 @@ void main() async {
             routineRepo: RoutineRepositoryImpl(),
           ),
         ),
-
         ChangeNotifierProvider(
           create: (_) => RoutineProvider(
             routineRepo: RoutineRepositoryImpl(),
             assignRepo: AssignRoutineRepositoryImpl(),
           ),
         ),
-
         ChangeNotifierProvider(
           create: (context) =>
               SupportLineController(SupportLineRepositoryImpl()),
         ),
+        ChangeNotifierProvider(create: (_) => ProfileController()),
       ],
-      child: const BloomindApp(),
+      child: BloomindApp(hasSeenOnboarding: hasSeenOnboarding),
     ),
   );
 }
 
 class BloomindApp extends StatelessWidget {
-  const BloomindApp({super.key});
+  final bool hasSeenOnboarding;
+
+  const BloomindApp({super.key, required this.hasSeenOnboarding});
 
   @override
   Widget build(BuildContext context) {
@@ -72,8 +78,11 @@ class BloomindApp extends StatelessWidget {
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFFE9EDF2),
         useMaterial3: true,
+        fontFamily: 'Inter',
       ),
-      home: const MainNavigationScreen(),
+      home: hasSeenOnboarding
+          ? const MainNavigationScreen()
+          : const OnboardingScreen(),
     );
   }
 }

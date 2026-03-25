@@ -16,4 +16,13 @@ abstract class RoutineRepository {
 
   // Eliminar una rutina (borrará sus vínculos)
   Future<int> deleteRoutine(int idRoutine);
+
+  // Obtener rutinas que han sido eliminadas (Papelera)
+  Future<List<Routine>> getDeletedRoutines();
+
+  // Restaurar una rutina eliminada (state -> 1)
+  Future<int> restoreRoutine(int idRoutine);
+
+  // Eliminar permanentemente de la base de datos (Opcional, para vaciar papelera)
+  Future<int> forceDeleteRoutine(int idRoutine);
 }

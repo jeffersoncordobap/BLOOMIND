@@ -12,6 +12,8 @@ class SupportLineRepositoryImpl implements SupportLineRepository {
     final db = await _dbHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
       DatabaseConfig.tableSupportLines,
+      where: '${DatabaseConfig.colContactState} = ?',
+      whereArgs: [1], // Solo mostrar activos
     );
     return List.generate(maps.length, (i) => SupportLine.fromMap(maps[i]));
   }
@@ -38,16 +40,6 @@ class SupportLineRepositoryImpl implements SupportLineRepository {
   }
 
   @override
-  Future<int> deleteSupportLine(int id) async {
-    final db = await _dbHelper.database;
-    return await db.delete(
-      DatabaseConfig.tableSupportLines,
-      where: '${DatabaseConfig.colContactId} = ?',
-      whereArgs: [id],
-    );
-  }
-
-  @override
   Future<int> updateSupportLine(SupportLine line) async {
     final db = await _dbHelper.database;
     return await db.update(
@@ -55,6 +47,67 @@ class SupportLineRepositoryImpl implements SupportLineRepository {
       line.toMap(),
       where: '${DatabaseConfig.colContactId} = ?',
       whereArgs: [line.idContact],
+    );
+  }
+
+  @override
+  Future<List<SupportLine>> getFavoriteSupportLines() async {
+    final db = await _dbHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      DatabaseConfig.tableSupportLines,
+      where:
+          '${DatabaseConfig.colIsFavoriteContact} = ? AND ${DatabaseConfig.colContactState} = ?',
+      whereArgs: [1, 1], // Favoritos Y Activos
+    );
+    return List.generate(maps.length, (i) => SupportLine.fromMap(maps[i]));
+  }
+
+  @override
+  Future<int> deleteSupportLine(int idSupportLine) async {
+    final db = await _dbHelper.database;
+
+    // Soft Delete: Actualizamos el estado a 0 en lugar de borrar
+    return await db.update(
+      DatabaseConfig.tableSupportLines,
+      {DatabaseConfig.colContactState: 0},
+      where: '${DatabaseConfig.colContactId} = ?',
+      whereArgs: [idSupportLine],
+    );
+  }
+
+  @override
+  Future<List<SupportLine>> getDeletedSupportLines() async {
+    final db = await _dbHelper.database;
+
+    final List<Map<String, dynamic>> maps = await db.query(
+      DatabaseConfig.tableSupportLines,
+      where: '${DatabaseConfig.colContactState} = ?',
+      whereArgs: [0], // Solo eliminados (papelera)
+      //orderBy: '${DatabaseConfig.colActivityDateTime} DESC',
+    );
+    return maps.map((map) => SupportLine.fromMap(map)).toList();
+  }
+
+  @override
+  Future<int> restoreSupportLine(int idSupportLine) async {
+    final db = await _dbHelper.database;
+
+    return await db.update(
+      DatabaseConfig.tableSupportLines,
+      {DatabaseConfig.colContactState: 1}, // Restaurar a activo
+      where: '${DatabaseConfig.colContactId} = ?',
+      whereArgs: [idSupportLine],
+    );
+  }
+
+  @override
+  Future<int> forceDeleteSupportLine(int idSupportLine) async {
+    final db = await _dbHelper.database;
+
+    return await db.delete(
+      DatabaseConfig.tableSupportLines,
+      where: '${DatabaseConfig.colContactId} = ?',
+      whereArgs: [idSupportLine],
     );
   }
 }

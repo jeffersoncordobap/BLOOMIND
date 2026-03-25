@@ -307,13 +307,15 @@ class _ActivityScreenState extends State<ActivityScreen> {
       );
 
       success = await controller.updateExistingActivity(
-        updatedActivity,
-        widget.idRoutine,
-        originalHour,
+        context: context,
+        activity: updatedActivity,
+        idRoutine: widget.idRoutine,
+        oldHour: originalHour,
       );
     } else {
       // MODO CREACIÓN
       success = await controller.saveActivityToRoutine(
+        context: context,
         idRoutine: widget.idRoutine,
         name: _activityNameController.text,
         category: selectedCategory!,

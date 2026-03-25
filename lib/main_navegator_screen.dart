@@ -1,3 +1,4 @@
+//import 'package:bloomind/features/resourses/favorite_interfaz/meditation_favorite_interfaz.dart';
 import 'package:bloomind/features/resourses/presentation/resourses_screen_audios.dart';
 import 'package:bloomind/features/resourses/presentation/resourses_screen_frases.dart';
 import 'package:bloomind/features/resourses/presentation/resourses_screen_meditacion.dart';
@@ -11,7 +12,7 @@ import 'features/emotions/presentation/screens/emotion_record_screen.dart';
 import 'features/emotions/presentation/screens/emotion_list_screen.dart';
 import 'package:bloomind/features/estadisticas/presentation/statistics_screen.dart';
 import 'features/resourses/presentation/resourses_screen.dart';
-
+import 'features/settings/presentation/settings_screen.dart';
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
 
@@ -22,10 +23,10 @@ class MainNavigationScreen extends StatefulWidget {
 class MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
   late List<Widget> _screens;
-
+  final GlobalKey<widget_meditacionState> meditacionKey = GlobalKey<widget_meditacionState>();
   final GlobalKey<StatisticsScreenState> _statisticsKey =
   GlobalKey<StatisticsScreenState>();
-
+  final GlobalKey<ResoursesScreenFrasesState> frasesKey = GlobalKey<ResoursesScreenFrasesState>();
   @override
   void initState() {
     super.initState();
@@ -46,13 +47,13 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
       ),
 
       StatisticsScreen(key: _statisticsKey),
-      const Center(child: Text("Configuración")),
+      const SettingsScreen(),
       const EmotionListScreen(),
       const RoutineListScreen(),
       const AssignRoutineScreen(),
       const DayRoutineScreen(),
-      const widget_meditacion(), // 9
-      const ResoursesScreenFrases(), // 10
+      widget_meditacion(key: meditacionKey), // 9
+      ResoursesScreenFrases(key: frasesKey), // 10
       const widget_audios(), // 11
       const ResoursesScreenSorpresa(), // 12
     ];
@@ -65,6 +66,13 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
     if (index == 3) {
       _statisticsKey.currentState?.refreshStatistics();
     }
+    if (index == 10) {
+      frasesKey.currentState?.refreshFrases();
+    }
+    if (index == 9) {
+      meditacionKey.currentState?.meditationRefresh(); 
+    }
+    
   }
 
   void irAlDiario() {
@@ -92,15 +100,11 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
   }
 
   void irAverRecursosMeditaciones() {
-    setState(() {
-      _selectedIndex = 9;
-    });
+    cambiarIndice(9);
   }
 
   void irAVerResoursesScreenFrases() {
-    setState(() {
-      _selectedIndex = 10;
-    });
+    cambiarIndice(10);
   }
 
   void irAVerResoursesScreenAudios() {

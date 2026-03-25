@@ -15,4 +15,16 @@ abstract class SupportLineRepository {
 
   /// Actualiza un contacto existente
   Future<int> updateSupportLine(SupportLine line);
+
+  /// Obtiene solo los contactos marcados como favoritos
+  Future<List<SupportLine>> getFavoriteSupportLines();
+
+  // Obtener contactos que han sido eliminados (Papelera)
+  Future<List<SupportLine>> getDeletedSupportLines();
+
+  // Restaurar un contacto eliminado (state -> 1)
+  Future<int> restoreSupportLine(int idSupportLine);
+
+  // Eliminar permanentemente de la base de datos (Opcional, para vaciar papelera)
+  Future<int> forceDeleteSupportLine(int idSupportLine);
 }

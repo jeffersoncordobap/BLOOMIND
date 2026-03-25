@@ -1,12 +1,19 @@
 //Codigo de la pantalla recursos
+import 'package:bloomind/features/resourses/presentation/resourses_screen_favorito.dart';
 import 'package:bloomind/features/resourses/presentation/support_lines_screen.dart';
 import 'package:bloomind/features/resourses/presentation/resourses_screen_favorito.dart';
 import 'package:flutter/material.dart';
-//import './/resourses_screen_frases.dart';
-import './/resourses_screen_meditacion.dart';
+
+
+
+import 'package:provider/provider.dart';
+
+import '../../../core/database/database_helper.dart';
+import '../../relaxing_audio/controller/relaxing_audio_controller.dart';
+import '../../relaxing_audio/presentation/relaxing_audio_screen.dart';
+import '../../relaxing_audio/repository/relaxing_audio_repository_impl.dart';
 
 class RecurseScreen extends StatelessWidget {
-  // onTap
   final VoidCallback alPresionarMeditacionRespiracion;
   final VoidCallback alPresionarResoursesScreenFrases;
   final VoidCallback alPresionarResoursesScreenAudios;
@@ -23,7 +30,6 @@ class RecurseScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //Barra superior
       backgroundColor: const Color(0xFFF2F4F7),
       appBar: AppBar(
         title: const Text("Recursos"),
@@ -31,15 +37,13 @@ class RecurseScreen extends StatelessWidget {
         elevation: 0,
         backgroundColor: Colors.white,
       ),
-
-      //Contenido principal
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              //Targeta superior
+              // Tarjeta superior
               Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
@@ -61,7 +65,6 @@ class RecurseScreen extends StatelessWidget {
                       style: TextStyle(fontSize: 14, color: Colors.black54),
                     ),
                     SizedBox(height: 6),
-
                     Text(
                       "😊 Tu centro de recursos",
                       style: TextStyle(
@@ -70,7 +73,6 @@ class RecurseScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 8),
-
                     Text(
                       "Guarda tus favoritos y vuelve rápido a lo que más te ayuda.",
                       style: TextStyle(fontSize: 15, color: Colors.black87),
@@ -80,17 +82,10 @@ class RecurseScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              //Card Meditacion
+              // Tarjeta Meditación
               InkWell(
                 borderRadius: BorderRadius.circular(22),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const widget_meditacion(),
-                    ),
-                  );
-                },
+                onTap: alPresionarMeditacionRespiracion,
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -123,11 +118,10 @@ class RecurseScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              //Targeta Frases y motivacion
+              // Tarjeta Frases y motivación
               InkWell(
                 borderRadius: BorderRadius.circular(22),
                 onTap: alPresionarResoursesScreenFrases,
-
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -160,10 +154,24 @@ class RecurseScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              //Targeta Audios Relajantes
+              // Tarjeta Audios Relajantes
+              // Tarjeta Audios Relajantes
+
               InkWell(
                 borderRadius: BorderRadius.circular(22),
-                onTap: alPresionarResoursesScreenAudios,
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ChangeNotifierProvider(
+                        create: (_) => RelaxingAudioController(
+                          RelaxingAudioRepositoryImpl(DatabaseHelper()),
+                        )..initializeAudios(),
+                        child: const RelaxingAudioScreen(),
+                      ),
+                    ),
+                  );
+                },
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -174,12 +182,15 @@ class RecurseScreen extends StatelessWidget {
                         color: Colors.black12,
                         blurRadius: 8,
                         offset: Offset(0, 3),
-                      ),
+                      )
                     ],
                   ),
                   child: const Row(
                     children: [
-                      Text("🎧", style: TextStyle(fontSize: 30)),
+                      Text(
+                        "🎧",
+                        style: TextStyle(fontSize: 30),
+                      ),
                       SizedBox(width: 20),
                       Expanded(
                         child: Text(
@@ -196,7 +207,7 @@ class RecurseScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              //Targeta Actividad sorpresa
+              // Tarjeta Actividad sorpresa
               InkWell(
                 borderRadius: BorderRadius.circular(22),
                 onTap: alPresionarResoursesScreenSorpresa,
@@ -232,7 +243,7 @@ class RecurseScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              //Targeta Lineas de apoyo
+              // Tarjeta Líneas de apoyo
               InkWell(
                 borderRadius: BorderRadius.circular(22),
                 onTap: () {
@@ -275,7 +286,7 @@ class RecurseScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              //Favoritos
+              // Favoritos
               InkWell(
                 borderRadius: BorderRadius.circular(22),
                 onTap: () {

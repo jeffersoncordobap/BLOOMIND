@@ -1,0 +1,218 @@
+import 'package:bloomind/features/activities/model/activity.dart';
+import 'package:bloomind/features/activities/controller/activity_controller.dart';
+import 'package:bloomind/features/settings/controller/bin_controller.dart';
+import 'package:bloomind/features/routines/controller/day_routine_controller.dart';
+import 'package:bloomind/features/routines/presentation/provider/routine_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+class OnlyActivitiesRemovedScreen extends StatefulWidget {
+  const OnlyActivitiesRemovedScreen({super.key});
+
+  @override
+  State<OnlyActivitiesRemovedScreen> createState() =>
+      _OnlyActivityRemovedScreenState();
+}
+
+class _OnlyActivityRemovedScreenState
+    extends State<OnlyActivitiesRemovedScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<BinController>().loadDeletedActivities();
+    });
+  }
+
+  void _showOptionsDialog(Activity activity) {
+    final binController = context.read<BinController>();
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(
+                Icons.restore_from_trash,
+                color: Color.fromARGB(221, 48, 199, 230),
+              ),
+              title: const Text("Restaurar"),
+              onTap: () async {
+                Navigator.pop(dialogContext);
+                await binController.restoreActivity(activity.idActivity!);
+                if (mounted) {
+                  context.read<ActivityController>().loadCategories();
+                  context.read<DayRoutineController>().loadTodayRoutine();
+                  try {
+                    context.read<RoutineProvider>().updateUpcomingActivity();
+                  } catch (e) {
+                    debugPrint("RoutineProvider no encontrado: $e");
+                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Actividad restaurada correctamente'),
+                    ),
+                  );
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.delete_forever,
+                color: Color.fromARGB(221, 232, 68, 68),
+              ),
+              title: const Text("Eliminar definitivamente"),
+              onTap: () {
+                Navigator.pop(dialogContext);
+                binController.forceDeleteActivity(activity.idActivity!);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = context.watch<BinController>();
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF2F4F7),
+      appBar: AppBar(
+        title: const Text(
+          "Papelera de actividades",
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: Column(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text(
+              "Aquí puedes ver las actividades que has eliminado. Restáuralas si fue un error.",
+              style: TextStyle(color: Colors.black54, fontSize: 14),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          Expanded(
+            child: controller.isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : controller.deletedActivities.isEmpty
+                ? const Center(child: Text("No tienes actividades eliminadas"))
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: controller.deletedActivities.length,
+                    itemBuilder: (context, index) {
+                      final activity = controller.deletedActivities[index];
+                      return GestureDetector(
+                        onLongPress: () => _showOptionsDialog(activity),
+                        child: _DeleteActivityCard(activity: activity),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DeleteActivityCard extends StatelessWidget {
+  final Activity activity;
+  const _DeleteActivityCard({super.key, required this.activity});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 15),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: const [
+          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 50,
+            height: 50,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: const Color(0xFFF2F4F7),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Text(activity.emoji, style: const TextStyle(fontSize: 28)),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  activity.name,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  activity.category,
+                  style: const TextStyle(
+                    color: Color(0xFF6A94C9),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.restore_from_trash_rounded,
+              color: Colors.green[600],
+            ),
+            tooltip: "Restaurar",
+            onPressed: () async {
+              await context.read<BinController>().restoreActivity(
+                activity.idActivity!,
+              );
+
+              if (context.mounted) {
+                context.read<ActivityController>().loadCategories();
+                try {
+                  context.read<DayRoutineController>().loadTodayRoutine();
+                } catch (e) {
+                  debugPrint("DayRoutineController no encontrado: $e");
+                }
+                try {
+                  context.read<RoutineProvider>().updateUpcomingActivity();
+                } catch (e) {
+                  debugPrint("RoutineProvider no encontrado: $e");
+                }
+
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Actividad restaurada')),
+                );
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}

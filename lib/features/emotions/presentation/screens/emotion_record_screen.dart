@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../controller/emotion_controller.dart';
 import '../widgets/emotion_card.dart';
+import 'package:bloomind/features/settings/controller/profile_controller.dart';
 
 class RegistroEmocionalScreen extends StatefulWidget {
   final VoidCallback alPresionarDiario;
@@ -27,6 +28,9 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
   @override
   Widget build(BuildContext context) {
     final emotionProvider = context.read<EmotionController>();
+    // Escuchamos el perfil globalmente
+    final profileController = Provider.of<ProfileController>(context);
+    final perfil = profileController.profile;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
@@ -64,11 +68,16 @@ class _RegistroEmocionalScreenState extends State<RegistroEmocionalScreen> {
                     color: const Color(0xFFDDE7F0),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Text("😊", style: TextStyle(fontSize: 28)),
-                      SizedBox(width: 10),
-                      Text("Bienvenido/a", style: TextStyle(fontSize: 18)),
+                      // Emoji dinámico del perfil
+                      Text(perfil.emoji, style: const TextStyle(fontSize: 28)),
+                      const SizedBox(width: 10),
+                      // Nombre dinámico del perfil
+                      Text(
+                        perfil.nombre.isEmpty ? "Bienvenido/a" : "Hola, ${perfil.nombre}",
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                      ),
                     ],
                   ),
                 ),

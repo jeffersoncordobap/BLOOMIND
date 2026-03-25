@@ -28,9 +28,10 @@ class DatabaseHelper {
       ${DatabaseConfig.colEmotionMoodLevel} INTEGER,
       ${DatabaseConfig.colEmotionLabel} TEXT,
       ${DatabaseConfig.colEmotionNote} TEXT,
-      ${DatabaseConfig.colEmotionDateTime} TEXT
+      ${DatabaseConfig.colEmotionDateTime} TEXT,
+      ${DatabaseConfig.colEmotionState} INTEGER DEFAULT 1
     )
-  ''');
+    ''');
 
     // 2. TABLA ACTIVIDADES
     await db.execute('''
@@ -38,72 +39,106 @@ class DatabaseHelper {
       ${DatabaseConfig.colActivityId} INTEGER PRIMARY KEY AUTOINCREMENT,
       ${DatabaseConfig.colActivityCategory} TEXT,
       ${DatabaseConfig.colActivityName} TEXT,
-      ${DatabaseConfig.colActivityEmoji} TEXT
+      ${DatabaseConfig.colActivityEmoji} TEXT,
+      ${DatabaseConfig.colActivityState} INTEGER DEFAULT 1
     )
-  ''');
+    ''');
 
     // 3. TABLA RUTINAS
     await db.execute('''
     CREATE TABLE ${DatabaseConfig.tableRoutine} (
       ${DatabaseConfig.colRoutineId} INTEGER PRIMARY KEY AUTOINCREMENT,
-      ${DatabaseConfig.colRoutineName} TEXT
+      ${DatabaseConfig.colRoutineName} TEXT,
+      ${DatabaseConfig.colRoutineState} INTEGER DEFAULT 1
     )
-  ''');
+    ''');
 
-    // 4. TABLA INTERMEDIA ROUTINAS_ACTIVIDADES (Relación Muchos a Muchos)
+    // 4. TABLA INTERMEDIA ROUTINAS_ACTIVIDADES
     await db.execute('''
     CREATE TABLE ${DatabaseConfig.tableRoutineActivity} (
       ${DatabaseConfig.colRoutineId} INTEGER,
       ${DatabaseConfig.colActivityId} INTEGER,
       ${DatabaseConfig.colRoutineActivityHour} TEXT,
-      PRIMARY KEY (${DatabaseConfig.colRoutineId}, ${DatabaseConfig.colActivityId}, ${DatabaseConfig.colRoutineActivityHour}),
-      FOREIGN KEY (${DatabaseConfig.colRoutineId}) 
-        REFERENCES ${DatabaseConfig.tableRoutine} (${DatabaseConfig.colRoutineId}) 
+      PRIMARY KEY (
+        ${DatabaseConfig.colRoutineId},
+        ${DatabaseConfig.colActivityId},
+        ${DatabaseConfig.colRoutineActivityHour}
+      ),
+      FOREIGN KEY (${DatabaseConfig.colRoutineId})
+        REFERENCES ${DatabaseConfig.tableRoutine} (${DatabaseConfig.colRoutineId})
         ON DELETE CASCADE,
-      FOREIGN KEY (${DatabaseConfig.colActivityId}) 
-        REFERENCES ${DatabaseConfig.tableActivity} (${DatabaseConfig.colActivityId}) 
+      FOREIGN KEY (${DatabaseConfig.colActivityId})
+        REFERENCES ${DatabaseConfig.tableActivity} (${DatabaseConfig.colActivityId})
         ON DELETE CASCADE
     )
-  ''');
+    ''');
 
-    // 5. TABLA ASIGNACIÓN RUTINAS (Asignación por fechas)
+    // 5. TABLA ASIGNACIÓN RUTINAS
     await db.execute('''
     CREATE TABLE ${DatabaseConfig.tableAssignRoutine} (
       ${DatabaseConfig.colAssignId} INTEGER PRIMARY KEY AUTOINCREMENT,
       ${DatabaseConfig.colAssignDateTime} TEXT,
       ${DatabaseConfig.colRoutineId} INTEGER,
-      FOREIGN KEY (${DatabaseConfig.colRoutineId}) 
+      FOREIGN KEY (${DatabaseConfig.colRoutineId})
         REFERENCES ${DatabaseConfig.tableRoutine} (${DatabaseConfig.colRoutineId})
     )
-  ''');
+    ''');
 
     // 6. TABLA FRASES
-    await db.execute("""
-    CREATE TABLE ${DatabaseConfig.tableFrasesFavorits}(
+    await db.execute('''
+    CREATE TABLE ${DatabaseConfig.tableFrasesFavorits} (
       ${DatabaseConfig.recFrasesId} INTEGER PRIMARY KEY AUTOINCREMENT,
       ${DatabaseConfig.recFrasesContenido} TEXT,
       ${DatabaseConfig.recFrasesFavorite} INTEGER
     )
-    """);
+    ''');
 
-    // 7. TABLA SURPRISE ACTIVITIES
-    await db.execute("""
-    CREATE TABLE ${DatabaseConfig.tableSurpriseActivities}(
+    // 7. TABLA AUDIOS RELAJANTES
+    await db.execute('''
+    CREATE TABLE ${DatabaseConfig.tableRelaxingAudios} (
+      ${DatabaseConfig.recRelaxingAudioId} INTEGER PRIMARY KEY AUTOINCREMENT,
+      ${DatabaseConfig.recRelaxingAudioTitle} TEXT NOT NULL,
+      ${DatabaseConfig.recRelaxingAudioDurationSeconds} INTEGER,
+      ${DatabaseConfig.recRelaxingAudioFilePath} TEXT NOT NULL,
+      ${DatabaseConfig.recRelaxingAudioFileName} TEXT,
+      ${DatabaseConfig.recRelaxingAudioFileSize} INTEGER,
+      ${DatabaseConfig.recRelaxingAudioIsFavorite} INTEGER NOT NULL DEFAULT 0,
+      ${DatabaseConfig.recRelaxingAudioIsAsset} INTEGER NOT NULL DEFAULT 0,
+      ${DatabaseConfig.recRelaxingAudioCreatedAt} TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+    ''');
+
+    // 8. TABLA SURPRISE ACTIVITIES
+    await db.execute('''
+    CREATE TABLE ${DatabaseConfig.tableSurpriseActivities} (
       ${DatabaseConfig.colSurpriseActivityId} INTEGER PRIMARY KEY AUTOINCREMENT,
       ${DatabaseConfig.colSurpriseActivityDescription} TEXT,
       ${DatabaseConfig.colSurpriseActivityFavorite} INTEGER DEFAULT 0
     )
-    """);
+    ''');
 
-    //8.TABLA LINEAS DE APOYO
-    await db.execute("""
-    CREATE TABLE ${DatabaseConfig.tableSupportLines}(
+    // 9. TABLA LÍNEAS DE APOYO
+    await db.execute('''
+    CREATE TABLE ${DatabaseConfig.tableSupportLines} (
       ${DatabaseConfig.colContactId} INTEGER PRIMARY KEY AUTOINCREMENT,
       ${DatabaseConfig.colContactName} TEXT,
       ${DatabaseConfig.colContactPhone} TEXT,
       ${DatabaseConfig.colContactDescription} TEXT,
-      ${DatabaseConfig.colIsFavoriteContact} INTEGER DEFAULT 0
+      ${DatabaseConfig.colIsFavoriteContact} INTEGER DEFAULT 0,
+      ${DatabaseConfig.colContactState} INTEGER DEFAULT 1
     )
-    """);
+    ''');
+
+    // 10. TABLA MEDITACIÓN
+    await db.execute('''
+    CREATE TABLE ${DatabaseConfig.tableAudiosMeditacion} (
+      ${DatabaseConfig.recMeditationId} INTEGER PRIMARY KEY AUTOINCREMENT,
+      ${DatabaseConfig.recMeditationTitle} TEXT,
+      ${DatabaseConfig.recMeditationDescrip} TEXT,
+      ${DatabaseConfig.recMeditationDurat} TEXT,
+      ${DatabaseConfig.recMeditationFilepath} TEXT,
+      ${DatabaseConfig.recMeditationFavorite} INTEGER DEFAULT 0
+    )
+    ''');
   }
 }
