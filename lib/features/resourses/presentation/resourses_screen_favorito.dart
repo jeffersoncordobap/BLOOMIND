@@ -1,4 +1,6 @@
 import 'package:bloomind/features/resourses/favorite_interfaz/meditation_favorite_interfaz.dart';
+import 'package:bloomind/features/resourses/repository/resourse_meditation_repository.dart';
+import 'package:bloomind/features/resourses/repository/resourse_meditation_repository_impl.dart';
 import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +25,9 @@ class FavoritosScreen extends StatefulWidget {
 
 class _FavoritosScreenState extends State<FavoritosScreen> {
   final ResourseRepository _repository = ResourseRepositoryImpl();
+  final ResourseMeditationRepository _repositoryMeditation = ResourseMeditationRepositoryImpl();
   int _frasesFavoritas = 0;
+  int _meditationFavoritas = 0; 
 
   @override
   void initState() {
@@ -38,11 +42,14 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
 
   Future<void> _cargarContadores() async {
     final frases = await _repository.getAllFrases();
+    final meditation = await _repositoryMeditation.getAllMeditations(); 
 
     if (!mounted) return;
 
+
     setState(() {
       _frasesFavoritas = frases.where((f) => f.favorita_frase).length;
+      _meditationFavoritas = meditation.where((m) => m.favorite_meditation).length;
     });
   }
 
@@ -76,7 +83,7 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
               _CardFavorito(
                 emoji: '🧘',
                 nombre: 'Meditación y respiración',
-                count: 0,
+                count: _meditationFavoritas,
                 onTap: () async {
                   await Navigator.push(
                     context,
