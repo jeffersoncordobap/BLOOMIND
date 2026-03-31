@@ -65,6 +65,7 @@ class _OnlyFavoritesSupportLinesScreenState
   }
 
   void _showOptionsDialog(SupportLine line) {
+    final colorScheme = Theme.of(context).colorScheme;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -74,27 +75,36 @@ class _OnlyFavoritesSupportLinesScreenState
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.call, color: Colors.black87),
-              title: const Text("Llamar"),
+              leading: Icon(Icons.call, color: colorScheme.onSurface),
+              title: Text(
+                "Llamar",
+                style: TextStyle(color: colorScheme.onSurface),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _makeCall(line.phone);
               },
             ),
             ListTile(
-              leading: const Icon(
+              leading: Icon(
                 Icons.chat_bubble_outline,
-                color: Colors.black87,
+                color: colorScheme.onSurface,
               ),
-              title: const Text("WhatsApp"),
+              title: Text(
+                "WhatsApp",
+                style: TextStyle(color: colorScheme.onSurface),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _openWhatsApp(line.phone);
               },
             ),
             ListTile(
-              leading: const Icon(Icons.edit_outlined, color: Colors.black87),
-              title: const Text("Editar"),
+              leading: Icon(Icons.edit_outlined, color: colorScheme.onSurface),
+              title: Text(
+                "Editar",
+                style: TextStyle(color: colorScheme.onSurface),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 _showAddOrEditDialog(line: line);
@@ -123,6 +133,7 @@ class _OnlyFavoritesSupportLinesScreenState
   }
 
   void _showAddOrEditDialog({SupportLine? line}) {
+    final colorScheme = Theme.of(context).colorScheme;
     final isEditing = line != null;
 
     if (isEditing) {
@@ -142,7 +153,10 @@ class _OnlyFavoritesSupportLinesScreenState
         title: Text(
           isEditing ? "Editar línea de apoyo" : "Nueva línea de apoyo",
           textAlign: TextAlign.center,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -193,14 +207,14 @@ class _OnlyFavoritesSupportLinesScreenState
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6A94C9),
+                    backgroundColor: colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
                   child: Text(
                     isEditing ? "Guardar" : "Agregar",
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: colorScheme.onPrimary),
                   ),
                 ),
               ),
@@ -209,14 +223,16 @@ class _OnlyFavoritesSupportLinesScreenState
                 child: OutlinedButton(
                   onPressed: () => Navigator.pop(context),
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFFE0E0E0)),
+                    side: BorderSide(color: colorScheme.outline),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     "Cancelar",
-                    style: TextStyle(color: Colors.black54),
+                    style: TextStyle(
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
                   ),
                 ),
               ),
@@ -233,20 +249,30 @@ class _OnlyFavoritesSupportLinesScreenState
     String hint, {
     TextInputType? keyboardType,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
+      style: TextStyle(color: colorScheme.onSurface),
       decoration: InputDecoration(
         hintText: hint,
+        hintStyle: TextStyle(
+          color: colorScheme.onSurface.withValues(alpha: 0.5),
+        ),
         filled: true,
-        fillColor: const Color(0xFFF2F4F7),
+        fillColor: colorScheme.surfaceVariant,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 20,
           vertical: 15,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(color: colorScheme.outline),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide(color: colorScheme.outline),
         ),
       ),
     );
@@ -255,34 +281,48 @@ class _OnlyFavoritesSupportLinesScreenState
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<SupportLineController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F7),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: const Text("Mis líneas de apoyo"),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Text(
               "Mantén presionado algún contacto si quieres más opciones.",
-              style: TextStyle(color: Colors.black54, fontSize: 14),
+              style: TextStyle(
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
+                fontSize: 14,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
           Expanded(
             child: controller.isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: colorScheme.primary,
+                    ),
+                  )
                 : controller.favoriteLines.isEmpty
-                ? const Center(child: Text("No tienes favoritos guardados"))
+                ? Center(
+                    child: Text(
+                      "No tienes favoritos guardados",
+                      style: TextStyle(color: colorScheme.onSurface),
+                    ),
+                  )
                 : ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount: controller.favoriteLines.length,
@@ -299,13 +339,13 @@ class _OnlyFavoritesSupportLinesScreenState
             padding: const EdgeInsets.all(20.0),
             child: ElevatedButton.icon(
               onPressed: () => _showAddOrEditDialog(),
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text(
+              icon: Icon(Icons.add, color: colorScheme.onPrimary),
+              label: Text(
                 "Agregar línea de apoyo",
-                style: TextStyle(color: Colors.white, fontSize: 16),
+                style: TextStyle(color: colorScheme.onPrimary, fontSize: 16),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6A94C9),
+                backgroundColor: colorScheme.primary,
                 minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15),
@@ -325,14 +365,21 @@ class _SupportLineCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+        border: Border.all(color: colorScheme.outline),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.onSurface.withValues(alpha: 0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Row(
@@ -343,26 +390,24 @@ class _SupportLineCard extends StatelessWidget {
               children: [
                 Text(
                   line.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   line.phone,
-                  style: const TextStyle(
-                    color: Color(0xFF6A94C9),
-                    fontSize: 15,
-                  ),
+                  style: TextStyle(color: colorScheme.primary, fontSize: 15),
                 ),
                 if (line.description != null &&
                     line.description!.isNotEmpty) ...[
                   const SizedBox(height: 4),
                   Text(
                     '"${line.description}"',
-                    style: const TextStyle(
-                      color: Colors.black54,
+                    style: TextStyle(
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
                       fontStyle: FontStyle.italic,
                     ),
                   ),
@@ -373,7 +418,9 @@ class _SupportLineCard extends StatelessWidget {
           IconButton(
             icon: Icon(
               line.isFavorite ? Icons.star : Icons.star_border,
-              color: line.isFavorite ? Colors.amber : Colors.black26,
+              color: line.isFavorite
+                  ? Colors.amber
+                  : colorScheme.onSurface.withValues(alpha: 0.4),
             ),
             onPressed: () {
               context.read<SupportLineController>().toggleFavorite(line);

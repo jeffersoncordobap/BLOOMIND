@@ -40,7 +40,6 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
   void initState() {
     super.initState();
     _cargarContadores();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<SupportLineController>().loadFavorites();
@@ -76,7 +75,7 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
         backgroundColor: colorScheme.surface,
         appBar: AppBar(
           title: Text(
-            'Favoritos',
+            'Mis Favoritos',
             style: TextStyle(
               color: colorScheme.onSurface,
               fontWeight: FontWeight.bold,
@@ -86,138 +85,131 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
           elevation: 0,
           backgroundColor: colorScheme.surface,
         ),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: ListView(
-            children: [
-              _CardFavorito(
-                colorScheme: colorScheme,
-                emoji: '🧘',
-                nombre: 'Meditación y respiración',
-                count: _meditationFavoritas,
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WidgetMeditacionFavorite(),
-                    ),
-                  );
-
-                  if (!mounted) return;
-
-                  final mainNavState = context
-                      .findAncestorStateOfType<MainNavigationScreenState>();
-                  mainNavState?.meditacionKey.currentState?.meditationRefresh();
-                },
-              ),
-              const SizedBox(height: 12),
-              _CardFavorito(
-                colorScheme: colorScheme,
-                emoji: '☁️',
-                nombre: 'Frases y motivación',
-                count: _frasesFavoritas,
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const FavoritasFrasesScreen(),
-                    ),
-                  );
-
-                  if (!mounted) return;
-
-                  await _cargarContadores();
-
-                  final mainNavState = context
-                      .findAncestorStateOfType<MainNavigationScreenState>();
-                  mainNavState?.frasesKey.currentState?.refreshFrases();
-                },
-              ),
-              const SizedBox(height: 12),
-              Consumer<RelaxingAudioController>(
-                builder: (context, controller, child) {
-                  return _CardFavorito(
+        body: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.all(20),
+              sliver: SliverGrid.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 0.85,
+                children: [
+                  _GridCardFavorito(
                     colorScheme: colorScheme,
-                    emoji: '🎧',
-                    nombre: 'Audios relajantes',
-                    count: controller.favoriteAudios.length,
+                    emoji: '🧘',
+                    nombre: 'Meditación',
+                    count: _meditationFavoritas,
                     onTap: () async {
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => ChangeNotifierProvider.value(
-                            value: controller,
-                            child: const FavoriteAudioScreen(),
-                          ),
+                          builder: (context) =>
+                              const WidgetMeditacionFavorite(),
                         ),
                       );
-
                       if (!mounted) return;
-                      await context
-                          .read<RelaxingAudioController>()
-                          .loadFavoriteAudios();
+                      _cargarContadores();
                     },
-                  );
-                },
+                  ),
+                  _GridCardFavorito(
+                    colorScheme: colorScheme,
+                    emoji: '☁️',
+                    nombre: 'Frases',
+                    count: _frasesFavoritas,
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const FavoritasFrasesScreen(),
+                        ),
+                      );
+                      if (!mounted) return;
+                      _cargarContadores();
+                    },
+                  ),
+                  Consumer<RelaxingAudioController>(
+                    builder: (context, controller, child) {
+                      return _GridCardFavorito(
+                        colorScheme: colorScheme,
+                        emoji: '🎧',
+                        nombre: 'Audios',
+                        count: controller.favoriteAudios.length,
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ChangeNotifierProvider.value(
+                                value: controller,
+                                child: const FavoriteAudioScreen(),
+                              ),
+                            ),
+                          );
+                          if (!mounted) return;
+                          controller.loadFavoriteAudios();
+                        },
+                      );
+                    },
+                  ),
+                  _GridCardFavorito(
+                    colorScheme: colorScheme,
+                    emoji: '🎁',
+                    nombre: 'Actividades',
+                    count: _surpriseFavoritas,
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              const SurpriseActivityFavoritesScreen(),
+                        ),
+                      );
+                      if (!mounted) return;
+                      _cargarContadores();
+                    },
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-
-              // 4. ACTIVIDADES SORPRESA
-              _CardFavorito(
-                colorScheme: colorScheme,
-                emoji: '🎁',
-                nombre: 'Actividad sorpresa',
-                count: _surpriseFavoritas,
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const SurpriseActivityFavoritesScreen(),
-                    ),
-                  );
-
-                  if (!mounted) return;
-                  await _cargarContadores();
-                },
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              sliver: SliverToBoxAdapter(
+                child: _WideCardFavorito(
+                  colorScheme: colorScheme,
+                  emoji: '❤️',
+                  nombre: 'Líneas de apoyo',
+                  count: supportController.favoriteLines.length,
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const OnlyFavoritesSupportLinesScreen(),
+                      ),
+                    );
+                    if (!mounted) return;
+                    context.read<SupportLineController>().loadFavorites();
+                  },
+                ),
               ),
-              const SizedBox(height: 12),
-
-              // 5. LÍNEAS DE APOYO
-              _CardFavorito(
-                colorScheme: colorScheme,
-                emoji: '❤️',
-                nombre: 'Líneas de apoyo',
-                count: supportController.favoriteLines.length,
-                onTap: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const OnlyFavoritesSupportLinesScreen(),
-                    ),
-                  );
-
-                  if (!mounted) return;
-                  await context.read<SupportLineController>().loadFavorites();
-                },
-              ),
-            ],
-          ),
+            ),
+            const SliverToBoxAdapter(child: SizedBox(height: 20)),
+          ],
         ),
       ),
     );
   }
 }
 
-class _CardFavorito extends StatelessWidget {
+class _GridCardFavorito extends StatelessWidget {
   final ColorScheme colorScheme;
   final String emoji;
   final String nombre;
   final int count;
   final VoidCallback onTap;
 
-  const _CardFavorito({
+  const _GridCardFavorito({
     required this.colorScheme,
     required this.emoji,
     required this.nombre,
@@ -229,58 +221,112 @@ class _CardFavorito extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.onSurface.withValues(alpha: 0.1),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        color: colorScheme.surfaceVariant.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: colorScheme.outlineVariant.withOpacity(0.5)),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(emoji, style: const TextStyle(fontSize: 40)),
+                const SizedBox(height: 12),
+                Text(
+                  nombre,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '$count ítem${count == 1 ? '' : 's'}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: colorScheme.onSurface.withOpacity(0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WideCardFavorito extends StatelessWidget {
+  final ColorScheme colorScheme;
+  final String emoji;
+  final String nombre;
+  final int count;
+  final VoidCallback onTap;
+
+  const _WideCardFavorito({
+    required this.colorScheme,
+    required this.emoji,
+    required this.nombre,
+    required this.count,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 90,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            colorScheme.primaryContainer.withOpacity(0.7),
+            colorScheme.surfaceVariant.withOpacity(0.3),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: colorScheme.primary.withOpacity(0.1)),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
               children: [
-                Text(
-                  emoji,
-                  style: TextStyle(fontSize: 30, color: colorScheme.onSurface),
-                ),
-                const SizedBox(width: 16),
+                Text(emoji, style: const TextStyle(fontSize: 32)),
+                const SizedBox(width: 20),
                 Expanded(
                   child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         nombre,
                         style: TextStyle(
                           fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.bold,
                           color: colorScheme.onSurface,
                         ),
                       ),
-                      const SizedBox(height: 4),
                       Text(
-                        '$count favorito${count == 1 ? '' : 's'}',
+                        '$count guardados',
                         style: TextStyle(
                           fontSize: 13,
-                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                          color: colorScheme.onSurface.withOpacity(0.6),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: colorScheme.onSurface.withValues(alpha: 0.4),
-                ),
+                Icon(Icons.arrow_forward_rounded, color: colorScheme.primary),
               ],
             ),
           ),

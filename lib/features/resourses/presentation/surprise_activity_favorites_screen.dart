@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class SurpriseActivityFavoritesScreen extends StatefulWidget {
   final Function? onFavoritosUpdated;
-  
+
   const SurpriseActivityFavoritesScreen({super.key, this.onFavoritosUpdated});
 
   @override
@@ -42,7 +42,6 @@ class _SurpriseActivityFavoritesScreenState
     if (activity.id == null) return;
     await _repo.moverAPapelera(activity.id!);
     await _cargarFavoritos();
-    // Notificar cambios a sorpresa
     widget.onFavoritosUpdated?.call();
   }
 
@@ -60,33 +59,38 @@ class _SurpriseActivityFavoritesScreenState
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF4FB),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Actividades favoritas',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: const Color(0xFF4A90D9),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+        backgroundColor: colorScheme.surface,
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
         actions: [
           IconButton(
-            icon: const Icon(Icons.delete_outline, color: Colors.white),
+            icon: const Icon(Icons.delete_outline),
             tooltip: 'Papelera',
             onPressed: _abrirPapelera,
           ),
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
           : _favoritos.isEmpty
-          ? const Center(
-              child: Text('No hay actividades sorpresa favoritas aún.'),
+          ? Center(
+              child: Text(
+                'No hay actividades sorpresa favoritas aún.',
+                style: TextStyle(color: colorScheme.onSurfaceVariant),
+              ),
             )
           : ListView.builder(
               padding: const EdgeInsets.all(16),
@@ -94,14 +98,32 @@ class _SurpriseActivityFavoritesScreenState
               itemBuilder: (context, index) {
                 final actividad = _favoritos[index];
                 return Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                      color: colorScheme.outlineVariant.withOpacity(0.5),
+                    ),
+                  ),
+                  color: colorScheme.surfaceContainerLow,
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   child: ListTile(
-                    title: Text(actividad.description),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 8,
+                    ),
+                    title: Text(
+                      actividad.description,
+                      style: TextStyle(
+                        color: colorScheme.onSurface,
+                        fontSize: 16,
+                      ),
+                    ),
                     trailing: IconButton(
                       icon: const Icon(
                         Icons.star,
                         color: Colors.amber,
-                        size: 26,
+                        size: 28,
                       ),
                       tooltip: 'Mover a papelera',
                       onPressed: () => _moverAPapelera(actividad),

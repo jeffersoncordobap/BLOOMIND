@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class SurpriseActivityTrashScreen extends StatefulWidget {
   final Function? onTrashUpdated;
-  
+
   const SurpriseActivityTrashScreen({super.key, this.onTrashUpdated});
 
   @override
@@ -41,7 +41,6 @@ class _SurpriseActivityTrashScreenState
     if (activity.id == null) return;
     await _repo.restaurarDePapelera(activity.id!);
     await _refreshTrash();
-    // Notificar cambios
     widget.onTrashUpdated?.call();
   }
 
@@ -49,35 +48,43 @@ class _SurpriseActivityTrashScreenState
     if (activity.id == null) return;
     await _repo.eliminarPermanentemente(activity.id!);
     await _refreshTrash();
-    // Notificar cambios
     widget.onTrashUpdated?.call();
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Papelera de actividades'),
-        backgroundColor: const Color(0xFF4A90D9),
+        title: Text(
+          'Papelera de actividades',
+          style: TextStyle(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: colorScheme.surface,
         centerTitle: true,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
+        iconTheme: IconThemeData(color: colorScheme.onSurface),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
           : _trash.isEmpty
-          ? const Center(
+          ? Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('🗑️', style: TextStyle(fontSize: 60)),
-                  SizedBox(height: 16),
+                  const Text('🗑️', style: TextStyle(fontSize: 60)),
+                  const SizedBox(height: 16),
                   Text(
                     'No hay actividades en la papelera',
-                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
@@ -90,13 +97,16 @@ class _SurpriseActivityTrashScreenState
                 final activity = _trash[index];
                 return Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: colorScheme.surfaceContainerLow,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: const [
+                    border: Border.all(
+                      color: colorScheme.outlineVariant.withOpacity(0.5),
+                    ),
+                    boxShadow: [
                       BoxShadow(
-                        color: Color(0x224A90D9),
+                        color: colorScheme.shadow.withOpacity(0.05),
                         blurRadius: 8,
-                        offset: Offset(0, 3),
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
@@ -110,18 +120,19 @@ class _SurpriseActivityTrashScreenState
                       children: [
                         Text(
                           activity.description,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
+                            color: colorScheme.onSurface,
                           ),
                         ),
                         const SizedBox(height: 6),
                         Text(
                           'Será eliminado en ${activity.diasRestantes} días',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: Colors.red,
-                            fontWeight: FontWeight.w500,
+                            color: colorScheme.error,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
@@ -130,18 +141,14 @@ class _SurpriseActivityTrashScreenState
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(
-                            Icons.restore_from_trash,
-                            color: Colors.green,
-                          ),
+                          icon: const Icon(Icons.restore_from_trash),
+                          color: Colors.greenAccent[700],
                           tooltip: 'Restaurar',
                           onPressed: () => _restore(activity),
                         ),
                         IconButton(
-                          icon: const Icon(
-                            Icons.delete_forever,
-                            color: Colors.red,
-                          ),
+                          icon: const Icon(Icons.delete_forever),
+                          color: colorScheme.error,
                           tooltip: 'Eliminar permanentemente',
                           onPressed: () => _deletePermanent(activity),
                         ),

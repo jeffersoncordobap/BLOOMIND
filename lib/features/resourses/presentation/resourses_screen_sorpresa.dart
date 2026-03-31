@@ -156,21 +156,18 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa>
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFEEF4FB),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
         title: const Text(
           'Actividad Sorpresa',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 22,
-          ),
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: const Color(0xFF4A90D9),
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white, size: 28),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface, size: 28),
           onPressed: () {
             context
                 .findAncestorStateOfType<MainNavigationScreenState>()
@@ -179,74 +176,66 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa>
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.favorite, color: Colors.white, size: 26),
+            icon: Icon(Icons.favorite, color: colorScheme.onSurface, size: 26),
             onPressed: _abrirFavoritos,
           ),
         ],
       ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFEEF4FB), Color(0xFFD9E9F7)],
-          ),
-        ),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: _actividades.isEmpty
-                ? const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Color(0xFF4A90D9),
-                    ),
-                  )
-                : !mostrarRuleta
-                ? _buildWelcomeView()
-                : _buildRouletteView(),
-          ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: _actividades.isEmpty
+              ? CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    colorScheme.primary,
+                  ),
+                )
+              : !mostrarRuleta
+              ? _buildWelcomeView(colorScheme)
+              : _buildRouletteView(colorScheme),
         ),
       ),
     );
   }
 
-  Widget _buildWelcomeView() {
+  Widget _buildWelcomeView(ColorScheme colorScheme) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
           padding: const EdgeInsets.all(30),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(25),
+            border: Border.all(color: colorScheme.outline),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF4A90D9).withOpacity(0.2),
+                color: colorScheme.onSurface.withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
             ],
           ),
-          child: const Column(
+          child: Column(
             children: [
-              Text('✨', style: TextStyle(fontSize: 40)),
-              SizedBox(height: 20),
+              const Text('✨', style: TextStyle(fontSize: 40)),
+              const SizedBox(height: 20),
               Text(
                 '¿Necesitas inspiración?',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3142),
+                  color: colorScheme.onSurface,
                 ),
               ),
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               Text(
                 'Deja que te sugiera una actividad que puede mejorar tu bienestar',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
-                  color: Color(0xFF6B7280),
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                   height: 1.4,
                 ),
               ),
@@ -262,8 +251,8 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa>
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF4A90D9),
-            foregroundColor: Colors.white,
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
             padding: const EdgeInsets.symmetric(horizontal: 56, vertical: 18),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(35),
@@ -274,7 +263,7 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa>
     );
   }
 
-  Widget _buildRouletteView() {
+  Widget _buildRouletteView(ColorScheme colorScheme) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -282,11 +271,12 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa>
           width: 280,
           height: 280,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colorScheme.surface,
             shape: BoxShape.circle,
+            border: Border.all(color: colorScheme.outline),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF4A90D9).withOpacity(0.3),
+                color: colorScheme.onSurface.withValues(alpha: 0.1),
                 blurRadius: 25,
                 offset: const Offset(0, 12),
               ),
@@ -303,10 +293,10 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa>
                     child: Text(
                       actividadSeleccionada?.description ?? '🎁',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF2D3142),
+                        color: colorScheme.onSurface,
                       ),
                     ),
                   ),
@@ -332,8 +322,8 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa>
             actividadSeleccionada == null ? 'Girar' : 'Otra actividad',
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF627EEA),
-            foregroundColor: Colors.white,
+            backgroundColor: colorScheme.primary,
+            foregroundColor: colorScheme.onPrimary,
             padding: const EdgeInsets.symmetric(horizontal: 52, vertical: 16),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30),
