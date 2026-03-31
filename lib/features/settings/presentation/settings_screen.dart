@@ -15,7 +15,8 @@ class SettingsScreen extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.background,
+      // Usamos el color de fondo del tema que configuramos (gris-azulado suave)
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -90,8 +91,7 @@ class SettingsScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) =>
-                                const NotificationSettingsScreen(),
+                            builder: (_) => const NotificationSettingsScreen(),
                           ),
                         );
                       },
@@ -137,9 +137,9 @@ class SettingsScreen extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
@@ -157,7 +157,9 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _buildWelcomeCard(
-      ProfileController controller, ColorScheme colorScheme) {
+    ProfileController controller,
+    ColorScheme colorScheme,
+  ) {
     String saludo = 'Bienvenido/a';
     if (controller.profile.genero == 'Masculino') saludo = 'Bienvenido';
     if (controller.profile.genero == 'Femenino') saludo = 'Bienvenida';
@@ -166,13 +168,15 @@ class SettingsScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceVariant,
+        color:
+            colorScheme.surface, // Cambiado a surface (Blanco) para contrastar
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 15,
+            spreadRadius: 1,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
@@ -191,7 +195,7 @@ class SettingsScreen extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 22,
-                backgroundColor: Colors.white,
+                backgroundColor: colorScheme.primary.withOpacity(0.1),
                 child: Text(
                   controller.profile.emoji.isEmpty
                       ? '😊'
@@ -230,51 +234,66 @@ class SettingsScreen extends StatelessWidget {
   }) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    return Material(
-      color: colorScheme.surface,
-      borderRadius: BorderRadius.circular(24),
-      child: InkWell(
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-          child: Row(
-            children: [
-              Container(
-                width: 52,
-                height: 52,
-                decoration: BoxDecoration(
-                  color: iconBackground,
-                  borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent, // Para que se vea la sombra del container
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+            child: Row(
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: iconBackground,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(icon, color: iconColor, size: 28),
                 ),
-                child: Icon(icon, color: iconColor, size: 28),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: colorScheme.onSurface,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.w700,
+                          color: colorScheme.onSurface,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 13.5,
-                        color: colorScheme.onSurface.withOpacity(0.6),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 13.5,
+                          color: colorScheme.onSurface.withOpacity(0.6),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const Icon(Icons.chevron_right_rounded),
-            ],
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: colorScheme.onSurface.withOpacity(0.3),
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -53,13 +53,11 @@ class widget_meditacionState extends State<widget_meditacion> {
     final colorScheme = Theme.of(context).colorScheme;
 
     if (audios.isEmpty) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text("Meditación y respiración"),
         centerTitle: true,
@@ -89,6 +87,7 @@ class widget_meditacionState extends State<widget_meditacion> {
               margin: const EdgeInsets.symmetric(vertical: 8),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16),
+                side: BorderSide(color: colorScheme.outline, width: 1),
               ),
               elevation: 2,
               child: Column(
@@ -139,14 +138,10 @@ class widget_meditacionState extends State<widget_meditacion> {
                         final updatedAudio = ResourseMeditation(
                           id_meditacion: audio.id_meditacion,
                           title_meditation: audio.title_meditation,
-                          descripcion_meditation:
-                              audio.descripcion_meditation,
-                          duration_meditation:
-                              audio.duration_meditation,
-                          filepath_meditation:
-                              audio.filepath_meditation,
-                          favorite_meditation:
-                              !audio.favorite_meditation,
+                          descripcion_meditation: audio.descripcion_meditation,
+                          duration_meditation: audio.duration_meditation,
+                          filepath_meditation: audio.filepath_meditation,
+                          favorite_meditation: !audio.favorite_meditation,
                         );
 
                         setState(() {
@@ -174,21 +169,22 @@ class widget_meditacionState extends State<widget_meditacion> {
                           return StreamBuilder<Duration>(
                             stream: _player.positionStream,
                             builder: (context, posSnap) {
-                              final position =
-                                  posSnap.data ?? Duration.zero;
+                              final position = posSnap.data ?? Duration.zero;
                               return Column(
                                 children: [
                                   Slider(
-                                    value: position.inSeconds
-                                        .toDouble()
-                                        .clamp(0,
-                                            total.inSeconds.toDouble()),
-                                    max: total.inSeconds
-                                        .toDouble()
-                                        .clamp(1, double.infinity),
+                                    value: position.inSeconds.toDouble().clamp(
+                                      0,
+                                      total.inSeconds.toDouble(),
+                                    ),
+                                    max: total.inSeconds.toDouble().clamp(
+                                      1,
+                                      double.infinity,
+                                    ),
                                     onChanged: (val) {
                                       _player.seek(
-                                          Duration(seconds: val.toInt()));
+                                        Duration(seconds: val.toInt()),
+                                      );
                                     },
                                     activeColor: colorScheme.primary,
                                     inactiveColor: colorScheme.primary
@@ -262,25 +258,21 @@ class widget_meditacionState extends State<widget_meditacion> {
         ResourseMeditationRepositoryImpl();
     final AudiosIniciales = audios_guardar;
 
-    final meditacionesExistentes =
-        await _repository.getAllMeditations();
+    final meditacionesExistentes = await _repository.getAllMeditations();
 
     for (ResourseMeditation audios in AudiosIniciales) {
       bool existe = meditacionesExistentes.any(
-          (f) => f.title_meditation == audios.title_meditation);
+        (f) => f.title_meditation == audios.title_meditation,
+      );
       if (!existe) {
         await _repository.createMeditation(
           ResourseMeditation(
             id_meditacion: audios.id_meditacion,
             title_meditation: audios.title_meditation,
-            descripcion_meditation:
-                audios.descripcion_meditation,
-            duration_meditation:
-                audios.duration_meditation,
-            filepath_meditation:
-                audios.filepath_meditation,
-            favorite_meditation:
-                audios.favorite_meditation,
+            descripcion_meditation: audios.descripcion_meditation,
+            duration_meditation: audios.duration_meditation,
+            filepath_meditation: audios.filepath_meditation,
+            favorite_meditation: audios.favorite_meditation,
           ),
         );
       }

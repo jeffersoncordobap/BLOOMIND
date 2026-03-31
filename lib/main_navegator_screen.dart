@@ -7,7 +7,7 @@ import 'package:bloomind/features/routines/presentation/assign_routines_screen.d
 import 'package:bloomind/features/routines/presentation/day_routine_screen.dart';
 import 'package:bloomind/features/routines/presentation/routines_list_screen.dart';
 import 'package:bloomind/features/routines/presentation/ruotine_screen.dart';
-import 'package:bloomind/features/settings/presentation/tema_controller.dart';
+import 'package:bloomind/features/settings/controller/tema_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'features/emotions/presentation/screens/emotion_record_screen.dart';
@@ -15,6 +15,7 @@ import 'features/emotions/presentation/screens/emotion_list_screen.dart';
 import 'package:bloomind/features/estadisticas/presentation/statistics_screen.dart';
 import 'features/resourses/presentation/resourses_screen.dart';
 import 'features/settings/presentation/settings_screen.dart';
+
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
 
@@ -25,12 +26,12 @@ class MainNavigationScreen extends StatefulWidget {
 class MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
   //late List<Widget> _screens;
-  final GlobalKey<widget_meditacionState> meditacionKey = GlobalKey<widget_meditacionState>();
+  final GlobalKey<widget_meditacionState> meditacionKey =
+      GlobalKey<widget_meditacionState>();
   final GlobalKey<StatisticsScreenState> _statisticsKey =
-  GlobalKey<StatisticsScreenState>();
-  final GlobalKey<ResoursesScreenFrasesState> frasesKey = GlobalKey<ResoursesScreenFrasesState>();
-  
-  
+      GlobalKey<StatisticsScreenState>();
+  final GlobalKey<ResoursesScreenFrasesState> frasesKey =
+      GlobalKey<ResoursesScreenFrasesState>();
 
   void cambiarIndice(int index) {
     setState(() {
@@ -43,9 +44,8 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
       frasesKey.currentState?.refreshFrases();
     }
     if (index == 9) {
-      meditacionKey.currentState?.meditationRefresh(); 
+      meditacionKey.currentState?.meditationRefresh();
     }
-    
   }
 
   void irAlDiario() {
@@ -109,9 +109,8 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    
     final temaProvider = Provider.of<TemaProvider>(context);
-    
+
     final screens = [
       RegistroEmocionalScreen(alPresionarDiario: irAlDiario),
 

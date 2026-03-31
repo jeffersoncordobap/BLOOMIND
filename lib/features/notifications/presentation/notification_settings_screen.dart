@@ -3,17 +3,16 @@ import 'package:bloomind/features/notifications/data/notification_preferences.da
 import 'package:bloomind/core/services/notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:bloomind/features/routines/controller/day_routine_controller.dart';
+
 class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({super.key});
 
   @override
   State<NotificationSettingsScreen> createState() =>
       _NotificationSettingsScreenState();
-
 }
 
-class _NotificationSettingsScreenState
-    extends State<NotificationSettingsScreen>
+class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     with TickerProviderStateMixin {
   bool dailyReminder = false;
   bool activityReminder = false;
@@ -44,8 +43,8 @@ class _NotificationSettingsScreenState
   }
 
   Future<bool> _ensureNotificationPermission() async {
-    final granted =
-    await NotificationService.instance.requestNotificationPermission();
+    final granted = await NotificationService.instance
+        .requestNotificationPermission();
 
     if (granted) return true;
 
@@ -57,7 +56,7 @@ class _NotificationSettingsScreenState
         title: const Text('Permiso requerido'),
         content: const Text(
           'Las notificaciones están desactivadas. '
-              'Actívalas en la configuración de la app para recibir recordatorios.',
+          'Actívalas en la configuración de la app para recibir recordatorios.',
         ),
         actions: [
           TextButton(
@@ -77,10 +76,6 @@ class _NotificationSettingsScreenState
 
     return false;
   }
-
-
-
-
 
   Future<void> _loadSettings() async {
     final data = await _preferences.loadSettings();
@@ -162,7 +157,8 @@ class _NotificationSettingsScreenState
         await NotificationService.instance.cancelActivityNotifications();
       }
 
-      final pending = await NotificationService.instance.getPendingNotifications();
+      final pending = await NotificationService.instance
+          .getPendingNotifications();
 
       debugPrint('🔔 Notificaciones pendientes: ${pending.length}');
       for (final item in pending) {
@@ -178,9 +174,9 @@ class _NotificationSettingsScreenState
         _savedSelectedMinutes = selectedMinutes;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Configuración guardada')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Configuración guardada')));
     } catch (e, st) {
       debugPrint('❌ Error al guardar configuración: $e');
       debugPrintStack(stackTrace: st);
@@ -188,9 +184,7 @@ class _NotificationSettingsScreenState
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('No se pudieron guardar los cambios: $e'),
-        ),
+        SnackBar(content: Text('No se pudieron guardar los cambios: $e')),
       );
     }
   }
@@ -213,228 +207,265 @@ class _NotificationSettingsScreenState
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurface),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body:
-      _isLoading
+      body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-      :Stack(
-        children: [
-          SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-              20,
-              18,
-              20,
-              _hasChanges ? 120 : 32,
-            ),
-            child: Column(
+          : Stack(
               children: [
-                _NotificationSectionCard(
-                  title: 'Recordatorio diario',
-                  subtitle: 'Recuerda registrar tu emoción cada día',
-                  icon: Icons.favorite_rounded,
-                  iconBackground: Theme.of(context).colorScheme.primaryContainer,
-                  iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
-                  value: dailyReminder,
-                  onChanged: (value) {
-                    setState(() {
-                      dailyReminder = value;
-                    });
-                  },
-                  summaryText: dailyReminder
-                      ? 'Te avisaremos cada día a las ${_formatTime(selectedTime)}.'
-                      : null,
-                  child: _SmoothExpand(
-                    expanded: dailyReminder,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 18),
-                        Divider(
-                          color: Theme.of(context).dividerColor,
-                          height: 1,
-                        ),
-                        const SizedBox(height: 18),
-                        Text(
-                          'Hora del recordatorio',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity( 0.7),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        GestureDetector(
-                          onTap: _pickTime,
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 15,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceContainerHigh,
-                              borderRadius: BorderRadius.circular(18),
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.outline,
+                SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    20,
+                    18,
+                    20,
+                    _hasChanges ? 120 : 32,
+                  ),
+                  child: Column(
+                    children: [
+                      _NotificationSectionCard(
+                        title: 'Recordatorio diario',
+                        subtitle: 'Recuerda registrar tu emoción cada día',
+                        icon: Icons.favorite_rounded,
+                        iconBackground: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        iconColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimaryContainer,
+                        value: dailyReminder,
+                        onChanged: (value) {
+                          setState(() {
+                            dailyReminder = value;
+                          });
+                        },
+                        summaryText: dailyReminder
+                            ? 'Te avisaremos cada día a las ${_formatTime(selectedTime)}.'
+                            : null,
+                        child: _SmoothExpand(
+                          expanded: dailyReminder,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 18),
+                              Divider(
+                                color: Theme.of(context).dividerColor,
+                                height: 1,
                               ),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 38,
-                                  height: 38,
+                              const SizedBox(height: 18),
+                              Text(
+                                'Hora del recordatorio',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.7),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              GestureDetector(
+                                onTap: _pickTime,
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 15,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.primaryContainer,
-                                    borderRadius: BorderRadius.circular(12),
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.surfaceContainerHigh,
+                                    borderRadius: BorderRadius.circular(18),
+                                    border: Border.all(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.outline,
+                                    ),
                                   ),
-                                  child:  Icon(
-                                    Icons.schedule_rounded,
-                                    color: Theme.of(context).colorScheme.primary,
-                                    size: 20,
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 38,
+                                        height: 38,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primaryContainer,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Icon(
+                                          Icons.schedule_rounded,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        _formatTime(selectedTime),
+                                        style: TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w700,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurface,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Icon(
+                                        Icons.chevron_right_rounded,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withOpacity(0.6),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(width: 12),
-                                Text(
-                                  _formatTime(selectedTime),
-                                  style:  TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700,
-                                    color: Theme.of(context).colorScheme.onSurface,
-                                  ),
-                                ),
-                                const Spacer(),
-                                 Icon(
-                                  Icons.chevron_right_rounded,
-                                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 22),
+                      _NotificationSectionCard(
+                        title: 'Actividades del día',
+                        subtitle: 'Recibe un aviso antes de cada actividad',
+                        icon: Icons.event_note_rounded,
+                        iconBackground: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        iconColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimaryContainer,
+                        value: activityReminder,
+                        onChanged: (value) {
+                          setState(() {
+                            activityReminder = value;
+                          });
+                        },
+                        summaryText: activityReminder
+                            ? 'Te avisaremos $selectedMinutes minutos antes de cada actividad.'
+                            : null,
+                        child: _SmoothExpand(
+                          expanded: activityReminder,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 18),
+                              Divider(
+                                color: Theme.of(context).dividerColor,
+                                height: 1,
+                              ),
+                              const SizedBox(height: 18),
+                              Text(
+                                'Avisar con anticipación',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurface.withOpacity(0.6),
+                                ),
+                              ),
+                              const SizedBox(height: 14),
+                              Wrap(
+                                spacing: 12,
+                                runSpacing: 12,
+                                children: [5, 10, 15, 30].map((minutes) {
+                                  final isSelected = selectedMinutes == minutes;
+                                  return _MinuteChip(
+                                    label: '$minutes',
+                                    selected: isSelected,
+                                    onTap: () {
+                                      setState(() {
+                                        selectedMinutes = minutes;
+                                      });
+                                    },
+                                  );
+                                }).toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 22),
-                _NotificationSectionCard(
-                  title: 'Actividades del día',
-                  subtitle: 'Recibe un aviso antes de cada actividad',
-                  icon: Icons.event_note_rounded,
-                  iconBackground: Theme.of(context).colorScheme.primaryContainer,
-                  iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
-                  value: activityReminder,
-                  onChanged: (value) {
-                    setState(() {
-                      activityReminder = value;
-                    });
-                  },
-                  summaryText: activityReminder
-                      ? 'Te avisaremos $selectedMinutes minutos antes de cada actividad.'
-                      : null,
-                  child: _SmoothExpand(
-                    expanded: activityReminder,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 18),
-                         Divider(
-                          color: Theme.of(context).dividerColor,
-                          height: 1,
-                        ),
-                        const SizedBox(height: 18),
-                         Text(
-                          'Avisar con anticipación',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                AnimatedPositioned(
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeInOut,
+                  left: 20,
+                  right: 20,
+                  bottom: _hasChanges ? 16 : -90,
+                  child: IgnorePointer(
+                    ignoring: !_hasChanges,
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 180),
+                      opacity: _hasChanges ? 1 : 0,
+                      child: SafeArea(
+                        top: false,
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.outline,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.08),
+                                blurRadius: 16,
+                                offset: Offset(0, 6),
+                              ),
+                            ],
+                          ),
+                          child: SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: _saveSettings,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.primary,
+                                foregroundColor: Theme.of(
+                                  context,
+                                ).colorScheme.onPrimary,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                              ),
+                              child: const Text(
+                                'Guardar cambios',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 14),
-                        Wrap(
-                          spacing: 12,
-                          runSpacing: 12,
-                          children: [5, 10, 15, 30].map((minutes) {
-                            final isSelected = selectedMinutes == minutes;
-                            return _MinuteChip(
-                              label: '$minutes',
-                              selected: isSelected,
-                              onTap: () {
-                                setState(() {
-                                  selectedMinutes = minutes;
-                                });
-                              },
-                            );
-                          }).toList(),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-          ),
-          AnimatedPositioned(
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeInOut,
-            left: 20,
-            right: 20,
-            bottom: _hasChanges ? 16 : -90,
-            child: IgnorePointer(
-              ignoring: !_hasChanges,
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 180),
-                opacity: _hasChanges ? 1 : 0,
-                child: SafeArea(
-                  top: false,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(22),
-                      border: Border.all(
-                        color:Theme.of(context).colorScheme.outline,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color :Theme.of(context).colorScheme.onSurface.withOpacity(0.08),
-                          blurRadius: 16,
-                          offset: Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: _saveSettings,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.primary,
-                          foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                        ),
-                        child: const Text(
-                          'Guardar cambios',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -477,10 +508,8 @@ class _NotificationSectionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(26),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outline,
-        ),
-        boxShadow:  [
+        border: Border.all(color: Theme.of(context).colorScheme.outline),
+        boxShadow: [
           BoxShadow(
             color: Theme.of(context).colorScheme.shadow.withOpacity(0.07),
             blurRadius: 16,
@@ -501,11 +530,7 @@ class _NotificationSectionCard extends StatelessWidget {
                   color: iconBackground,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Icon(
-                  icon,
-                  color: iconColor,
-                  size: 26,
-                ),
+                child: Icon(icon, color: iconColor, size: 26),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -516,7 +541,7 @@ class _NotificationSectionCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style:  TextStyle(
+                        style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w800,
                           color: Theme.of(context).colorScheme.onSurface,
@@ -526,9 +551,11 @@ class _NotificationSectionCard extends StatelessWidget {
                       const SizedBox(height: 6),
                       Text(
                         subtitle,
-                        style:  TextStyle(
+                        style: TextStyle(
                           fontSize: 15,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.7),
                           height: 1.35,
                         ),
                       ),
@@ -549,7 +576,7 @@ class _NotificationSectionCard extends StatelessWidget {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                               Icon(
+                              Icon(
                                 Icons.notifications_active_rounded,
                                 size: 18,
                                 color: Theme.of(context).colorScheme.primary,
@@ -558,10 +585,12 @@ class _NotificationSectionCard extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   summaryText!,
-                                  style:  TextStyle(
+                                  style: TextStyle(
                                     fontSize: 13.5,
                                     fontWeight: FontWeight.w600,
-                                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.7),
                                     height: 1.35,
                                   ),
                                 ),
@@ -575,10 +604,7 @@ class _NotificationSectionCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              _CustomToggle(
-                value: value,
-                onChanged: onChanged,
-              ),
+              _CustomToggle(value: value, onChanged: onChanged),
             ],
           ),
           child,
@@ -592,10 +618,7 @@ class _CustomToggle extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
 
-  const _CustomToggle({
-    required this.value,
-    required this.onChanged,
-  });
+  const _CustomToggle({required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -608,16 +631,26 @@ class _CustomToggle extends StatelessWidget {
         height: 34,
         padding: const EdgeInsets.symmetric(horizontal: 4),
         decoration: BoxDecoration(
-          color: value ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: value
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(30),
+          border: Border.all(
+            color: value
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.outline,
+            width: 1.5,
+          ),
           boxShadow: value
-              ?  [
-            BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withOpacity( 0.15),
-              blurRadius: 8,
-              offset: Offset(0, 3),
-            ),
-          ]
+              ? [
+                  BoxShadow(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withOpacity(0.15),
+                    blurRadius: 8,
+                    offset: Offset(0, 3),
+                  ),
+                ]
               : null,
         ),
         child: AnimatedAlign(
@@ -627,7 +660,7 @@ class _CustomToggle extends StatelessWidget {
           child: Container(
             width: 24,
             height: 24,
-            decoration:  BoxDecoration(
+            decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               shape: BoxShape.circle,
               boxShadow: [
@@ -641,15 +674,20 @@ class _CustomToggle extends StatelessWidget {
             child: AnimatedSwitcher(
               duration: const Duration(milliseconds: 180),
               child: value
-                  ?  Icon(
-                Icons.check_rounded,
-                key: ValueKey('active_icon'),
-                size: 15,
-                color: Theme.of(context).colorScheme.primary,
-              )
-                  : const SizedBox(
-                key: ValueKey('empty_icon'),
-              ),
+                  ? Icon(
+                      Icons.check_rounded,
+                      key: ValueKey('active_icon'),
+                      size: 15,
+                      color: Theme.of(context).colorScheme.primary,
+                    )
+                  : Icon(
+                      Icons.close_rounded,
+                      key: const ValueKey('empty_icon'),
+                      size: 14,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.3),
+                    ),
             ),
           ),
         ),
@@ -679,19 +717,25 @@ class _MinuteChip extends StatelessWidget {
         width: 70,
         height: 56,
         decoration: BoxDecoration(
-          color: selected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceContainerHighest,
+          color: selected
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: selected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outline,
+            color: selected
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.outline,
           ),
           boxShadow: selected
-              ?  [
-            BoxShadow(
-              color:  Theme.of(context).colorScheme.primary.withOpacity(0.15),
-              blurRadius: 12,
-              offset: Offset(0, 4),
-            ),
-          ]
+              ? [
+                  BoxShadow(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withOpacity(0.15),
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  ),
+                ]
               : null,
         ),
         alignment: Alignment.center,
@@ -700,7 +744,9 @@ class _MinuteChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w800,
-            color: selected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
+            color: selected
+                ? Theme.of(context).colorScheme.onPrimary
+                : Theme.of(context).colorScheme.onSurface,
           ),
         ),
       ),
@@ -712,10 +758,7 @@ class _SmoothExpand extends StatelessWidget {
   final bool expanded;
   final Widget child;
 
-  const _SmoothExpand({
-    required this.expanded,
-    required this.child,
-  });
+  const _SmoothExpand({required this.expanded, required this.child});
 
   @override
   Widget build(BuildContext context) {

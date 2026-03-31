@@ -29,7 +29,7 @@ class RecurseScreen extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colorScheme.surface,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: const Text("Recursos"),
         centerTitle: true,
@@ -49,13 +49,7 @@ class RecurseScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: colorScheme.surface,
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorScheme.onSurface.withValues(alpha: 0.1),
-                      blurRadius: 8,
-                      offset: const Offset(0, 3),
-                    ),
-                  ],
+                  border: Border.all(color: colorScheme.outline),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,13 +92,7 @@ class RecurseScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(22),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colorScheme.onSurface.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
+                    border: Border.all(color: colorScheme.outline),
                   ),
                   child: Row(
                     children: [
@@ -135,13 +123,7 @@ class RecurseScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(22),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colorScheme.onSurface.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
+                    border: Border.all(color: colorScheme.outline),
                   ),
                   child: Row(
                     children: [
@@ -184,13 +166,7 @@ class RecurseScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(22),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colorScheme.onSurface.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
+                    border: Border.all(color: colorScheme.outline),
                   ),
                   child: Row(
                     children: [
@@ -221,13 +197,7 @@ class RecurseScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(22),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colorScheme.onSurface.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
+                    border: Border.all(color: colorScheme.outline),
                   ),
                   child: Row(
                     children: [
@@ -265,13 +235,7 @@ class RecurseScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(22),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colorScheme.onSurface.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
+                    border: Border.all(color: colorScheme.outline),
                   ),
                   child: Row(
                     children: [
@@ -309,13 +273,7 @@ class RecurseScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: colorScheme.surface,
                     borderRadius: BorderRadius.circular(22),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colorScheme.onSurface.withValues(alpha: 0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
+                    border: Border.all(color: colorScheme.outline),
                   ),
                   child: Row(
                     children: [

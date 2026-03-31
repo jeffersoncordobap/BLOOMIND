@@ -3,7 +3,8 @@ import 'package:bloomind/features/resourses/controller/support_line_controller.d
 import 'package:bloomind/features/resourses/repository/support_lines_repository_impl.dart';
 import 'package:bloomind/features/routines/controller/day_routine_controller.dart';
 import 'package:bloomind/features/routines/presentation/provider/routine_provider.dart';
-import 'package:bloomind/features/settings/presentation/tema_controller.dart';
+import 'package:bloomind/features/settings/app_theme.dart';
+import 'package:bloomind/features/settings/controller/tema_controller.dart';
 import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -80,21 +81,9 @@ class BloomindApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Bloomind',
-          theme: ThemeData(
-            brightness: temaProvider.modoOscuro
-                ? Brightness.dark
-                : Brightness.light,
-
-            colorScheme: temaProvider.modoOscuro
-                ? const ColorScheme.dark(surface: Color(0xFF1E293B))
-                : const ColorScheme.light(surface: Colors.white),
-
-            scaffoldBackgroundColor: temaProvider.modoOscuro
-                ? const Color(0xFF0F172A)
-                : const Color(0xFFE9EDF2),
-
-            useMaterial3: true,
-          ),
+          theme: temaProvider.modoOscuro
+              ? AppTheme.darkTheme
+              : AppTheme.lightTheme,
 
           home: hasSeenOnboarding
               ? const MainNavigationScreen()

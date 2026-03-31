@@ -27,19 +27,18 @@ class PapeleraScreen extends StatelessWidget {
         ..loadDeletedRoutines()
         ..loadDeletedSupportLines(),
       child: Scaffold(
-        backgroundColor: const Color(0xFFF2F4F7),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             'Papelera',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           centerTitle: true,
           elevation: 0,
-          backgroundColor: Colors.white,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black87),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
+          backgroundColor: Theme.of(context).colorScheme.surface,
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -146,13 +145,12 @@ class _CardPapelera extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
-        ],
+        border: Border.all(color: colorScheme.outline, width: 1),
       ),
       child: Material(
         color: Colors.transparent,
@@ -179,18 +177,18 @@ class _CardPapelera extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         '$count Eliminado${count == 1 ? '' : 's'}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: Colors.black38,
+                          color: colorScheme.onSurface.withOpacity(0.5),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.arrow_forward_ios,
                   size: 16,
-                  color: Colors.black26,
+                  color: colorScheme.onSurface.withOpacity(0.3),
                 ),
               ],
             ),
