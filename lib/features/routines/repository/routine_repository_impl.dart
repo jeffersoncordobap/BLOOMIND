@@ -56,12 +56,50 @@ class RoutineRepositoryImpl implements RoutineRepository {
       INNER JOIN ${DatabaseConfig.tableRoutineActivity} ra 
       ON a.${DatabaseConfig.colActivityId} = ra.${DatabaseConfig.colActivityId}
       WHERE ra.${DatabaseConfig.colRoutineId} = ? AND a.${DatabaseConfig.colActivityState} = 1
-      ORDER BY ra.${DatabaseConfig.colRoutineActivityHour} ASC
     ''',
       [idRoutine],
     );
 
-    return res.map((map) => Activity.fromMap(map)).toList();
+    final activities = res.map((map) => Activity.fromMap(map)).toList();
+
+    // Ordenar actividades por hora cronológicamente
+    activities.sort((a, b) => _compareTimeStrings(a.hour, b.hour));
+
+    return activities;
+  }
+
+  /// Compara dos strings de hora (ej: "08:00 AM") para ordenarlos cronológicamente
+  int _compareTimeStrings(String timeA, String timeB) {
+    List<int>? parse(String s) {
+      try {
+        final parts = s.trim().split(' ');
+        if (parts.length != 2) return null;
+
+        final timeParts = parts[0].split(':');
+        if (timeParts.length != 2) return null;
+
+        int hour = int.parse(timeParts[0]);
+        int minute = int.parse(timeParts[1]);
+        final period = parts[1].toUpperCase();
+
+        if (period == 'PM' && hour != 12) hour += 12;
+        if (period == 'AM' && hour == 12) hour = 0;
+
+        return [hour, minute];
+      } catch (e) {
+        return null;
+      }
+    }
+
+    final a = parse(timeA);
+    final b = parse(timeB);
+
+    if (a == null && b == null) return 0;
+    if (a == null) return 1;
+    if (b == null) return -1;
+
+    if (a[0] != b[0]) return a[0].compareTo(b[0]);
+    return a[1].compareTo(b[1]);
   }
 
   @override

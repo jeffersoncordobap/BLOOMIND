@@ -26,7 +26,7 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
 
   Future<void> _cargarFavoritas() async {
     try {
-      //  Inserta frases iniciales si no existen
+      // Inserta frases iniciales si no existen
       final frasesExistentes = await _repository.getAllFrases();
       for (String frase in frasesMotivacionales) {
         bool existe = frasesExistentes.any((f) => f.contenido_frases == frase);
@@ -37,7 +37,7 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
         }
       }
 
-      //  Carga todas las frases y filtra solo las favoritas
+      // Carga todas las frases y filtra solo las favoritas
       final todas = await _repository.getAllFrases();
       setState(() {
         _favoritas = todas.where((f) => f.favorita_frase).toList();
@@ -52,10 +52,9 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
   Future<void> _quitarFavorita(int index) async {
     final frase = _favoritas[index];
 
-    // Animación: primero removemos de AnimatedList
     _listKey.currentState?.removeItem(
       index,
-      (context, animation) => _buildCard(frase, index, animation),
+      (context, animation) => _buildCard(frase, index, animation, Theme.of(context).colorScheme),
       duration: const Duration(milliseconds: 300),
     );
 
@@ -69,7 +68,6 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
       );
       await _repository.updateFrase(updated);
     } catch (e) {
-      // Revertir si falla
       setState(() {
         _favoritas.insert(index, frase);
         _listKey.currentState?.insertItem(index);
@@ -80,42 +78,46 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F4FF),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: const Text("Meditación y respiración"),
+        title: const Text("Frases Favoritas"),
         centerTitle: true,
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3142)),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: _buildBody()),
+          Expanded(child: _buildBody(colorScheme)),
         ],
       ),
     );
   }
 
-  Widget _buildBody() {
-    if (_loading) return _buildSkeletons();
-    if (_favoritas.isEmpty) return _buildEmpty();
+  Widget _buildBody(ColorScheme colorScheme) {
+    if (_loading) return _buildSkeletons(colorScheme);
+    if (_favoritas.isEmpty) return _buildEmpty(colorScheme);
 
     return AnimatedList(
       key: _listKey,
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
       initialItemCount: _favoritas.length,
       itemBuilder: (context, index, animation) {
-        return _buildCard(_favoritas[index], index, animation);
+        return _buildCard(_favoritas[index], index, animation, Theme.of(context).colorScheme);
       },
     );
   }
 
-  Widget _buildCard(ResourseFrases frase, int index, Animation<double> animation) {
+  Widget _buildCard(
+      ResourseFrases frase, int index, Animation<double> animation, ColorScheme colorScheme) {
     return SizeTransition(
       sizeFactor: animation,
       child: FadeTransition(
@@ -124,7 +126,7 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
           margin: const EdgeInsets.only(bottom: 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           elevation: 0,
-          color: Colors.white,
+          color: colorScheme.surface,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(18, 16, 14, 16),
             child: Row(
@@ -133,10 +135,10 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
                 Expanded(
                   child: Text(
                     '"${frase.contenido_frases}"',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontStyle: FontStyle.italic,
-                      color: Color(0xFF1A1D2E),
+                      color: colorScheme.onSurface,
                       height: 1.55,
                     ),
                   ),
@@ -146,7 +148,9 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
                   onTap: () => _quitarFavorita(index),
                   child: Icon(
                     frase.favorita_frase ? Icons.star : Icons.star_border,
-                    color: frase.favorita_frase ? Colors.amber[700] : Colors.grey[400],
+                    color: frase.favorita_frase
+                        ? colorScheme.primary
+                        : colorScheme.onSurface.withValues(alpha: 0.4),
                     size: 24,
                   ),
                 ),
@@ -158,17 +162,17 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
     );
   }
 
-  Widget _buildEmpty() {
-    return const Center(
+  Widget _buildEmpty(ColorScheme colorScheme) {
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.star_border_rounded, size: 64, color: Color(0xFFA0A5BC)),
-          SizedBox(height: 12),
+          Icon(Icons.star_border_rounded, size: 64, color: colorScheme.onSurface.withValues(alpha: 0.4)),
+          const SizedBox(height: 12),
           Text(
             'No tienes frases favoritas aún',
             style: TextStyle(
-              color: Color(0xFFA0A5BC),
+              color: colorScheme.onSurface.withValues(alpha: 0.4),
               fontWeight: FontWeight.w600,
               fontSize: 14,
             ),
@@ -178,7 +182,7 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
     );
   }
 
-  Widget _buildSkeletons() {
+  Widget _buildSkeletons(ColorScheme colorScheme) {
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
       itemCount: 3,
@@ -186,7 +190,7 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         elevation: 0,
-        color: Colors.white,
+        color: colorScheme.surface,
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -196,19 +200,22 @@ class _FavoritasFrasesScreenState extends State<FavoritasFrasesScreen> {
                   height: 10,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                      color: Colors.grey[200], borderRadius: BorderRadius.circular(6))),
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6))),
               const SizedBox(height: 8),
               Container(
                   height: 10,
                   width: 200,
                   decoration: BoxDecoration(
-                      color: Colors.grey[200], borderRadius: BorderRadius.circular(6))),
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6))),
               const SizedBox(height: 8),
               Container(
                   height: 10,
                   width: 140,
                   decoration: BoxDecoration(
-                      color: Colors.grey[200], borderRadius: BorderRadius.circular(6))),
+                      color: colorScheme.onSurface.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(6))),
             ],
           ),
         ),

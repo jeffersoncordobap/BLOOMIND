@@ -41,13 +41,14 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // Se ejecuta cuando la app vuelve a primer plano
       _sincronizarActividades();
     }
   }
 
   Future<List<String>> _cargarActividadesDesdeJSON() async {
-    final String response = await rootBundle.loadString('assets/actividades/actividades.json');
+    final String response = await rootBundle.loadString(
+      'assets/actividades/actividades.json',
+    );
     final List<dynamic> data = json.decode(response);
     return data.map((item) => item.toString()).toList();
   }
@@ -65,7 +66,7 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa>
     }
 
     _actividades = await _repository.getAll();
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   @override
@@ -77,21 +78,17 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa>
 
   Future<void> _sincronizarActividades() async {
     if (!mounted) return;
-    // Limpiar elementos expirados
     await _repository.limpiarPapeleraExpirada();
-    
+
     final nuevasActividades = await _repository.getAll();
     setState(() {
       _actividades = nuevasActividades;
-      // Si hay una actividad seleccionada, actualizar su estado desde BD
       if (actividadSeleccionada != null) {
         try {
-          final actualizada = nuevasActividades.firstWhere(
+          actividadSeleccionada = nuevasActividades.firstWhere(
             (act) => act.id == actividadSeleccionada!.id,
           );
-          actividadSeleccionada = actualizada;
         } catch (e) {
-          // No encontrada, resetear
           actividadSeleccionada = null;
         }
       }
@@ -109,17 +106,14 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa>
     _controller.reset();
     _controller.forward();
 
-    Future.delayed(const Duration(seconds: 2), () async {
+    Future.delayed(const Duration(seconds: 2), () {
+      if (!mounted) return;
       final random = _actividades[Random().nextInt(_actividades.length)];
       setState(() {
         actividadSeleccionada = random;
         girando = false;
       });
     });
-  }
-
-  Future<void> refreshActividades() async {
-    await _sincronizarActividades();
   }
 
   void _abrirFavoritos() async {
@@ -138,40 +132,29 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa>
 
     final favoritoActual = actividadSeleccionada!.isFavorite;
     if (favoritoActual) {
-      // Si ya era favorito, lo mandamos a papelera
       await _repository.moverAPapelera(actividadSeleccionada!.id!);
-      // Actualizar estado local
       setState(() {
-        actividadSeleccionada = actividadSeleccionada!.copyWith(isFavorite: false);
+        actividadSeleccionada = actividadSeleccionada!.copyWith(
+          isFavorite: false,
+        );
       });
     } else {
-      await _repository.toggleFavorito(
-        actividadSeleccionada!.id!,
-        true,
-      );
-      // Actualizar estado local
+      await _repository.toggleFavorito(actividadSeleccionada!.id!, true);
       setState(() {
-        actividadSeleccionada = actividadSeleccionada!.copyWith(isFavorite: true);
+        actividadSeleccionada = actividadSeleccionada!.copyWith(
+          isFavorite: true,
+        );
       });
     }
 
-    // Recargar la lista completa para mantener consistencia
     _actividades = await _repository.getAll();
-
-    // Actualizar actividadSeleccionada con el estado actual de la BD
-    if (actividadSeleccionada != null) {
-      final actividadActualizada = _actividades.firstWhere(
-        (act) => act.id == actividadSeleccionada!.id,
-        orElse: () => actividadSeleccionada!,
-      );
-      setState(() {
-        actividadSeleccionada = actividadActualizada;
-      });
-    }
+    _sincronizarActividades();
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
       backgroundColor: const Color(0xFFEEF4FB),
       appBar: AppBar(
@@ -197,20 +180,16 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa>
         actions: [
           IconButton(
             icon: const Icon(Icons.favorite, color: Colors.white, size: 26),
-            tooltip: 'Ver favoritos',
             onPressed: _abrirFavoritos,
           ),
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              const Color(0xFFEEF4FB),
-              const Color(0xFFD9E9F7),
-            ],
+            colors: [Color(0xFFEEF4FB), Color(0xFFD9E9F7)],
           ),
         ),
         child: Center(
@@ -218,229 +197,150 @@ class _ResoursesScreenSorpresaState extends State<ResoursesScreenSorpresa>
             padding: const EdgeInsets.all(20),
             child: _actividades.isEmpty
                 ? const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4A90D9)),
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Color(0xFF4A90D9),
+                    ),
                   )
                 : !mostrarRuleta
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(30),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(25),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(0xFF4A90D9).withOpacity(0.2),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 8),
-                                  spreadRadius: 2,
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFEEF4FB),
-                                    borderRadius: BorderRadius.circular(50),
-                                  ),
-                                  child: const Text(
-                                    '✨',
-                                    style: TextStyle(fontSize: 40),
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                const Text(
-                                  '¿Necesitas inspiración?',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF2D3142),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                const Text(
-                                  'Deja que te sugiera una actividad que puede mejorar tu bienestar',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: Color(0xFF6B7280),
-                                    height: 1.4,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 50),
-                          TweenAnimationBuilder<double>(
-                            tween: Tween(begin: 1.0, end: 1.05),
-                            duration: const Duration(milliseconds: 1500),
-                            curve: Curves.easeInOut,
-                            builder: (context, scale, child) {
-                              return Transform.scale(
-                                scale: scale,
-                                child: child,
-                              );
-                            },
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                setState(() {
-                                  mostrarRuleta = true;
-                                });
-                              },
-                              icon: const Icon(Icons.casino, size: 24),
-                              label: const Text(
-                                'Sorpréndeme',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF4A90D9),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 56,
-                                  vertical: 18,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(35),
-                                ),
-                                elevation: 8,
-                                shadowColor: const Color(0xFF4A90D9).withOpacity(0.4),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          TweenAnimationBuilder<double>(
-                            tween: Tween(begin: 0.8, end: 1.0),
-                            duration: const Duration(milliseconds: 500),
-                            builder: (context, scale, child) {
-                              return Transform.scale(
-                                scale: scale,
-                                child: child,
-                              );
-                            },
-                            child: Container(
-                              width: 280,
-                              height: 280,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: const Color(0xFF4A90D9).withOpacity(0.3),
-                                    blurRadius: 25,
-                                    offset: const Offset(0, 12),
-                                    spreadRadius: 5,
-                                  ),
-                                  BoxShadow(
-                                    color: const Color(0xFF4A90D9).withOpacity(0.1),
-                                    blurRadius: 45,
-                                    offset: const Offset(0, 25),
-                                  ),
-                                ],
-                              ),
-                              child: Center(
-                                child: girando
-                                    ? RotationTransition(
-                                        turns: _controller,
-                                        child: const Text(
-                                          '🎁',
-                                          style: TextStyle(fontSize: 90),
-                                        ),
-                                      )
-                                    : actividadSeleccionada == null
-                                        ? const Text(
-                                            '🎁',
-                                            style: TextStyle(fontSize: 90),
-                                          )
-                                        : Padding(
-                                            padding: const EdgeInsets.all(24),
-                                            child: SingleChildScrollView(
-                                              child: Text(
-                                                actividadSeleccionada!.description,
-                                                textAlign: TextAlign.center,
-                                                style: const TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: Color(0xFF2D3142),
-                                                  height: 1.3,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 30),
-                          if (actividadSeleccionada != null)
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(0.8),
-                                borderRadius: BorderRadius.circular(50),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.amber.withOpacity(0.15),
-                                    blurRadius: 10,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ],
-                              ),
-                              child: IconButton(
-                                icon: Icon(
-                                  actividadSeleccionada!.isFavorite
-                                      ? Icons.star
-                                      : Icons.star_border,
-                                  color: Colors.amber,
-                                  size: 36,
-                                ),
-                                onPressed: _toggleFavorito,
-                                tooltip: 'Marcar como favorita',
-                              ),
-                            ),
-                          const SizedBox(height: 24),
-                          ElevatedButton.icon(
-                            onPressed: girando ? null : girarRuleta,
-                            icon: const Icon(Icons.refresh, size: 22),
-                            label: Text(
-                              actividadSeleccionada == null
-                                  ? 'Girar'
-                                  : 'Otra actividad',
-                              style: const TextStyle(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w700,
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF627EEA),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 52,
-                                vertical: 16,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              elevation: 6,
-                              shadowColor: const Color(0xFF627EEA).withOpacity(0.4),
-                              disabledBackgroundColor: Colors.grey[400],
-                            ),
-                          ),
-                        ],
-                      ),
+                ? _buildWelcomeView()
+                : _buildRouletteView(),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildWelcomeView() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(30),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(25),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF4A90D9).withOpacity(0.2),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: const Column(
+            children: [
+              Text('✨', style: TextStyle(fontSize: 40)),
+              SizedBox(height: 20),
+              Text(
+                '¿Necesitas inspiración?',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2D3142),
+                ),
+              ),
+              SizedBox(height: 12),
+              Text(
+                'Deja que te sugiera una actividad que puede mejorar tu bienestar',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF6B7280),
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 50),
+        ElevatedButton.icon(
+          onPressed: () => setState(() => mostrarRuleta = true),
+          icon: const Icon(Icons.casino, size: 24),
+          label: const Text(
+            'Sorpréndeme',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF4A90D9),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 56, vertical: 18),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(35),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRouletteView() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          width: 280,
+          height: 280,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF4A90D9).withOpacity(0.3),
+                blurRadius: 25,
+                offset: const Offset(0, 12),
+              ),
+            ],
+          ),
+          child: Center(
+            child: girando
+                ? RotationTransition(
+                    turns: _controller,
+                    child: const Text('🎁', style: TextStyle(fontSize: 90)),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(
+                      actividadSeleccionada?.description ?? '🎁',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF2D3142),
+                      ),
+                    ),
+                  ),
+          ),
+        ),
+        const SizedBox(height: 30),
+        if (actividadSeleccionada != null)
+          IconButton(
+            icon: Icon(
+              actividadSeleccionada!.isFavorite
+                  ? Icons.star
+                  : Icons.star_border,
+              color: Colors.amber,
+              size: 40,
+            ),
+            onPressed: _toggleFavorito,
+          ),
+        const SizedBox(height: 24),
+        ElevatedButton.icon(
+          onPressed: girando ? null : girarRuleta,
+          icon: const Icon(Icons.refresh),
+          label: Text(
+            actividadSeleccionada == null ? 'Girar' : 'Otra actividad',
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF627EEA),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 52, vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

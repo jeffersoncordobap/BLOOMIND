@@ -40,11 +40,12 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
       'Desmotivado',
     ];
     String nuevaEtiqueta = emo.label;
+    final colorScheme = Theme.of(context).colorScheme;
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25)),
       ),
       builder: (context) => StatefulBuilder(
@@ -58,9 +59,13 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 "Editar registro de hoy",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
+                ),
               ),
               const SizedBox(height: 20),
               Row(
@@ -74,12 +79,12 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: esSeleccionado
-                            ? const Color(0xFFBDD4EB)
+                            ? colorScheme.primary.withValues(alpha: 0.2)
                             : Colors.transparent,
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: esSeleccionado
-                              ? const Color(0xFF4D86C7)
+                              ? colorScheme.primary
                               : Colors.transparent,
                           width: 2,
                         ),
@@ -92,35 +97,37 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
                   );
                 }).toList(),
               ),
-
               const SizedBox(height: 10),
               Text(
                 "Emoción: $nuevaEtiqueta",
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  color: Colors.blueGrey,
+                  color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
               const SizedBox(height: 20),
-
               TextField(
                 controller: _editNotaController,
                 maxLines: 3,
                 decoration: InputDecoration(
                   hintText: "Edita tu nota...",
+                  hintStyle: TextStyle(
+                    color: colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                  filled: true,
+                  fillColor: colorScheme.surfaceVariant,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
                 ),
               ),
               const SizedBox(height: 20),
-
               SizedBox(
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4D86C7),
+                    backgroundColor: colorScheme.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(25),
                     ),
@@ -133,13 +140,15 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
                       note: _editNotaController.text,
                       dateTime: emo.dateTime,
                     );
-
                     controller.actualizarEmocion(updatedEmo);
                     Navigator.pop(context);
                   },
-                  child: const Text(
+                  child: Text(
                     "Actualizar Registro",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
+                    style: TextStyle(
+                      color: colorScheme.onPrimary,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -170,29 +179,28 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
   }
 
   void _confirmarEliminacion(
-    BuildContext context,
-    EmotionController controller,
-    int id,
-    DateTime fecha,
-  ) {
+      BuildContext context, EmotionController controller, int id, DateTime fecha) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('¿Eliminar registro?'),
-        content: const Text(
+        title: Text('¿Eliminar registro?', style: TextStyle(color: colorScheme.onSurface)),
+        content: Text(
           'Esta acción no se puede deshacer y solo es permitida para registros de hoy.',
+          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar', style: TextStyle(color: colorScheme.onSurface)),
           ),
           TextButton(
             onPressed: () {
               controller.eliminarEmocion(id, fecha);
               Navigator.pop(context);
             },
-            child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+            child: Text('Eliminar', style: TextStyle(color: colorScheme.error)),
           ),
         ],
       ),
@@ -202,19 +210,23 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<EmotionController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FB),
+      backgroundColor: colorScheme.surfaceVariant,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Mi diario',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () {
             context
                 .findAncestorStateOfType<MainNavigationScreenState>()
@@ -228,11 +240,11 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
             margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             padding: const EdgeInsets.only(bottom: 10),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: colorScheme.onSurface.withValues(alpha: 0.04),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -244,23 +256,26 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
               lastDay: DateTime.utc(2035, 12, 31),
               focusedDay: _focusedDay,
               selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
-              headerStyle: const HeaderStyle(
+              headerStyle: HeaderStyle(
                 formatButtonVisible: false,
                 titleCentered: true,
                 titleTextStyle: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
                 ),
               ),
-              calendarStyle: const CalendarStyle(
+              calendarStyle: CalendarStyle(
                 selectedDecoration: BoxDecoration(
-                  color: Color(0xFF4D86C7),
+                  color: colorScheme.primary,
                   shape: BoxShape.circle,
                 ),
                 todayDecoration: BoxDecoration(
-                  color: Color(0xFFBDD4EB),
+                  color: colorScheme.primary.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                 ),
+                defaultTextStyle: TextStyle(color: colorScheme.onSurface),
+                weekendTextStyle: TextStyle(color: colorScheme.onSurface),
               ),
               onDaySelected: (selectedDay, focusedDay) {
                 setState(() {
@@ -271,136 +286,135 @@ class _EmotionListScreenState extends State<EmotionListScreen> {
               },
             ),
           ),
-
           const SizedBox(height: 10),
-
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 25),
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 DateFormat("EEEE, d 'de' MMMM", 'es_ES').format(_selectedDay!),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ),
           ),
-
           const SizedBox(height: 10),
-
           Expanded(
             child: controller.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : controller.emotionsForSelectedDay.isEmpty
-                ? const Center(child: Text("No hay registros para este día"))
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: controller.emotionsForSelectedDay.length,
-                    itemBuilder: (context, index) {
-                      final emo = controller.emotionsForSelectedDay[index];
-
-                      final bool sePuedeEditar = controller.esHoy(
-                        _selectedDay!,
-                      );
-
-                      final hora = emo.dateTime.contains('T')
-                          ? emo.dateTime.split('T')[1].substring(0, 5)
-                          : "00:00";
-
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(20),
+                    ? Center(
+                        child: Text(
+                          "No hay registros para este día",
+                          style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Text(
-                                      _getEmoji(emo.label),
-                                      style: const TextStyle(fontSize: 26),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      hora,
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        itemCount: controller.emotionsForSelectedDay.length,
+                        itemBuilder: (context, index) {
+                          final emo = controller.emotionsForSelectedDay[index];
+                          final bool sePuedeEditar = controller.esHoy(_selectedDay!);
+                          final hora = emo.dateTime.contains('T')
+                              ? emo.dateTime.split('T')[1].substring(0, 5)
+                              : "00:00";
 
-                                if (sePuedeEditar)
-                                  PopupMenuButton<String>(
-                                    icon: const Icon(
-                                      Icons.more_vert,
-                                      color: Colors.grey,
-                                    ),
-                                    onSelected: (value) {
-                                      if (value == 'eliminar') {
-                                        _confirmarEliminacion(
-                                          context,
-                                          controller,
-                                          emo.idEmotion!,
-                                          _selectedDay!,
-                                        );
-                                      } else if (value == 'editar') {
-                                        _mostrarDialogoEdicion(context, emo);
-                                      }
-                                    },
-                                    itemBuilder: (context) => [
-                                      const PopupMenuItem(
-                                        value: 'editar',
-                                        child: ListTile(
-                                          leading: Icon(Icons.edit, size: 20),
-                                          title: Text('Editar'),
-                                          contentPadding: EdgeInsets.zero,
-                                        ),
-                                      ),
-                                      const PopupMenuItem(
-                                        value: 'eliminar',
-                                        child: ListTile(
-                                          leading: Icon(
-                                            Icons.delete,
-                                            size: 20,
-                                            color: Colors.red,
-                                          ),
-                                          title: Text(
-                                            'Eliminar',
-                                            style: TextStyle(color: Colors.red),
-                                          ),
-                                          contentPadding: EdgeInsets.zero,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: colorScheme.surface,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: colorScheme.onSurface.withValues(alpha: 0.05),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
                               ],
                             ),
-                            if (emo.note.isNotEmpty) ...[
-                              const SizedBox(height: 10),
-                              Text(
-                                emo.note,
-                                style: const TextStyle(
-                                  color: Colors.black87,
-                                  height: 1.4,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          _getEmoji(emo.label),
+                                          style: TextStyle(fontSize: 26),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Text(
+                                          hora,
+                                          style: TextStyle(
+                                            color: colorScheme.onSurface.withValues(alpha: 0.6),
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    if (sePuedeEditar)
+                                      PopupMenuButton<String>(
+                                        icon: Icon(
+                                          Icons.more_vert,
+                                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                                        ),
+                                        onSelected: (value) {
+                                          if (value == 'eliminar') {
+                                            _confirmarEliminacion(
+                                              context,
+                                              controller,
+                                              emo.idEmotion!,
+                                              _selectedDay!,
+                                            );
+                                          } else if (value == 'editar') {
+                                            _mostrarDialogoEdicion(context, emo);
+                                          }
+                                        },
+                                        itemBuilder: (context) => [
+                                          PopupMenuItem(
+                                            value: 'editar',
+                                            child: ListTile(
+                                              leading: Icon(Icons.edit, size: 20),
+                                              title: Text('Editar'),
+                                              contentPadding: EdgeInsets.zero,
+                                            ),
+                                          ),
+                                          PopupMenuItem(
+                                            value: 'eliminar',
+                                            child: ListTile(
+                                              leading: Icon(Icons.delete, size: 20, color: colorScheme.error),
+                                              title: Text(
+                                                'Eliminar',
+                                                style: TextStyle(color: colorScheme.error),
+                                              ),
+                                              contentPadding: EdgeInsets.zero,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                  ],
                                 ),
-                              ),
-                            ],
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                                if (emo.note.isNotEmpty) ...[
+                                  const SizedBox(height: 10),
+                                  Text(
+                                    emo.note,
+                                    style: TextStyle(
+                                      color: colorScheme.onSurface,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          );
+                        },
+                      ),
           ),
         ],
       ),

@@ -99,11 +99,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  Widget _buildIndicator(bool isActive) {
+  Widget _buildIndicator(bool isActive, bool isSmall) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 250),
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      width: isActive ? 24 : 8,
+      margin: EdgeInsets.symmetric(horizontal: isSmall ? 3 : 4),
+      width: isActive ? (isSmall ? 20 : 24) : 8,
       height: 8,
       decoration: BoxDecoration(
         color: isActive
@@ -118,6 +118,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     required String label,
     required VoidCallback? onPressed,
     required bool visible,
+    required bool isSmall,
   }) {
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 200),
@@ -129,14 +130,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           style: TextButton.styleFrom(
             backgroundColor: Colors.white.withOpacity(0.55),
             foregroundColor: const Color(0xFF5D8F7B),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            padding: EdgeInsets.symmetric(
+              horizontal: isSmall ? 12 : 14,
+              vertical: isSmall ? 8 : 10,
+            ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
           ),
           child: Text(
             label,
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: isSmall ? 13 : 14,
+            ),
           ),
         ),
       ),
@@ -154,114 +161,167 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final bool isLastPage = _currentPage == _pages.length - 1;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          PageView.builder(
-            controller: _pageController,
-            itemCount: _pages.length,
-            onPageChanged: (index) {
-              setState(() {
-                _currentPage = index;
-              });
-            },
-            itemBuilder: (_, index) {
-              final page = _pages[index];
-              return OnboardingPage(
-                imagePath: page['imagePath'] as String,
-                title: page['title'] as String,
-                description: page['description'] as String,
-                gradientColors: page['gradientColors'] as List<Color>,
-              );
-            },
-          ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final double height = constraints.maxHeight;
+          final double width = constraints.maxWidth;
 
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(18, 10, 18, 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildTopButton(
-                    label: 'Atrás',
-                    onPressed: _previousPage,
-                    visible: _currentPage > 0,
-                  ),
-                  _buildTopButton(
-                    label: 'Omitir',
-                    onPressed: _finishOnboarding,
-                    visible: true,
-                  ),
-                ],
-              ),
-            ),
-          ),
+          final bool isVerySmall = height < 680;
+          final bool isSmall = height < 760;
 
-          SafeArea(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.94),
-                  borderRadius: BorderRadius.circular(28),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
-                      blurRadius: 18,
-                      offset: const Offset(0, 8),
+          final double horizontalPadding = width * 0.05;
+          final double topSpacing = isVerySmall ? 8 : 10;
+          final double pageBottomSpacing = isVerySmall ? 0 : 6;
+          final double bottomMargin = isVerySmall ? 8 : 12;
+          final double bottomCardPaddingH = isVerySmall ? 16 : 18;
+          final double bottomCardPaddingV = isVerySmall ? 12 : 14;
+          final double buttonHeight = isVerySmall ? 50 : 56;
+
+          return Stack(
+            children: [
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 350),
+                child: Container(
+                  key: ValueKey(_currentPage),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: _pages[_currentPage]['gradientColors'] as List<Color>,
                     ),
-                  ],
+                  ),
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 42,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD9E4DD),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(
-                        _pages.length,
-                            (index) => _buildIndicator(index == _currentPage),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: _nextPage,
-                        style: ElevatedButton.styleFrom(
-                          elevation: 0,
-                          backgroundColor: const Color(0xFF7ABFA6),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
+              ),
+              SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    horizontalPadding,
+                    topSpacing,
+                    horizontalPadding,
+                    0,
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildTopButton(
+                            label: 'Atrás',
+                            onPressed: _previousPage,
+                            visible: _currentPage > 0,
+                            isSmall: isSmall,
                           ),
-                        ),
-                        child: Text(
-                          isLastPage ? 'Empezar ahora ✨' : 'Siguiente',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
+                          _buildTopButton(
+                            label: 'Omitir',
+                            onPressed: _finishOnboarding,
+                            visible: true,
+                            isSmall: isSmall,
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: isVerySmall ? 6 : 10),
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: pageBottomSpacing),
+                          child: PageView.builder(
+                            controller: _pageController,
+                            itemCount: _pages.length,
+                            onPageChanged: (index) {
+                              setState(() {
+                                _currentPage = index;
+                              });
+                            },
+                            itemBuilder: (_, index) {
+                              final page = _pages[index];
+                              return OnboardingPage(
+                                imagePath: page['imagePath'] as String,
+                                title: page['title'] as String,
+                                description: page['description'] as String,
+                                gradientColors: page['gradientColors'] as List<Color>,
+                              );
+                            },
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                      Transform.translate(
+                        offset: const Offset(0, -4),
+                        child: Container(
+                          margin: EdgeInsets.only(bottom: bottomMargin),
+                          padding: EdgeInsets.fromLTRB(
+                            bottomCardPaddingH,
+                            bottomCardPaddingV,
+                            bottomCardPaddingH,
+                            isVerySmall ? 14 : 18,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.94),
+                            borderRadius: BorderRadius.circular(isVerySmall ? 24 : 28),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.06),
+                                blurRadius: 18,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: isVerySmall ? 36 : 42,
+                                height: 4,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFD9E4DD),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                              SizedBox(height: isVerySmall ? 10 : 14),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(
+                                  _pages.length,
+                                      (index) => _buildIndicator(
+                                    index == _currentPage,
+                                    isSmall,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: isVerySmall ? 12 : 16),
+                              SizedBox(
+                                width: double.infinity,
+                                height: buttonHeight,
+                                child: ElevatedButton(
+                                  onPressed: _nextPage,
+                                  style: ElevatedButton.styleFrom(
+                                    elevation: 0,
+                                    backgroundColor: const Color(0xFF7ABFA6),
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        isVerySmall ? 16 : 18,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    isLastPage ? 'Empezar ahora ✨' : 'Siguiente',
+                                    style: TextStyle(
+                                      fontSize: isVerySmall ? 15 : 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }

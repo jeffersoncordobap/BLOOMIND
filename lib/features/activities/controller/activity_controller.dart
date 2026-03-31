@@ -76,6 +76,11 @@ class ActivityController extends ChangeNotifier {
       currentRoutineActivities = await _repository.getActivitiesByRoutine(
         idRoutine,
       );
+
+      // Ordenar actividades por hora cronológicamente
+      currentRoutineActivities.sort(
+        (a, b) => _compareTimeStrings(a.hour, b.hour),
+      );
     } catch (e) {
       debugPrint("Error al cargar actividades de la rutina: $e");
       currentRoutineActivities = [];
@@ -83,6 +88,40 @@ class ActivityController extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  /// Compara dos strings de hora (ej: "08:00 AM") para ordenarlos cronológicamente
+  int _compareTimeStrings(String timeA, String timeB) {
+    List<int>? parse(String s) {
+      try {
+        final parts = s.trim().split(' ');
+        if (parts.length != 2) return null;
+
+        final timeParts = parts[0].split(':');
+        if (timeParts.length != 2) return null;
+
+        int hour = int.parse(timeParts[0]);
+        int minute = int.parse(timeParts[1]);
+        final period = parts[1].toUpperCase();
+
+        if (period == 'PM' && hour != 12) hour += 12;
+        if (period == 'AM' && hour == 12) hour = 0;
+
+        return [hour, minute];
+      } catch (e) {
+        return null;
+      }
+    }
+
+    final a = parse(timeA);
+    final b = parse(timeB);
+
+    if (a == null && b == null) return 0;
+    if (a == null) return 1;
+    if (b == null) return -1;
+
+    if (a[0] != b[0]) return a[0].compareTo(b[0]);
+    return a[1].compareTo(b[1]);
   }
 
   Future<List<Activity>> obtener_recomendaciones(String categoria) async {

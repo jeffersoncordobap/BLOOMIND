@@ -1,5 +1,7 @@
 import 'package:bloomind/features/resourses/favorite_interfaz/meditation_favorite_interfaz.dart';
 import 'package:bloomind/features/resourses/presentation/surprise_activity_favorites_screen.dart';
+import 'package:bloomind/features/resourses/repository/resourse_meditation_repository.dart';
+import 'package:bloomind/features/resourses/repository/resourse_meditation_repository_impl.dart';
 import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -28,8 +30,11 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
   final ResourseRepository _repository = ResourseRepositoryImpl();
   final SurpriseActivityRepository _surpriseRepository =
       SurpriseActivityRepositoryImpl();
-  int _frasesFavoritas = 0;
   int _surpriseFavoritas = 0;
+  final ResourseMeditationRepository _repositoryMeditation =
+      ResourseMeditationRepositoryImpl();
+  int _frasesFavoritas = 0;
+  int _meditationFavoritas = 0;
 
   @override
   void initState() {
@@ -45,43 +50,51 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
   Future<void> _cargarContadores() async {
     final frases = await _repository.getAllFrases();
     final surpriseCount = await _surpriseRepository.countFavoritos();
+    final meditation = await _repositoryMeditation.getAllMeditations();
 
     if (!mounted) return;
 
     setState(() {
       _frasesFavoritas = frases.where((f) => f.favorita_frase).length;
       _surpriseFavoritas = surpriseCount;
+      _meditationFavoritas = meditation
+          .where((m) => m.favorite_meditation)
+          .length;
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final supportController = context.watch<SupportLineController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return ChangeNotifierProvider(
       create: (_) =>
           RelaxingAudioController(RelaxingAudioRepositoryImpl(DatabaseHelper()))
             ..loadFavoriteAudios(),
       child: Scaffold(
-        backgroundColor: const Color(0xFFF2F4F7),
+        backgroundColor: colorScheme.surface,
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             'Favoritos',
-            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: colorScheme.onSurface,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           centerTitle: true,
           elevation: 0,
-          backgroundColor: Colors.white,
+          backgroundColor: colorScheme.surface,
         ),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: ListView(
             children: [
-              // 1. MEDITACIÓN
               _CardFavorito(
+                colorScheme: colorScheme,
                 emoji: '🧘',
                 nombre: 'Meditación y respiración',
-                count: 0,
+                count: _meditationFavoritas,
                 onTap: () async {
                   await Navigator.push(
                     context,
@@ -98,9 +111,8 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
                 },
               ),
               const SizedBox(height: 12),
-
-              // 2. FRASES
               _CardFavorito(
+                colorScheme: colorScheme,
                 emoji: '☁️',
                 nombre: 'Frases y motivación',
                 count: _frasesFavoritas,
@@ -122,11 +134,10 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
                 },
               ),
               const SizedBox(height: 12),
-
-              // 3. AUDIOS RELAJANTES
               Consumer<RelaxingAudioController>(
                 builder: (context, controller, child) {
                   return _CardFavorito(
+                    colorScheme: colorScheme,
                     emoji: '🎧',
                     nombre: 'Audios relajantes',
                     count: controller.favoriteAudios.length,
@@ -153,6 +164,7 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
 
               // 4. ACTIVIDADES SORPRESA
               _CardFavorito(
+                colorScheme: colorScheme,
                 emoji: '🎁',
                 nombre: 'Actividad sorpresa',
                 count: _surpriseFavoritas,
@@ -173,6 +185,7 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
 
               // 5. LÍNEAS DE APOYO
               _CardFavorito(
+                colorScheme: colorScheme,
                 emoji: '❤️',
                 nombre: 'Líneas de apoyo',
                 count: supportController.favoriteLines.length,
@@ -198,12 +211,14 @@ class _FavoritosScreenState extends State<FavoritosScreen> {
 }
 
 class _CardFavorito extends StatelessWidget {
+  final ColorScheme colorScheme;
   final String emoji;
   final String nombre;
   final int count;
   final VoidCallback onTap;
 
   const _CardFavorito({
+    required this.colorScheme,
     required this.emoji,
     required this.nombre,
     required this.count,
@@ -214,10 +229,14 @@ class _CardFavorito extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 3)),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.onSurface.withValues(alpha: 0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
         ],
       ),
       child: Material(
@@ -229,7 +248,10 @@ class _CardFavorito extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
               children: [
-                Text(emoji, style: const TextStyle(fontSize: 30)),
+                Text(
+                  emoji,
+                  style: TextStyle(fontSize: 30, color: colorScheme.onSurface),
+                ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -237,26 +259,27 @@ class _CardFavorito extends StatelessWidget {
                     children: [
                       Text(
                         nombre,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '$count favorito${count == 1 ? '' : 's'}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: Colors.black38,
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const Icon(
+                Icon(
                   Icons.arrow_forward_ios,
                   size: 16,
-                  color: Colors.black26,
+                  color: colorScheme.onSurface.withValues(alpha: 0.4),
                 ),
               ],
             ),

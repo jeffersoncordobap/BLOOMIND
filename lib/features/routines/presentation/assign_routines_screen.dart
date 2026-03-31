@@ -23,24 +23,26 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<AssignRoutineController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF0F4F8),
+      backgroundColor: colorScheme.background,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: colorScheme.background,
+        foregroundColor: colorScheme.onBackground,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3142)),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onBackground),
           onPressed: () {
             context
                 .findAncestorStateOfType<MainNavigationScreenState>()
                 ?.cambiarIndice(1);
           },
         ),
-        title: const Text(
+        title: Text(
           "Asignar rutinas",
           style: TextStyle(
-            color: Color(0xFF2D3142),
+            color: colorScheme.onBackground,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -54,23 +56,19 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-
-                  _buildCalendarCard(controller),
-
+                  _buildCalendarCard(controller, colorScheme),
                   const SizedBox(height: 30),
-
-                  const Text(
+                  Text(
                     "Selecciona una rutina",
-                    style: TextStyle(color: Color(0xFF7D8FA9), fontSize: 16),
+                    style: TextStyle(
+                      color: colorScheme.onBackground.withValues(alpha: 0.6),
+                      fontSize: 16,
+                    ),
                   ),
                   const SizedBox(height: 12),
-
-                  _buildRoutineDropdown(controller),
-
+                  _buildRoutineDropdown(controller, colorScheme),
                   const SizedBox(height: 40),
-
-                  _buildAssignButton(controller),
-
+                  _buildAssignButton(controller, colorScheme),
                   const SizedBox(height: 20),
                 ],
               ),
@@ -78,14 +76,15 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
     );
   }
 
-  Widget _buildCalendarCard(AssignRoutineController controller) {
+  Widget _buildCalendarCard(
+      AssignRoutineController controller, ColorScheme colorScheme) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: colorScheme.onSurface.withValues(alpha: 0.05),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -105,30 +104,33 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
     );
   }
 
-  Widget _buildRoutineDropdown(AssignRoutineController controller) {
+  Widget _buildRoutineDropdown(
+      AssignRoutineController controller, ColorScheme colorScheme) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: const Color(0xFFB8C8DF)),
+        border: Border.all(color: colorScheme.outline),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<Routine>(
           isExpanded: true,
-          value:
-              controller.availableRoutines.contains(controller.selectedRoutine)
+          value: controller.availableRoutines.contains(controller.selectedRoutine)
               ? controller.selectedRoutine
               : null,
-          hint: const Text(
+          hint: Text(
             "Seleccionar",
-            style: TextStyle(color: Color(0xFF2D3142)),
+            style: TextStyle(color: colorScheme.onSurface),
           ),
-          icon: const Icon(Icons.keyboard_arrow_down, color: Color(0xFF2D3142)),
+          icon: Icon(Icons.keyboard_arrow_down, color: colorScheme.onSurface),
           items: controller.availableRoutines.map((routine) {
             return DropdownMenuItem<Routine>(
               value: routine,
-              child: Text(routine.name),
+              child: Text(
+                routine.name,
+                style: TextStyle(color: colorScheme.onSurface),
+              ),
             );
           }).toList(),
           onChanged: (val) => controller.updateSelectedRoutine(val),
@@ -137,13 +139,14 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
     );
   }
 
-  Widget _buildAssignButton(AssignRoutineController controller) {
+  Widget _buildAssignButton(
+      AssignRoutineController controller, ColorScheme colorScheme) {
     return SizedBox(
       width: double.infinity,
       height: 60,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF75B1EA),
+          backgroundColor: colorScheme.primary,
           elevation: 0,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
@@ -152,7 +155,11 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
         onPressed: () async {
           if (controller.selectedRoutine == null) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Por favor selecciona una rutina")),
+              SnackBar(
+                  content: Text(
+                "Por favor selecciona una rutina",
+                style: TextStyle(color: colorScheme.onPrimary),
+              )),
             );
             return;
           }
@@ -160,17 +167,21 @@ class _AssignRoutineScreenState extends State<AssignRoutineScreen> {
           bool ok = await controller.saveAssignment(context);
           if (ok && mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("¡Rutina asignada correctamente!")),
+              SnackBar(
+                  content: Text(
+                "¡Rutina asignada correctamente!",
+                style: TextStyle(color: colorScheme.onPrimary),
+              )),
             );
             context
                 .findAncestorStateOfType<MainNavigationScreenState>()
                 ?.cambiarIndice(1);
           }
         },
-        child: const Text(
+        child: Text(
           "Asignar rutina",
           style: TextStyle(
-            color: Colors.white,
+            color: colorScheme.onPrimary,
             fontSize: 18,
             fontWeight: FontWeight.bold,
           ),

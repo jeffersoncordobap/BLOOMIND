@@ -22,6 +22,7 @@ class _BinSupportLinesScreenState extends State<BinSupportLinesScreen> {
 
   void _showOptionsDialog(SupportLine line) {
     final binController = context.read<BinController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     showDialog(
       context: context,
@@ -32,21 +33,15 @@ class _BinSupportLinesScreenState extends State<BinSupportLinesScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(
-                Icons.restore_from_trash,
-                color: Color.fromARGB(221, 48, 199, 230),
-              ),
-              title: const Text("Restaurar"),
+              leading: Icon(Icons.restore_from_trash, color: colorScheme.primary),
+              title: Text("Restaurar", style: TextStyle(color: colorScheme.onSurface)),
               onTap: () async {
                 Navigator.pop(dialogContext);
-
                 await binController.restoreSupportLine(line.idContact!);
 
                 if (mounted) {
-                  // Actualizar las listas del controlador principal
                   try {
-                    final supportController = context
-                        .read<SupportLineController>();
+                    final supportController = context.read<SupportLineController>();
                     supportController.loadSupportLines();
                     supportController.loadFavorites();
                   } catch (e) {
@@ -54,19 +49,17 @@ class _BinSupportLinesScreenState extends State<BinSupportLinesScreen> {
                   }
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Contacto restaurado correctamente'),
+                    SnackBar(
+                      content: Text('Contacto restaurado correctamente', style: TextStyle(color: colorScheme.onSurface)),
+                      backgroundColor: colorScheme.surface,
                     ),
                   );
                 }
               },
             ),
             ListTile(
-              leading: const Icon(
-                Icons.delete_forever,
-                color: Color.fromARGB(221, 232, 68, 68),
-              ),
-              title: const Text("Eliminar definitivamente"),
+              leading: Icon(Icons.delete_forever, color: colorScheme.error),
+              title: Text("Eliminar definitivamente", style: TextStyle(color: colorScheme.error)),
               onTap: () {
                 Navigator.pop(dialogContext);
                 binController.forceDeleteSupportLine(line.idContact!);
@@ -81,48 +74,61 @@ class _BinSupportLinesScreenState extends State<BinSupportLinesScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<BinController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F7),
+      backgroundColor: colorScheme.surfaceVariant,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           "Papelera de contactos",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Text(
               "Aquí puedes ver los contactos que has eliminado.",
-              style: TextStyle(color: Colors.black54, fontSize: 14),
+              style: TextStyle(
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
+                fontSize: 14,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
           Expanded(
             child: controller.isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? Center(child: CircularProgressIndicator(color: colorScheme.primary))
                 : controller.deletedSupportLines.isEmpty
-                ? const Center(child: Text("No tienes contactos eliminados"))
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: controller.deletedSupportLines.length,
-                    itemBuilder: (context, index) {
-                      final line = controller.deletedSupportLines[index];
-                      return GestureDetector(
-                        onLongPress: () => _showOptionsDialog(line),
-                        child: _DeleteSupportLineCard(line: line),
-                      );
-                    },
-                  ),
+                    ? Center(
+                        child: Text(
+                          "No tienes contactos eliminados",
+                          style: TextStyle(color: colorScheme.onSurface),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        itemCount: controller.deletedSupportLines.length,
+                        itemBuilder: (context, index) {
+                          final line = controller.deletedSupportLines[index];
+                          return GestureDetector(
+                            onLongPress: () => _showOptionsDialog(line),
+                            child: _DeleteSupportLineCard(line: line),
+                          );
+                        },
+                      ),
           ),
         ],
       ),
@@ -136,14 +142,20 @@ class _DeleteSupportLineCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.onSurface.withValues(alpha: 0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Row(
@@ -153,10 +165,10 @@ class _DeleteSupportLineCard extends StatelessWidget {
             height: 50,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: const Color(0xFFF2F4F7),
+              color: colorScheme.surfaceVariant,
               borderRadius: BorderRadius.circular(15),
             ),
-            child: const Icon(Icons.person, color: Colors.grey, size: 28),
+            child: Icon(Icons.person, color: colorScheme.onSurface.withValues(alpha: 0.4), size: 28),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -165,16 +177,17 @@ class _DeleteSupportLineCard extends StatelessWidget {
               children: [
                 Text(
                   line.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   line.phone,
-                  style: const TextStyle(
-                    color: Color(0xFF6A94C9),
+                  style: TextStyle(
+                    color: colorScheme.primary,
                     fontSize: 14,
                   ),
                 ),
@@ -184,18 +197,15 @@ class _DeleteSupportLineCard extends StatelessWidget {
           IconButton(
             icon: Icon(
               Icons.restore_from_trash_rounded,
-              color: Colors.green[600],
+              color: colorScheme.secondary,
             ),
             tooltip: "Restaurar",
             onPressed: () async {
-              await context.read<BinController>().restoreSupportLine(
-                line.idContact!,
-              );
+              await context.read<BinController>().restoreSupportLine(line.idContact!);
 
               if (context.mounted) {
                 try {
-                  final supportController = context
-                      .read<SupportLineController>();
+                  final supportController = context.read<SupportLineController>();
                   supportController.loadSupportLines();
                   supportController.loadFavorites();
                 } catch (e) {
@@ -203,7 +213,10 @@ class _DeleteSupportLineCard extends StatelessWidget {
                 }
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Contacto restaurado')),
+                  SnackBar(
+                    content: Text('Contacto restaurado', style: TextStyle(color: colorScheme.onSurface)),
+                    backgroundColor: colorScheme.surface,
+                  ),
                 );
               }
             },

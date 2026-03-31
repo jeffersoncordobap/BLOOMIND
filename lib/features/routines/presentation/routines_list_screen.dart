@@ -23,19 +23,20 @@ class _RoutineListScreenState extends State<RoutineListScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<RoutineController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: colorScheme.background,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           "Mis rutinas",
-          style: TextStyle(color: Colors.black87),
+          style: TextStyle(color: colorScheme.onBackground),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3142)),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () {
             context
                 .findAncestorStateOfType<MainNavigationScreenState>()
@@ -49,25 +50,33 @@ class _RoutineListScreenState extends State<RoutineListScreen> {
             child: controller.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : controller.routines.isEmpty
-                ? const Center(child: Text("No tienes rutinas aún."))
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: controller.routines.length,
-                    itemBuilder: (context, index) {
-                      return _buildRoutineCard(
-                        controller.routines[index],
-                        controller,
-                      );
-                    },
-                  ),
+                    ? Center(
+                        child: Text(
+                          "No tienes rutinas aún.",
+                          style: TextStyle(color: colorScheme.onSurface),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(16),
+                        itemCount: controller.routines.length,
+                        itemBuilder: (context, index) {
+                          return _buildRoutineCard(
+                            controller.routines[index],
+                            controller,
+                          );
+                        },
+                      ),
           ),
-          _buildAddButton(context, controller),
+          _buildAddButton(context, controller, colorScheme),
         ],
       ),
     );
   }
 
-  Widget _buildRoutineCard(dynamic routine, RoutineController controller) {
+  Widget _buildRoutineCard(
+      dynamic routine, RoutineController controller) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -81,16 +90,16 @@ class _RoutineListScreenState extends State<RoutineListScreen> {
         margin: const EdgeInsets.only(bottom: 12),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: colorScheme.onSurface.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
-          border: Border.all(color: Colors.black12),
+          border: Border.all(color: colorScheme.outline),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -98,14 +107,15 @@ class _RoutineListScreenState extends State<RoutineListScreen> {
             Expanded(
               child: Text(
                 routine.name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ),
             IconButton(
-              icon: const Icon(Icons.delete, color: Colors.redAccent),
+              icon: Icon(Icons.delete, color: colorScheme.error),
               onPressed: () {
                 controller.removeRoutine(routine.idRoutine!, context);
               },
@@ -116,40 +126,60 @@ class _RoutineListScreenState extends State<RoutineListScreen> {
     );
   }
 
-  Widget _buildAddButton(BuildContext context, RoutineController controller) {
+  Widget _buildAddButton(
+      BuildContext context, RoutineController controller, ColorScheme colorScheme) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: SizedBox(
         width: double.infinity,
         height: 50,
         child: OutlinedButton.icon(
-          onPressed: () => _showAddDialog(context, controller),
-          icon: const Icon(Icons.add),
-          label: const Text("Agregar rutina"),
+          onPressed: () => _showAddDialog(context, controller, colorScheme),
+          icon: Icon(Icons.add, color: colorScheme.primary),
+          label: Text(
+            "Agregar rutina",
+            style: TextStyle(color: colorScheme.primary),
+          ),
           style: OutlinedButton.styleFrom(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
+            side: BorderSide(color: colorScheme.primary),
           ),
         ),
       ),
     );
   }
 
-  void _showAddDialog(BuildContext context, RoutineController controller) {
+  void _showAddDialog(
+      BuildContext context, RoutineController controller, ColorScheme colorScheme) {
     final textController = TextEditingController();
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Nueva Rutina"),
+        backgroundColor: colorScheme.surface,
+        title: Text(
+          "Nueva Rutina",
+          style: TextStyle(color: colorScheme.onSurface),
+        ),
         content: TextField(
           controller: textController,
-          decoration: const InputDecoration(hintText: "Nombre de la rutina"),
+          style: TextStyle(color: colorScheme.onSurface),
+          decoration: InputDecoration(
+            hintText: "Nombre de la rutina",
+            hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.5)),
+            filled: true,
+            fillColor: colorScheme.surfaceVariant,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
+            child: Text(
+              "Cancelar",
+              style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.7)),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -158,7 +188,13 @@ class _RoutineListScreenState extends State<RoutineListScreen> {
                 Navigator.pop(context);
               }
             },
-            child: const Text("Guardar"),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: colorScheme.primary,
+            ),
+            child: Text(
+              "Guardar",
+              style: TextStyle(color: colorScheme.onPrimary),
+            ),
           ),
         ],
       ),

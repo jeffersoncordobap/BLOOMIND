@@ -23,22 +23,23 @@ class _DayRoutineScreenState extends State<DayRoutineScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<DayRoutineController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF1F5F9),
+      backgroundColor: colorScheme.background,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           "Rutina del día",
           style: TextStyle(
-            color: Color(0xFF2D3142),
+            color: colorScheme.onBackground,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF2D3142)),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onBackground),
           onPressed: () {
             context
                 .findAncestorStateOfType<MainNavigationScreenState>()
@@ -48,13 +49,13 @@ class _DayRoutineScreenState extends State<DayRoutineScreen> {
       ),
       body: controller.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _buildContent(controller),
+          : _buildContent(controller, colorScheme),
     );
   }
 
-  Widget _buildContent(DayRoutineController controller) {
+  Widget _buildContent(DayRoutineController controller, ColorScheme colorScheme) {
     if (controller.dayActivities.isEmpty) {
-      return _buildEmptyState();
+      return _buildEmptyState(colorScheme);
     }
 
     return Column(
@@ -65,25 +66,25 @@ class _DayRoutineScreenState extends State<DayRoutineScreen> {
             itemCount: controller.dayActivities.length,
             itemBuilder: (context, index) {
               final activity = controller.dayActivities[index];
-              return _buildActivityCard(activity);
+              return _buildActivityCard(activity, colorScheme);
             },
           ),
         ),
-        _buildAddActivityButton(),
+        _buildAddActivityButton(colorScheme),
         const SizedBox(height: 30),
       ],
     );
   }
 
-  Widget _buildActivityCard(dynamic activity) {
+  Widget _buildActivityCard(dynamic activity, ColorScheme colorScheme) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(25),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: colorScheme.onSurface.withValues(alpha: 0.03),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -96,10 +97,10 @@ class _DayRoutineScreenState extends State<DayRoutineScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFFF8FAFC),
+                color: colorScheme.surfaceVariant,
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: Text(activity.emoji, style: const TextStyle(fontSize: 28)),
+              child: Text(activity.emoji, style: TextStyle(fontSize: 28)),
             ),
             const SizedBox(width: 20),
             Expanded(
@@ -108,18 +109,18 @@ class _DayRoutineScreenState extends State<DayRoutineScreen> {
                 children: [
                   Text(
                     activity.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2D3142),
+                      color: colorScheme.onSurface,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     "${activity.hour} · ${activity.category}",
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: Color(0xFF94A3B8),
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
@@ -131,7 +132,7 @@ class _DayRoutineScreenState extends State<DayRoutineScreen> {
     );
   }
 
-  Widget _buildAddActivityButton() {
+  Widget _buildAddActivityButton(ColorScheme colorScheme) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
       child: SizedBox(
@@ -139,9 +140,8 @@ class _DayRoutineScreenState extends State<DayRoutineScreen> {
         height: 55,
         child: ElevatedButton.icon(
           onPressed: () {
-            final routineId = context
-                .read<DayRoutineController>()
-                .currentRoutineId;
+            final routineId =
+                context.read<DayRoutineController>().currentRoutineId;
             if (routineId != null) {
               Navigator.push(
                 context,
@@ -150,27 +150,28 @@ class _DayRoutineScreenState extends State<DayRoutineScreen> {
                 ),
               );
             } else {
-              // navegar a la pantalla de "Asignar Rutina" aquí
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
+                SnackBar(
                   content: Text(
                     "Asigna una rutina a este día para agregar actividades",
+                    style: TextStyle(color: colorScheme.onSurface),
                   ),
+                  backgroundColor: colorScheme.surface,
                 ),
               );
             }
           },
-          icon: const Icon(Icons.add, color: Colors.white),
-          label: const Text(
+          icon: Icon(Icons.add, color: colorScheme.onPrimary),
+          label: Text(
             "Agregar actividad",
             style: TextStyle(
-              color: Colors.white,
+              color: colorScheme.onPrimary,
               fontSize: 16,
               fontWeight: FontWeight.bold,
             ),
           ),
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF6495ED),
+            backgroundColor: colorScheme.primary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
@@ -181,17 +182,20 @@ class _DayRoutineScreenState extends State<DayRoutineScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(ColorScheme colorScheme) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
+          Text(
             "😊 Hoy no tienes una rutina asignada",
-            style: TextStyle(color: Color(0xFF7D8FA9), fontSize: 16),
+            style: TextStyle(
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
+              fontSize: 16,
+            ),
           ),
           const SizedBox(height: 20),
-          _buildAddActivityButton(),
+          _buildAddActivityButton(colorScheme),
         ],
       ),
     );

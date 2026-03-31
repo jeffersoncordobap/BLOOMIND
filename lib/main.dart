@@ -3,6 +3,8 @@ import 'package:bloomind/features/resourses/controller/support_line_controller.d
 import 'package:bloomind/features/resourses/repository/support_lines_repository_impl.dart';
 import 'package:bloomind/features/routines/controller/day_routine_controller.dart';
 import 'package:bloomind/features/routines/presentation/provider/routine_provider.dart';
+import 'package:bloomind/features/settings/app_theme.dart';
+import 'package:bloomind/features/settings/controller/tema_controller.dart';
 import 'package:bloomind/main_navegator_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -58,6 +60,8 @@ void main() async {
           create: (context) =>
               SupportLineController(SupportLineRepositoryImpl()),
         ),
+
+        ChangeNotifierProvider(create: (_) => TemaProvider()),
         ChangeNotifierProvider(create: (_) => ProfileController()),
       ],
       child: BloomindApp(hasSeenOnboarding: hasSeenOnboarding),
@@ -72,17 +76,20 @@ class BloomindApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Bloomind',
-      theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFE9EDF2),
-        useMaterial3: true,
-        fontFamily: 'Inter',
-      ),
-      home: hasSeenOnboarding
-          ? const MainNavigationScreen()
-          : const OnboardingScreen(),
+    return Consumer<TemaProvider>(
+      builder: (context, temaProvider, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Bloomind',
+          theme: temaProvider.modoOscuro
+              ? AppTheme.darkTheme
+              : AppTheme.lightTheme,
+
+          home: hasSeenOnboarding
+              ? const MainNavigationScreen()
+              : const OnboardingScreen(),
+        );
+      },
     );
   }
 }

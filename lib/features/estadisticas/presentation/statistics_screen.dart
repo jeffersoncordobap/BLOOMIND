@@ -3,7 +3,9 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:bloomind/features/estadisticas/data/statistics_service.dart';
 import 'package:bloomind/features/estadisticas/domain/statistics_model.dart';
 import 'statistics_info_screen.dart';
+
 enum StatisticsPeriod { weekly, monthly, daily }
+
 enum StatisticsChartType { line, bar }
 
 class StatisticsScreen extends StatefulWidget {
@@ -62,7 +64,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     } else if (selectedPeriod == StatisticsPeriod.weekly) {
       result = await _statisticsService.getWeeklyStatistics(selectedWeeklyDate);
     } else {
-      result = await _statisticsService.getMonthlyStatistics(selectedMonthlyDate);
+      result = await _statisticsService.getMonthlyStatistics(
+        selectedMonthlyDate,
+      );
     }
 
     if (!mounted) return;
@@ -76,19 +80,19 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F7),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           child: Column(
             children: [
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Estadísticas',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF2F3A56),
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 18),
@@ -103,6 +107,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget _buildSummaryCard() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     String title;
     switch (selectedPeriod) {
       case StatisticsPeriod.weekly:
@@ -120,26 +126,27 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       decoration: BoxDecoration(
-        color: const Color(0xFFEAF1F8),
+        color: colorScheme.primaryContainer.withOpacity(0.3),
         borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: colorScheme.outline.withOpacity(0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2B44),
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             '😊 Resumen de tu diario emocional',
             style: TextStyle(
               fontSize: 14,
-              color: Color(0xFF60708A),
+              color: colorScheme.onSurface.withOpacity(0.7),
             ),
           ),
           const SizedBox(height: 20),
@@ -149,7 +156,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                 child: _buildStatItem(
                   value: _statisticsSummary.averageMood.toStringAsFixed(1),
                   label: 'Promedio\ngeneral',
-                  color: const Color(0xFF1F2B44),
+                  color: colorScheme.onSurface,
                 ),
               ),
               Expanded(
@@ -190,6 +197,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     required String label,
     required Color color,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -204,9 +213,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: Color(0xFF60708A),
+            color: colorScheme.onSurface.withOpacity(0.7),
             height: 1.4,
           ),
         ),
@@ -215,12 +224,15 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget _buildFilterAndChartCard() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: colorScheme.outline),
       ),
       child: Column(
         children: [
@@ -248,7 +260,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                   onTap: () async {
                     setState(() {
                       selectedPeriod = StatisticsPeriod.monthly;
-                      selectedPeriodText = _formatMonthYear(selectedMonthlyDate);
+                      selectedPeriodText = _formatMonthYear(
+                        selectedMonthlyDate,
+                      );
                       showInlinePicker = false;
                     });
                     await _loadStatistics();
@@ -309,7 +323,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
           const SizedBox(height: 18),
 
           Material(
-            color: const Color(0xFFDDEAF8),
+            color: Theme.of(context).colorScheme.primaryContainer,
             borderRadius: BorderRadius.circular(18),
             child: InkWell(
               borderRadius: BorderRadius.circular(18),
@@ -323,19 +337,27 @@ class StatisticsScreenState extends State<StatisticsScreen> {
               },
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFFC8D8EB)),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
                 ),
                 child: Row(
-                  children: const [
+                  children: [
                     Icon(Icons.info_outline_rounded, size: 22),
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         '¿Cómo se calculan las estadísticas?',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                       ),
                     ),
                   ],
@@ -353,20 +375,22 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     required bool selected,
     required VoidCallback onTap,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
         height: 46,
         decoration: BoxDecoration(
-          color: selected ? const Color(0xFF6D9ED8) : const Color(0xFFF1F3F6),
+          color: selected ? colorScheme.primary : colorScheme.surfaceVariant,
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: const Color(0xFFD8E0EA)),
+          border: Border.all(color: colorScheme.outline),
         ),
         child: Center(
           child: Text(
             text,
             style: TextStyle(
-              color: selected ? Colors.white : const Color(0xFF1F2B44),
+              color: selected ? colorScheme.onPrimary : colorScheme.onSurface,
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
@@ -377,30 +401,32 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget _buildPeriodCard() {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F4F8),
+        color: colorScheme.surfaceVariant.withOpacity(0.5),
         borderRadius: BorderRadius.circular(22),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Periodo',
             style: TextStyle(
               fontSize: 14,
-              color: Color(0xFF60708A),
+              color: colorScheme.onSurface.withOpacity(0.7),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             selectedPeriodText,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1F2B44),
+              color: colorScheme.onSurface,
               height: 1.5,
             ),
           ),
@@ -426,8 +452,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
               style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFF1F2B44),
-                side: const BorderSide(color: Color(0xFFD2DAE5)),
+                foregroundColor: colorScheme.onSurface,
+                side: BorderSide(color: colorScheme.outline),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(28),
                 ),
@@ -459,18 +485,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
     if (_isLoadingStatistics) {
       return const SizedBox(
         height: 220,
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
+        child: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_statisticsSummary.chartPoints.isEmpty) {
       return const SizedBox(
         height: 220,
-        child: Center(
-          child: Text('No hay datos para este periodo'),
-        ),
+        child: Center(child: Text('No hay datos para este periodo')),
       );
     }
 
@@ -484,6 +506,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   Widget _buildBarChart() {
     final points = _statisticsSummary.chartPoints;
     final bool isMonthly = selectedPeriod == StatisticsPeriod.monthly;
+    final colorScheme = Theme.of(context).colorScheme;
 
     final double chartWidth = isMonthly
         ? (points.length * 26).clamp(320, 1200).toDouble()
@@ -494,9 +517,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       height: 400,
       padding: const EdgeInsets.fromLTRB(12, 18, 12, 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFD8E0EA)),
+        border: Border.all(color: colorScheme.outline),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -512,21 +535,21 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                 drawVerticalLine: true,
                 horizontalInterval: 1,
                 getDrawingHorizontalLine: (_) => FlLine(
-                  color: const Color(0xFFD9E1EA),
+                  color: colorScheme.outline.withOpacity(0.2),
                   strokeWidth: 1,
                   dashArray: [4, 4],
                 ),
                 getDrawingVerticalLine: (_) => FlLine(
-                  color: const Color(0xFFE5EAF0),
+                  color: colorScheme.outline.withOpacity(0.2),
                   strokeWidth: 1,
                   dashArray: [4, 4],
                 ),
               ),
               borderData: FlBorderData(
                 show: true,
-                border: const Border(
-                  left: BorderSide(color: Color(0xFF8A97AB), width: 1),
-                  bottom: BorderSide(color: Color(0xFF8A97AB), width: 1),
+                border: Border(
+                  left: BorderSide(color: colorScheme.outline, width: 1),
+                  bottom: BorderSide(color: colorScheme.outline, width: 1),
                   right: BorderSide.none,
                   top: BorderSide.none,
                 ),
@@ -547,9 +570,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       if (value == 0 || value == 2 || value == 5) {
                         return Text(
                           value.toInt().toString(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF60708A),
+                            color: colorScheme.onSurface.withOpacity(0.5),
                             fontWeight: FontWeight.w500,
                           ),
                         );
@@ -572,9 +595,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           points[index].label,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF60708A),
+                            color: colorScheme.onSurface.withOpacity(0.5),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -592,7 +615,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     vertical: 10,
                   ),
                   tooltipMargin: 8,
-                  getTooltipColor: (_) => Colors.white,
+                  getTooltipColor: (_) => colorScheme.surface,
                   getTooltipItem: (group, groupIndex, rod, rodIndex) {
                     final point = points[group.x.toInt()];
                     final dateText = _getTooltipDate(point.label);
@@ -600,8 +623,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
                     return BarTooltipItem(
                       '$dateText\nPromedio: ${point.value.toStringAsFixed(1)}\n$description',
-                      const TextStyle(
-                        color: Color(0xFF1F2B44),
+                      TextStyle(
+                        color: colorScheme.onSurface,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         height: 1.5,
@@ -620,7 +643,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       toY: point.value,
                       width: isMonthly ? 10 : 18,
                       borderRadius: BorderRadius.circular(4),
-                      color: const Color(0xFFE0AA00),
+                      color: colorScheme.primary,
                     ),
                   ],
                 );
@@ -635,6 +658,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   Widget _buildLineChart() {
     final points = _statisticsSummary.chartPoints;
     final bool isMonthly = selectedPeriod == StatisticsPeriod.monthly;
+    final colorScheme = Theme.of(context).colorScheme;
 
     final double chartWidth = isMonthly
         ? (points.length * 30).clamp(320, 1400).toDouble()
@@ -645,9 +669,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       height: 400,
       padding: const EdgeInsets.fromLTRB(12, 18, 12, 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFD8E0EA)),
+        border: Border.all(color: colorScheme.outline),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -662,21 +686,21 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                 drawVerticalLine: true,
                 horizontalInterval: 1,
                 getDrawingHorizontalLine: (_) => FlLine(
-                  color: const Color(0xFFD9E1EA),
+                  color: colorScheme.outline.withOpacity(0.2),
                   strokeWidth: 1,
                   dashArray: [4, 4],
                 ),
                 getDrawingVerticalLine: (_) => FlLine(
-                  color: const Color(0xFFE5EAF0),
+                  color: colorScheme.outline.withOpacity(0.2),
                   strokeWidth: 1,
                   dashArray: [4, 4],
                 ),
               ),
               borderData: FlBorderData(
                 show: true,
-                border: const Border(
-                  left: BorderSide(color: Color(0xFF8A97AB), width: 1),
-                  bottom: BorderSide(color: Color(0xFF8A97AB), width: 1),
+                border: Border(
+                  left: BorderSide(color: colorScheme.outline, width: 1),
+                  bottom: BorderSide(color: colorScheme.outline, width: 1),
                   right: BorderSide.none,
                   top: BorderSide.none,
                 ),
@@ -697,9 +721,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       if (value == 0 || value == 2 || value == 5) {
                         return Text(
                           value.toInt().toString(),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF60708A),
+                            color: colorScheme.onSurface.withOpacity(0.5),
                             fontWeight: FontWeight.w500,
                           ),
                         );
@@ -722,9 +746,9 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           points[index].label,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: Color(0xFF60708A),
+                            color: colorScheme.onSurface.withOpacity(0.5),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -743,7 +767,7 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     vertical: 10,
                   ),
                   tooltipMargin: 8,
-                  getTooltipColor: (_) => Colors.white,
+                  getTooltipColor: (_) => colorScheme.surface,
                   getTooltipItems: (touchedSpots) {
                     return touchedSpots.map((spot) {
                       final point = points[spot.x.toInt()];
@@ -752,8 +776,8 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
                       return LineTooltipItem(
                         '$dateText\nPromedio: ${point.value.toStringAsFixed(1)}\n$description',
-                        const TextStyle(
-                          color: Color(0xFF1F2B44),
+                        TextStyle(
+                          color: colorScheme.onSurface,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                           height: 1.5,
@@ -770,15 +794,15 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                   }),
                   isCurved: false,
                   barWidth: 2.5,
-                  color: const Color(0xFFE0AA00),
+                  color: colorScheme.primary,
                   dotData: FlDotData(
                     show: true,
                     getDotPainter: (spot, percent, barData, index) {
                       return FlDotCirclePainter(
                         radius: 4,
-                        color: const Color(0xFFE0AA00),
+                        color: colorScheme.primary,
                         strokeWidth: 1,
-                        strokeColor: const Color(0xFFE0AA00),
+                        strokeColor: colorScheme.primary,
                       );
                     },
                   ),
@@ -870,8 +894,11 @@ class StatisticsScreenState extends State<StatisticsScreen> {
 
     if (selectedPeriod == StatisticsPeriod.monthly) {
       final day = int.tryParse(label) ?? 1;
-      final date =
-      DateTime(selectedMonthlyDate.year, selectedMonthlyDate.month, day);
+      final date = DateTime(
+        selectedMonthlyDate.year,
+        selectedMonthlyDate.month,
+        day,
+      );
       return _formatDate(date);
     }
 
@@ -891,12 +918,13 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   }
 
   Widget _buildDailyAverageCard() {
+    final colorScheme = Theme.of(context).colorScheme;
     if (_isLoadingStatistics) {
       return Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
         decoration: BoxDecoration(
-          color: const Color(0xFFF0F4F8),
+          color: colorScheme.surfaceVariant.withOpacity(0.5),
           borderRadius: BorderRadius.circular(22),
         ),
         child: const Center(child: CircularProgressIndicator()),
@@ -907,45 +935,51 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0F4F8),
+        color: colorScheme.surfaceVariant.withOpacity(0.5),
         borderRadius: BorderRadius.circular(22),
       ),
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.calendar_today_outlined,
-            color: Color(0xFF6D9ED8),
+            color: colorScheme.primary,
             size: 34,
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Promedio del día seleccionado',
-            style: TextStyle(fontSize: 16, color: Color(0xFF60708A)),
+            style: TextStyle(
+              fontSize: 16,
+              color: colorScheme.onSurface.withOpacity(0.7),
+            ),
           ),
           const SizedBox(height: 10),
           Text(
             _formatDate(selectedDailyDate),
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1F2B44),
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 16),
           Text(
             _statisticsSummary.dailyAverage.toStringAsFixed(1),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 42,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2B44),
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Estado emocional promedio del día',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, color: Color(0xFF60708A)),
+            style: TextStyle(
+              fontSize: 14,
+              color: colorScheme.onSurface.withOpacity(0.7),
+            ),
           ),
         ],
       ),
@@ -955,33 +989,34 @@ class StatisticsScreenState extends State<StatisticsScreen> {
   Widget _buildWeeklyPickerCard() {
     final visibleMonth = DateTime(tempWeeklyDate.year, tempWeeklyDate.month, 1);
     final days = _buildCalendarDays(visibleMonth);
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFD8E0EA)),
+        border: Border.all(color: colorScheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Selecciona una semana',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1F2B44),
+              color: colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 18),
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: colorScheme.surface,
               borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: const Color(0xFFD8E0EA)),
+              border: Border.all(color: colorScheme.outline),
             ),
             child: Column(
               children: [
@@ -1003,10 +1038,10 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       child: Center(
                         child: Text(
                           _formatMonthYearLower(tempWeeklyDate),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF1F2B44),
+                            color: colorScheme.onSurface,
                           ),
                         ),
                       ),
@@ -1015,14 +1050,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       icon: Icons.chevron_right,
                       onTap: _canMoveToNextWeeklyMonth()
                           ? () {
-                        setState(() {
-                          tempWeeklyDate = DateTime(
-                            tempWeeklyDate.year,
-                            tempWeeklyDate.month + 1,
-                            tempWeeklyDate.day,
-                          );
-                        });
-                      }
+                              setState(() {
+                                tempWeeklyDate = DateTime(
+                                  tempWeeklyDate.year,
+                                  tempWeeklyDate.month + 1,
+                                  tempWeeklyDate.day,
+                                );
+                              });
+                            }
                           : null,
                     ),
                   ],
@@ -1055,9 +1090,11 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                     final date = days[index];
                     final belongsToMonth = date.month == visibleMonth.month;
                     final selectedWeekStart = _startOfWeek(tempWeeklyDate);
-                    final selectedWeekEnd =
-                    selectedWeekStart.add(const Duration(days: 6));
-                    final isInSelectedWeek = !date.isBefore(selectedWeekStart) &&
+                    final selectedWeekEnd = selectedWeekStart.add(
+                      const Duration(days: 6),
+                    );
+                    final isInSelectedWeek =
+                        !date.isBefore(selectedWeekStart) &&
                         !date.isAfter(selectedWeekEnd);
                     final isFutureWeek = _isFutureWeek(date);
 
@@ -1065,14 +1102,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       onTap: isFutureWeek
                           ? null
                           : () {
-                        setState(() {
-                          tempWeeklyDate = date;
-                        });
-                      },
+                              setState(() {
+                                tempWeeklyDate = date;
+                              });
+                            },
                       child: Container(
                         decoration: BoxDecoration(
                           color: isInSelectedWeek
-                              ? const Color(0xFFDCE9F9)
+                              ? colorScheme.primary.withOpacity(0.2)
                               : Colors.transparent,
                           shape: BoxShape.circle,
                         ),
@@ -1083,10 +1120,10 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                             color: isFutureWeek
-                                ? const Color(0xFFB8C2D1)
+                                ? colorScheme.onSurface.withOpacity(0.3)
                                 : belongsToMonth
-                                ? const Color(0xFF1F2B44)
-                                : const Color(0xFF8A97AB),
+                                ? colorScheme.onSurface
+                                : colorScheme.onSurface.withOpacity(0.5),
                           ),
                         ),
                       ),
@@ -1101,19 +1138,22 @@ class StatisticsScreenState extends State<StatisticsScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFFF0F4F8),
+              color: colorScheme.surfaceVariant.withOpacity(0.5),
               borderRadius: BorderRadius.circular(18),
             ),
             child: RichText(
               text: TextSpan(
-                style: const TextStyle(fontSize: 15, color: Color(0xFF60708A)),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: colorScheme.onSurface.withOpacity(0.7),
+                ),
                 children: [
                   const TextSpan(text: 'Semana seleccionada: '),
                   TextSpan(
                     text: _formatWeekRange(tempWeeklyDate),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1F2B44),
+                      color: colorScheme.onSurface,
                     ),
                   ),
                 ],
@@ -1184,10 +1224,10 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                 icon: Icons.chevron_right,
                 onTap: _canGoToNextYear()
                     ? () {
-                  setState(() {
-                    tempYear++;
-                  });
-                }
+                        setState(() {
+                          tempYear++;
+                        });
+                      }
                     : null,
               ),
             ],
@@ -1220,15 +1260,15 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                 icon: Icons.chevron_right,
                 onTap: _canMoveToNextMonthlyMonth()
                     ? () {
-                  setState(() {
-                    if (tempMonth == 12) {
-                      tempMonth = 1;
-                      tempYear++;
-                    } else {
-                      tempMonth++;
-                    }
-                  });
-                }
+                        setState(() {
+                          if (tempMonth == 12) {
+                            tempMonth = 1;
+                            tempYear++;
+                          } else {
+                            tempMonth++;
+                          }
+                        });
+                      }
                     : null,
               ),
             ],
@@ -1345,14 +1385,14 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       icon: Icons.chevron_right,
                       onTap: _canMoveToNextDailyMonth()
                           ? () {
-                        setState(() {
-                          tempDailyDate = DateTime(
-                            tempDailyDate.year,
-                            tempDailyDate.month + 1,
-                            tempDailyDate.day,
-                          );
-                        });
-                      }
+                              setState(() {
+                                tempDailyDate = DateTime(
+                                  tempDailyDate.year,
+                                  tempDailyDate.month + 1,
+                                  tempDailyDate.day,
+                                );
+                              });
+                            }
                           : null,
                     ),
                   ],
@@ -1391,10 +1431,10 @@ class StatisticsScreenState extends State<StatisticsScreen> {
                       onTap: isFutureDay
                           ? null
                           : () {
-                        setState(() {
-                          tempDailyDate = date;
-                        });
-                      },
+                              setState(() {
+                                tempDailyDate = date;
+                              });
+                            },
                       child: Container(
                         decoration: BoxDecoration(
                           color: isSelected
@@ -1484,17 +1524,13 @@ class StatisticsScreenState extends State<StatisticsScreen> {
         width: 44,
         height: 44,
         decoration: BoxDecoration(
-          color: isEnabled
-              ? const Color(0xFFF0F4F8)
-              : const Color(0xFFF6F8FB),
+          color: isEnabled ? const Color(0xFFF0F4F8) : const Color(0xFFF6F8FB),
           shape: BoxShape.circle,
           border: Border.all(color: const Color(0xFFD8E0EA)),
         ),
         child: Icon(
           icon,
-          color: isEnabled
-              ? const Color(0xFF1F2B44)
-              : const Color(0xFFB8C2D1),
+          color: isEnabled ? const Color(0xFF1F2B44) : const Color(0xFFB8C2D1),
         ),
       ),
     );
@@ -1528,34 +1564,34 @@ class StatisticsScreenState extends State<StatisticsScreen> {
       height: 46,
       child: filled
           ? ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFF6D9ED8),
-          foregroundColor: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
-          ),
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-      )
+              onPressed: onTap,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6D9ED8),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(28),
+                ),
+              ),
+              child: Text(
+                text,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            )
           : OutlinedButton(
-        onPressed: onTap,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: const Color(0xFF1F2B44),
-          side: const BorderSide(color: Color(0xFFD8E0EA)),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
-          ),
-        ),
-        child: Text(
-          text,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ),
+              onPressed: onTap,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF1F2B44),
+                side: const BorderSide(color: Color(0xFFD8E0EA)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(28),
+                ),
+              ),
+              child: Text(
+                text,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
     );
   }
 

@@ -26,6 +26,7 @@ class _OnlyActivityRemovedScreenState
 
   void _showOptionsDialog(Activity activity) {
     final binController = context.read<BinController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     showDialog(
       context: context,
@@ -36,11 +37,14 @@ class _OnlyActivityRemovedScreenState
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(
+              leading: Icon(
                 Icons.restore_from_trash,
-                color: Color.fromARGB(221, 48, 199, 230),
+                color: colorScheme.primary,
               ),
-              title: const Text("Restaurar"),
+              title: Text(
+                "Restaurar",
+                style: TextStyle(color: colorScheme.onSurface),
+              ),
               onTap: () async {
                 Navigator.pop(dialogContext);
                 await binController.restoreActivity(activity.idActivity!);
@@ -53,19 +57,27 @@ class _OnlyActivityRemovedScreenState
                     debugPrint("RoutineProvider no encontrado: $e");
                   }
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Actividad restaurada correctamente'),
+                    SnackBar(
+                      content: Text(
+                        'Actividad restaurada correctamente',
+                        style: TextStyle(color: colorScheme.onSurface),
+                      ),
+                      backgroundColor:
+                          colorScheme.surface.withValues(alpha: 0.95),
                     ),
                   );
                 }
               },
             ),
             ListTile(
-              leading: const Icon(
+              leading: Icon(
                 Icons.delete_forever,
-                color: Color.fromARGB(221, 232, 68, 68),
+                color: colorScheme.error,
               ),
-              title: const Text("Eliminar definitivamente"),
+              title: Text(
+                "Eliminar definitivamente",
+                style: TextStyle(color: colorScheme.error),
+              ),
               onTap: () {
                 Navigator.pop(dialogContext);
                 binController.forceDeleteActivity(activity.idActivity!);
@@ -80,29 +92,37 @@ class _OnlyActivityRemovedScreenState
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<BinController>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F4F7),
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           "Papelera de actividades",
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: colorScheme.onSurface,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: colorScheme.surface,
+        foregroundColor: colorScheme.onSurface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(Icons.arrow_back, color: colorScheme.onSurface),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Text(
               "Aquí puedes ver las actividades que has eliminado. Restáuralas si fue un error.",
-              style: TextStyle(color: Colors.black54, fontSize: 14),
+              style: TextStyle(
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
+                fontSize: 14,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
@@ -110,18 +130,23 @@ class _OnlyActivityRemovedScreenState
             child: controller.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : controller.deletedActivities.isEmpty
-                ? const Center(child: Text("No tienes actividades eliminadas"))
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: controller.deletedActivities.length,
-                    itemBuilder: (context, index) {
-                      final activity = controller.deletedActivities[index];
-                      return GestureDetector(
-                        onLongPress: () => _showOptionsDialog(activity),
-                        child: _DeleteActivityCard(activity: activity),
-                      );
-                    },
-                  ),
+                    ? Center(
+                        child: Text(
+                          "No tienes actividades eliminadas",
+                          style: TextStyle(color: colorScheme.onSurface),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        itemCount: controller.deletedActivities.length,
+                        itemBuilder: (context, index) {
+                          final activity = controller.deletedActivities[index];
+                          return GestureDetector(
+                            onLongPress: () => _showOptionsDialog(activity),
+                            child: _DeleteActivityCard(activity: activity),
+                          );
+                        },
+                      ),
           ),
         ],
       ),
@@ -135,14 +160,20 @@ class _DeleteActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 15),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 6, offset: Offset(0, 2)),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.onSurface.withValues(alpha: 0.1),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: Row(
@@ -152,10 +183,10 @@ class _DeleteActivityCard extends StatelessWidget {
             height: 50,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: const Color(0xFFF2F4F7),
+              color: colorScheme.surfaceVariant,
               borderRadius: BorderRadius.circular(15),
             ),
-            child: Text(activity.emoji, style: const TextStyle(fontSize: 28)),
+            child: Text(activity.emoji, style: TextStyle(fontSize: 28)),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -164,18 +195,19 @@ class _DeleteActivityCard extends StatelessWidget {
               children: [
                 Text(
                   activity.name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
+                    color: colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   activity.category,
-                  style: const TextStyle(
-                    color: Color(0xFF6A94C9),
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
+                    color: colorScheme.primary,
                   ),
                 ),
               ],
@@ -184,13 +216,13 @@ class _DeleteActivityCard extends StatelessWidget {
           IconButton(
             icon: Icon(
               Icons.restore_from_trash_rounded,
-              color: Colors.green[600],
+              color: colorScheme.secondary,
             ),
             tooltip: "Restaurar",
             onPressed: () async {
               await context.read<BinController>().restoreActivity(
-                activity.idActivity!,
-              );
+                    activity.idActivity!,
+                  );
 
               if (context.mounted) {
                 context.read<ActivityController>().loadCategories();
@@ -201,12 +233,17 @@ class _DeleteActivityCard extends StatelessWidget {
                 }
                 try {
                   context.read<RoutineProvider>().updateUpcomingActivity();
-                } catch (e) {
-                  debugPrint("RoutineProvider no encontrado: $e");
-                }
+                } catch (_) {}
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Actividad restaurada')),
+                  SnackBar(
+                    content: Text(
+                      'Actividad restaurada',
+                      style: TextStyle(color: colorScheme.onSurface),
+                    ),
+                    backgroundColor:
+                        colorScheme.surface.withValues(alpha: 0.95),
+                  ),
                 );
               }
             },

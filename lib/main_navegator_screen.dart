@@ -1,4 +1,3 @@
-//import 'package:bloomind/features/resourses/favorite_interfaz/meditation_favorite_interfaz.dart';
 import 'package:bloomind/features/resourses/presentation/resourses_screen_audios.dart';
 import 'package:bloomind/features/resourses/presentation/resourses_screen_frases.dart';
 import 'package:bloomind/features/resourses/presentation/resourses_screen_meditacion.dart';
@@ -7,12 +6,15 @@ import 'package:bloomind/features/routines/presentation/assign_routines_screen.d
 import 'package:bloomind/features/routines/presentation/day_routine_screen.dart';
 import 'package:bloomind/features/routines/presentation/routines_list_screen.dart';
 import 'package:bloomind/features/routines/presentation/ruotine_screen.dart';
+import 'package:bloomind/features/settings/controller/tema_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'features/emotions/presentation/screens/emotion_record_screen.dart';
 import 'features/emotions/presentation/screens/emotion_list_screen.dart';
 import 'package:bloomind/features/estadisticas/presentation/statistics_screen.dart';
 import 'features/resourses/presentation/resourses_screen.dart';
 import 'features/settings/presentation/settings_screen.dart';
+
 class MainNavigationScreen extends StatefulWidget {
   const MainNavigationScreen({super.key});
 
@@ -22,42 +24,12 @@ class MainNavigationScreen extends StatefulWidget {
 
 class MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
-  late List<Widget> _screens;
-  final GlobalKey<widget_meditacionState> meditacionKey = GlobalKey<widget_meditacionState>();
+  final GlobalKey<widget_meditacionState> meditacionKey =
+      GlobalKey<widget_meditacionState>();
   final GlobalKey<StatisticsScreenState> _statisticsKey =
-  GlobalKey<StatisticsScreenState>();
-  final GlobalKey<ResoursesScreenFrasesState> frasesKey = GlobalKey<ResoursesScreenFrasesState>();
-  @override
-  void initState() {
-    super.initState();
-    _screens = [
-      RegistroEmocionalScreen(alPresionarDiario: irAlDiario),
-
-      RoutineScreen(
-        alPresionarListaRutinas: irAlistaRutinas,
-        alPresionarAsignarRutinas: irAAsignarRutinas,
-        alPresionarVerRutinaDia: irAverRutinaDelDia,
-      ),
-
-      RecurseScreen(
-        alPresionarMeditacionRespiracion: irAverRecursosMeditaciones,
-        alPresionarResoursesScreenFrases: irAVerResoursesScreenFrases,
-        alPresionarResoursesScreenAudios: irAVerResoursesScreenAudios,
-        alPresionarResoursesScreenSorpresa: irAVerResoursesScreenSorpresa,
-      ),
-
-      StatisticsScreen(key: _statisticsKey),
-      const SettingsScreen(),
-      const EmotionListScreen(),
-      const RoutineListScreen(),
-      const AssignRoutineScreen(),
-      const DayRoutineScreen(),
-      widget_meditacion(key: meditacionKey), // 9
-      ResoursesScreenFrases(key: frasesKey), // 10
-      const widget_audios(), // 11
-      const ResoursesScreenSorpresa(), // 12
-    ];
-  }
+      GlobalKey<StatisticsScreenState>();
+  final GlobalKey<ResoursesScreenFrasesState> frasesKey =
+      GlobalKey<ResoursesScreenFrasesState>();
 
   void cambiarIndice(int index) {
     setState(() {
@@ -70,7 +42,7 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
       frasesKey.currentState?.refreshFrases();
     }
     if (index == 9) {
-      meditacionKey.currentState?.meditationRefresh(); 
+      meditacionKey.currentState?.meditationRefresh();
     }
   }
 
@@ -135,8 +107,38 @@ class MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final temaProvider = Provider.of<TemaProvider>(context);
+
+    final screens = [
+      RegistroEmocionalScreen(alPresionarDiario: irAlDiario),
+
+      RoutineScreen(
+        alPresionarListaRutinas: irAlistaRutinas,
+        alPresionarAsignarRutinas: irAAsignarRutinas,
+        alPresionarVerRutinaDia: irAverRutinaDelDia,
+      ),
+
+      RecurseScreen(
+        alPresionarMeditacionRespiracion: irAverRecursosMeditaciones,
+        alPresionarResoursesScreenFrases: irAVerResoursesScreenFrases,
+        alPresionarResoursesScreenAudios: irAVerResoursesScreenAudios,
+        alPresionarResoursesScreenSorpresa: irAVerResoursesScreenSorpresa,
+      ),
+
+      StatisticsScreen(key: _statisticsKey),
+      SettingsScreen(), //4
+      EmotionListScreen(),
+      RoutineListScreen(),
+      AssignRoutineScreen(),
+      DayRoutineScreen(),
+      widget_meditacion(key: meditacionKey), // 9
+      ResoursesScreenFrases(key: frasesKey), // 10
+      widget_audios(), // 11
+      ResoursesScreenSorpresa(), // 12
+    ];
+
     return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: _screens),
+      body: IndexedStack(index: _selectedIndex, children: screens),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
