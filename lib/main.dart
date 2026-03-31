@@ -61,8 +61,6 @@ void main() async {
         ),
 
         ChangeNotifierProvider(create: (_) => TemaProvider()),
-
-        // NUEVO: Agregamos el controlador de perfil aquí
         ChangeNotifierProvider(create: (_) => ProfileController()),
       ],
       child: BloomindApp(hasSeenOnboarding: hasSeenOnboarding),
@@ -88,12 +86,8 @@ class BloomindApp extends StatelessWidget {
                 : Brightness.light,
 
             colorScheme: temaProvider.modoOscuro
-                ? const ColorScheme.dark(
-                    surface: Color(0xFF1E293B),
-                  )
-                : const ColorScheme.light(
-                    surface: Colors.white,
-                  ),
+                ? const ColorScheme.dark(surface: Color(0xFF1E293B))
+                : const ColorScheme.light(surface: Colors.white),
 
             scaffoldBackgroundColor: temaProvider.modoOscuro
                 ? const Color(0xFF0F172A)
@@ -102,13 +96,11 @@ class BloomindApp extends StatelessWidget {
             useMaterial3: true,
           ),
 
-
           home: hasSeenOnboarding
-           ? const MainNavigationScreen()
-           : const OnboardingScreen(),
+              ? const MainNavigationScreen()
+              : const OnboardingScreen(),
         );
       },
     );
   }
-
 }
