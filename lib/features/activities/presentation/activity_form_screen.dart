@@ -107,7 +107,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   isExpanded: true,
                   hint: Text(
                     "Selecciona una categoría",
-                    style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.6)),
+                    style: TextStyle(
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
                   ),
                   items: controller.categoryItems.map((item) {
                     return DropdownMenuItem(
@@ -135,7 +137,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 ),
                 const SizedBox(width: 10),
                 if (selectedCategory != null)
-                  _buildSmallButton("Eliminar categoria", _showDeleteDialog, colorScheme),
+                  _buildSmallButton(
+                    "Eliminar categoria",
+                    _showDeleteDialog,
+                    colorScheme,
+                  ),
               ],
             ),
 
@@ -195,20 +201,20 @@ class _ActivityScreenState extends State<ActivityScreen> {
             const SizedBox(height: 8),
             TextField(
               controller: _activityNameController,
-              decoration: _inputDecoration("Ej: Escalar, pintar, escribir", colorScheme),
+              decoration: _inputDecoration(
+                "Ej: Escalar, pintar, escribir",
+                colorScheme,
+              ),
             ),
 
-                        const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             _buildLabel("Emoji", colorScheme),
             const SizedBox(height: 8),
             TextField(
               controller: _emojiController,
               decoration: _inputDecoration("", colorScheme),
-              style: TextStyle(
-                fontSize: 24,
-                color: colorScheme.onSurface,
-              ),
+              style: TextStyle(fontSize: 24, color: colorScheme.onSurface),
             ),
 
             const SizedBox(height: 24),
@@ -360,43 +366,62 @@ class _ActivityScreenState extends State<ActivityScreen> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(20),
-        borderSide: BorderSide.none,
+        borderSide: BorderSide(color: colorScheme.outline),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(20),
+        borderSide: BorderSide(color: colorScheme.outline),
       ),
     );
   }
 
   BoxDecoration _containerDecoration(ColorScheme colorScheme) => BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-      );
+    color: colorScheme.surface,
+    borderRadius: BorderRadius.circular(20),
+    border: Border.all(color: colorScheme.outline),
+  );
 
-  Widget _buildSmallButton(String text, VoidCallback onPressed, ColorScheme colorScheme) {
+  Widget _buildSmallButton(
+    String text,
+    VoidCallback onPressed,
+    ColorScheme colorScheme,
+  ) {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
         backgroundColor: colorScheme.surfaceVariant.withValues(alpha: 0.7),
+        side: BorderSide(color: colorScheme.outline),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         padding: const EdgeInsets.symmetric(horizontal: 16),
       ),
       child: Text(
         text,
-        style: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.8), fontSize: 14),
+        style: TextStyle(
+          color: colorScheme.onSurface.withValues(alpha: 0.8),
+          fontSize: 14,
+        ),
       ),
     );
   }
 
   Future<void> _cargarSugerencias(String categoria) async {
-    final nuevas = await context.read<ActivityController>().obtener_recomendaciones(categoria);
+    final nuevas = await context
+        .read<ActivityController>()
+        .obtener_recomendaciones(categoria);
     setState(() => lista_sugerencias = nuevas);
   }
 
-  Widget _buildCategoryForm(ActivityController controller, ColorScheme colorScheme) {
+  Widget _buildCategoryForm(
+    ActivityController controller,
+    ColorScheme colorScheme,
+  ) {
     return Container(
       margin: const EdgeInsets.only(top: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colorScheme.outline),
       ),
       child: Row(
         children: [
@@ -406,7 +431,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
               decoration: InputDecoration(
                 hintText: "Nueva categoría",
                 border: InputBorder.none,
-                hintStyle: TextStyle(color: colorScheme.onSurface.withValues(alpha: 0.5)),
+                hintStyle: TextStyle(
+                  color: colorScheme.onSurface.withValues(alpha: 0.5),
+                ),
               ),
             ),
           ),
@@ -434,19 +461,35 @@ class _ActivityScreenState extends State<ActivityScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Eliminar categoría", style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
+        title: Text(
+          "Eliminar categoría",
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
+        ),
         content: Text(
           "¿Estás seguro de eliminar '$selectedCategory'?",
-          style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8)),
+          style: TextStyle(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.8),
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text("Cancelar", style: TextStyle(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7))),
+            child: Text(
+              "Cancelar",
+              style: TextStyle(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
           ),
           TextButton(
             onPressed: () async {
-              await context.read<ActivityController>().removeCategory(selectedCategory!);
+              await context.read<ActivityController>().removeCategory(
+                selectedCategory!,
+              );
               setState(() => selectedCategory = null);
               if (mounted) Navigator.pop(context);
             },

@@ -23,62 +23,61 @@ class AppTheme {
         onPrimary: Colors.white,
         surface: lightSurface,
         onSurface: lightTextPrimary,
-        // Definimos un color de outline muy suave para que no parezca negro
-        outline: Colors.black.withOpacity(0.08),
+        outline: lightTextPrimary.withOpacity(0.15),
         shadow: Colors.black.withOpacity(0.04),
       ),
       scaffoldBackgroundColor: lightBackground,
 
-      // --- ELIMINAR BORDES DE TARJETAS ---
       cardTheme: CardThemeData(
         color: lightSurface,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
-          side: BorderSide.none, // <--- CRÍTICO: Sin borde
+          side: BorderSide.none,
         ),
       ),
 
-      // --- ELIMINAR BORDES DE BOTONES ELEVADOS ---
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 0,
           backgroundColor: lightPrimary,
           foregroundColor: Colors.white,
-          side: BorderSide.none, // <--- CRÍTICO: Sin borde
+          side: BorderSide.none,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
         ),
       ),
 
-      // --- SUAVIZAR BORDES DE BOTONES OUTLINED (Los que tienen contorno) ---
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          side: BorderSide(
-            color: Colors.black.withOpacity(0.1),
-            width: 1,
-          ), // Borde casi invisible
+          side: BorderSide(color: lightTextPrimary.withOpacity(0.15), width: 1),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
           foregroundColor: lightTextPrimary,
         ),
       ),
-
-      // --- SUAVIZAR INPUTS (TextFields) ---
+      dropdownMenuTheme: DropdownMenuThemeData(
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: lightTextPrimary.withOpacity(0.15)),
+          ),
+        ),
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none, // <--- Sin borde negro al rededor
+          borderSide: BorderSide.none,
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: Colors.black.withOpacity(0.05),
-          ), // Borde muy tenue
+          borderSide: BorderSide(color: lightTextPrimary.withOpacity(0.15)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -95,8 +94,7 @@ class AppTheme {
       colorScheme: ColorScheme.dark(
         primary: darkPrimary,
         surface: darkSurface,
-        background: darkBackground,
-        outline: Colors.white10,
+        outline: Colors.white.withOpacity(0.1),
       ),
       scaffoldBackgroundColor: darkBackground,
 
@@ -109,12 +107,39 @@ class AppTheme {
         ),
       ),
 
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: Colors.white.withOpacity(0.1), width: 1),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          foregroundColor: Colors.white,
+        ),
+      ),
+      dropdownMenuTheme: DropdownMenuThemeData(
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFF2D3748),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+          ),
+        ),
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: const Color(0xFF2D3748),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: darkPrimary, width: 1.5),
         ),
       ),
 

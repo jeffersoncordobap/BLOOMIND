@@ -1,4 +1,3 @@
-//import 'package:bloomind/features/resourses/favorite_interfaz/meditation_favorite_interfaz.dart';
 import 'package:bloomind/features/resourses/presentation/resourses_screen_audios.dart';
 import 'package:bloomind/features/resourses/presentation/resourses_screen_frases.dart';
 import 'package:bloomind/features/resourses/presentation/resourses_screen_meditacion.dart';
@@ -25,7 +24,6 @@ class MainNavigationScreen extends StatefulWidget {
 
 class MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
-  //late List<Widget> _screens;
   final GlobalKey<widget_meditacionState> meditacionKey =
       GlobalKey<widget_meditacionState>();
   final GlobalKey<StatisticsScreenState> _statisticsKey =

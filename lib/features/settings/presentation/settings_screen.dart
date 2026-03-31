@@ -15,7 +15,6 @@ class SettingsScreen extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      // Usamos el color de fondo del tema que configuramos (gris-azulado suave)
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Column(
@@ -168,8 +167,7 @@ class SettingsScreen extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(22),
       decoration: BoxDecoration(
-        color:
-            colorScheme.surface, // Cambiado a surface (Blanco) para contrastar
+        color: colorScheme.surface,
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(
@@ -247,7 +245,7 @@ class SettingsScreen extends StatelessWidget {
         ],
       ),
       child: Material(
-        color: Colors.transparent, // Para que se vea la sombra del container
+        color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(24),
           onTap: onTap,
